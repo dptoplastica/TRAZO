@@ -303,10 +303,178 @@ const DT: Curriculum = {
   ],
 };
 
+/* ---------------- Dibujo Técnico I (1º Bachillerato) ---------------- */
+
+const DT1: Curriculum = {
+  id: "dt1-bach",
+  materia: "Dibujo Técnico I",
+  etapa: "Bachillerato",
+  niveles: "1º Bachillerato",
+  bloques: [
+    {
+      id: "dt1-A", nombre: "A · Geometría plana y proporcionalidad",
+      saberes: [
+        { id: "dt1.A1", codigo: "A1", texto: "Construcciones geométricas fundamentales: ángulos, paralelismo, perpendicularidad y triángulos." },
+        { id: "dt1.A2", codigo: "A2", texto: "Proporcionalidad áurea, proporción y escalas. Polígonos regulares y rosetas." },
+        { id: "dt1.A3", codigo: "A3", texto: "Tangencias entre rectas y circunferencias: enlaces y tangencias comunes." },
+        { id: "dt1.A4", codigo: "A4", texto: "Curvas técnicas: óvalos, ovoides, espirales y volutas." },
+      ],
+    },
+    {
+      id: "dt1-B", nombre: "B · Sistemas de representación",
+      saberes: [
+        { id: "dt1.B1", codigo: "B1", texto: "Sistema diédrico: punto, recta y plano; posiciones y pertenencia." },
+        { id: "dt1.B2", codigo: "B2", texto: "Intersecciones, paralelismo y perpendicularidad en el diedro." },
+        { id: "dt1.B3", codigo: "B3", texto: "Cambios de plano, giros y abatimientos: verdaderas magnitudes." },
+        { id: "dt1.B4", codigo: "B4", texto: "Axonometría ortogonal: isométrica y dimétrica con y sin coeficientes de reducción." },
+      ],
+    },
+    {
+      id: "dt1-C", nombre: "C · Normalización y croquización",
+      saberes: [
+        { id: "dt1.C1", codigo: "C1", texto: "Tipos de línea, formatos, escalas y rotulación normalizada." },
+        { id: "dt1.C2", codigo: "C2", texto: "Vistas, cortes, secciones y detalles: criterios de representación." },
+        { id: "dt1.C3", codigo: "C3", texto: "Acotación de piezas y croquis acotados a mano alzada." },
+      ],
+    },
+    {
+      id: "dt1-D", nombre: "D · Introducción al diseño digital",
+      saberes: [
+        { id: "dt1.D1", codigo: "D1", texto: "CAD 2D: croquizado, restricciones geométricas y dimensionales, exportación." },
+      ],
+    },
+  ],
+  ces: [
+    {
+      id: "dt1.ce1", codigo: "CE1", descriptorIds: ["STEM1", "STEM2", "CPSAA4"],
+      texto: "Resolver problemas geométricos planos aplicando construcciones fundamentales con precisión, limpieza y justificación del procedimiento.",
+      criterios: [
+        { id: "dt1.1.1", ceId: "dt1.ce1", codigo: "1.1", saberIds: ["dt1.A1", "dt1.A2"], texto: "Resolver problemas de proporcionalidad, escalas y polígonos regulares aplicando las construcciones geométricas adecuadas." },
+        { id: "dt1.1.2", ceId: "dt1.ce1", codigo: "1.2", saberIds: ["dt1.A3", "dt1.A4"], texto: "Resolver problemas de tangencias y curvas técnicas justificando las construcciones realizadas." },
+      ],
+    },
+    {
+      id: "dt1.ce2", codigo: "CE2", descriptorIds: ["STEM2", "STEM4", "CPSAA3"],
+      texto: "Representar objetos en los sistemas diédrico y axonométrico, aplicando los procedimientos de verdadera magnitud y seleccionando el sistema más adecuado.",
+      criterios: [
+        { id: "dt1.2.1", ceId: "dt1.ce2", codigo: "2.1", saberIds: ["dt1.B1", "dt1.B2"], texto: "Representar piezas sencillas en sistema diédrico, resolviendo pertenencias, paralelismos y perpendicularidades." },
+        { id: "dt1.2.2", ceId: "dt1.ce2", codigo: "2.2", saberIds: ["dt1.B3"], texto: "Obtener verdaderas magnitudes mediante abatimientos y cambios de plano, aplicándolos a piezas prácticas." },
+        { id: "dt1.2.3", ceId: "dt1.ce2", codigo: "2.3", saberIds: ["dt1.B4"], texto: "Elaborar perspectivas isométricas y dimétricas con y sin coeficientes de reducción." },
+      ],
+    },
+    {
+      id: "dt1.ce3", codigo: "CE3", descriptorIds: ["STEM4", "CPSAA3", "CE3"],
+      texto: "Aplicar la normalización del dibujo técnico en croquis y planos, empleando convenciones gráficas y escalas con rigor.",
+      criterios: [
+        { id: "dt1.3.1", ceId: "dt1.ce3", codigo: "3.1", saberIds: ["dt1.C1", "dt1.C2"], texto: "Dibujar vistas, cortes y detalles normalizados aplicando normas de línea, rotulación y escalas." },
+        { id: "dt1.3.2", ceId: "dt1.ce3", codigo: "3.2", saberIds: ["dt1.C2", "dt1.C3"], texto: "Acotar y croquizar piezas con corrección, respetando las normas de presentación." },
+      ],
+    },
+    {
+      id: "dt1.ce4", codigo: "CE4", descriptorIds: ["CD2", "CD3", "STEM5"],
+      texto: "Utilizar herramientas digitales de diseño 2D para el croquizado y la documentación gráfica de proyectos técnicos.",
+      criterios: [
+        { id: "dt1.4.1", ceId: "dt1.ce4", codigo: "4.1", saberIds: ["dt1.D1"], texto: "Realizar croquizados y planos 2D con herramientas CAD, aplicando restricciones geométricas y dimensionales." },
+        { id: "dt1.4.2", ceId: "dt1.ce4", codigo: "4.2", saberIds: ["dt1.D1", "dt1.C3"], texto: "Comunicar proyectos técnicos integrando croquis analógicos y documentación digital." },
+      ],
+    },
+  ],
+};
+
+/* ---------------- Taller de Podcast (optativa de centro · 1º Bachillerato) ---------------- */
+
+const TP: Curriculum = {
+  id: "tp-bach",
+  materia: "Taller de Podcast",
+  etapa: "Bachillerato",
+  niveles: "1º Bachillerato",
+  bloques: [
+    {
+      id: "tp-A", nombre: "A · Cultura sonora y lenguaje radiofónico",
+      saberes: [
+        { id: "tp.A1", codigo: "A1", texto: "Historia y evolución del medio sonoro: de la radio analógica al podcasting." },
+        { id: "tp.A2", codigo: "A2", texto: "Géneros y formatos sonoros: informativo, divulgativo, narrativo, entrevista, debate, ficción." },
+        { id: "tp.A3", codigo: "A3", texto: "Escucha crítica: análisis de referentes del podcasting en español." },
+      ],
+    },
+    {
+      id: "tp-B", nombre: "B · Guion y narrativa sonora",
+      saberes: [
+        { id: "tp.B1", codigo: "B1", texto: "Estructura del guion radiofónico: escaleta, guion técnico y guion literario." },
+        { id: "tp.B2", codigo: "B2", texto: "Técnicas narrativas: ritmo, tensión, cliffhanger y storytelling." },
+        { id: "tp.B3", codigo: "B3", texto: "La voz como herramienta expresiva: dicción, entonación, intención." },
+        { id: "tp.B4", codigo: "B4", texto: "Diseño sonoro: música, ambientes, efectos y silencios." },
+      ],
+    },
+    {
+      id: "tp-C", nombre: "C · Producción y edición digital",
+      saberes: [
+        { id: "tp.C1", codigo: "C1", texto: "Captación de audio: micrófonos, técnicas de grabación y tratamiento del espacio." },
+        { id: "tp.C2", codigo: "C2", texto: "Edición no lineal con DAW: corte, mezcla, ecualización, compresión y normalización." },
+        { id: "tp.C3", codigo: "C3", texto: "Postproducción: masterización, exportación y formatos de distribución." },
+        { id: "tp.C4", codigo: "C4", texto: "Identidad sonora y gráfica del podcast: cabecera, sintonía y portada." },
+      ],
+    },
+    {
+      id: "tp-D", nombre: "D · Difusión, ética y proyecto",
+      saberes: [
+        { id: "tp.D1", codigo: "D1", texto: "Publicación y distribución: plataformas, RSS, metadatos y SEO sonoro." },
+        { id: "tp.D2", codigo: "D2", texto: "Ética del medio: derechos de autor, privacidad, verificación y responsabilidad." },
+        { id: "tp.D3", codigo: "D3", texto: "Proyecto de podcast: planificación, roles, cronograma y evaluación." },
+      ],
+    },
+  ],
+  ces: [
+    {
+      id: "tp.ce1", codigo: "CE1", descriptorIds: ["CCL2", "CCL3", "CCEC1"],
+      texto: "Analizar críticamente productos sonoros y podcast de referencia, identificando recursos narrativos, técnicos y éticos.",
+      criterios: [
+        { id: "tp.1.1", ceId: "tp.ce1", codigo: "1.1", saberIds: ["tp.A1", "tp.A2", "tp.A3"], texto: "Analizar podcasts de referencia identificando género, estructura narrativa, recursos sonoros y tratamiento de la información." },
+        { id: "tp.1.2", ceId: "tp.ce1", codigo: "1.2", saberIds: ["tp.A3", "tp.D2"], texto: "Valorar críticamente la calidad informativa, la ética y la responsabilidad social de los productos sonoros analizados." },
+      ],
+    },
+    {
+      id: "tp.ce2", codigo: "CE2", descriptorIds: ["CCL4", "CPSAA1", "CCEC3"],
+      texto: "Diseñar guiones y estructuras narrativas sonoras coherentes, aplicando técnicas de storytelling y adecuando el discurso al formato.",
+      criterios: [
+        { id: "tp.2.1", ceId: "tp.ce2", codigo: "2.1", saberIds: ["tp.B1", "tp.B2"], texto: "Elaborar escaletas y guiones técnicos y literarios adaptados al género y formato elegidos." },
+        { id: "tp.2.2", ceId: "tp.ce2", codigo: "2.2", saberIds: ["tp.B3", "tp.B4"], texto: "Diseñar el paisaje sonoro del proyecto: voz, música, ambientes y silencios con intención narrativa." },
+      ],
+    },
+    {
+      id: "tp.ce3", codigo: "CE3", descriptorIds: ["CD2", "CD3", "STEM4"],
+      texto: "Producir contenidos sonoros de calidad técnica mediante herramientas digitales de grabación y edición.",
+      criterios: [
+        { id: "tp.3.1", ceId: "tp.ce3", codigo: "3.1", saberIds: ["tp.C1"], texto: "Grabar voces, ambientes y entrevistas aplicando técnicas de captación adecuadas al espacio y al formato." },
+        { id: "tp.3.2", ceId: "tp.ce3", codigo: "3.2", saberIds: ["tp.C2", "tp.C3"], texto: "Editar, mezclar y masterizar el producto final con un DAW, exportándolo en formatos de distribución." },
+        { id: "tp.3.3", ceId: "tp.ce3", codigo: "3.3", saberIds: ["tp.C4"], texto: "Diseñar la identidad sonora y gráfica del podcast: cabecera, sintonía y portada coherentes." },
+      ],
+    },
+    {
+      id: "tp.ce4", codigo: "CE4", descriptorIds: ["CC4", "CE3", "CPSAA3"],
+      texto: "Planificar y ejecutar proyectos de podcast en equipo, asumiendo roles y distribuyendo tareas con responsabilidad.",
+      criterios: [
+        { id: "tp.4.1", ceId: "tp.ce4", codigo: "4.1", saberIds: ["tp.D3"], texto: "Planificar un proyecto de podcast definiendo roles, cronograma, recursos y entregables." },
+        { id: "tp.4.2", ceId: "tp.ce4", codigo: "4.2", saberIds: ["tp.D1", "tp.D3"], texto: "Publicar y difundir el podcast en plataformas digitales, cuidando la comunicación con la audiencia." },
+      ],
+    },
+    {
+      id: "tp.ce5", codigo: "CE5", descriptorIds: ["CC3", "CCEC2", "CPSAA5"],
+      texto: "Reflexionar sobre el impacto social del podcasting y asumir una práctica responsable, inclusiva y ética del medio sonoro.",
+      criterios: [
+        { id: "tp.5.1", ceId: "tp.ce5", codigo: "5.1", saberIds: ["tp.D2"], texto: "Aplicar criterios éticos en la producción: derechos de autor, verificación, privacidad y tratamiento de la diversidad." },
+        { id: "tp.5.2", ceId: "tp.ce5", codigo: "5.2", saberIds: ["tp.D1", "tp.D2"], texto: "Evaluar el impacto social del proyecto sonoro y proponer mejoras con actitud crítica y constructiva." },
+      ],
+    },
+  ],
+};
+
 export const CURRICULA: Record<string, Curriculum> = {
   "epva-eso": EPVA,
   "ea-bach": EA,
   "dt-bach": DT,
+  "dt1-bach": DT1,
+  "tp-bach": TP,
 };
 
 /* ---------------- utilidades de consulta ---------------- */
