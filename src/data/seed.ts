@@ -613,7 +613,7 @@ export function buildSeed(): AppData {
   ];
 
   return {
-    version: 5,
+    version: 6,
     role: "profesor",
     teacherId: "t1",
     cursoLabel: c.label,
