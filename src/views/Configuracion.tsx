@@ -33,6 +33,7 @@ export default function Configuracion() {
   const [alumno, setAlumno] = useState<Partial<Student>>({ base: 6.5, absRate: 0.05, hue: Math.floor(Math.random() * 360) });
   const [editAlumno, setEditAlumno] = useState<Student | null>(null);
   const [editGroup, setEditGroup] = useState<Group | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   /* ---------- vista profesorado (sin admin) ---------- */
   if (!isAdmin) {
@@ -46,7 +47,7 @@ export default function Configuracion() {
             <p className="mono text-[11.5px] uppercase tracking-widest text-ink3">{subjects.length} materias · {new Set(subjects.map((s) => s.grupoId)).size} grupos</p>
             <p className="mt-3 text-[12.5px] leading-relaxed text-ink2">La gestión de materias, optativas, profesorado y grupos corresponde a la jefatura de departamento. Cambia de sesión desde la barra lateral para acceder al modo administración.</p>
           </div></Reveal>
-          <Reveal delay={70}><DatosPanel reset={reset} notify={notify} d={d} /></Reveal>
+          <Reveal delay={70}><DatosPanel reset={reset} notify={notify} d={d} setConfirmDialog={setConfirmDialog} /></Reveal>
         </div>
       </div>
     );
@@ -74,16 +75,21 @@ export default function Configuracion() {
     const msg = prog
       ? `¿Eliminar "${mat?.nombre}"? También se eliminará su programación y todos los datos asociados (situaciones, instrumentos, calificaciones).`
       : `¿Eliminar la materia "${mat?.nombre}"?`;
-    if (!window.confirm(msg)) return;
-    set((s) => ({
-      ...s,
-      subjects: s.subjects.filter((x) => x.id !== id),
-      programaciones: s.programaciones.filter((p) => p.subjectId !== id),
-      sas: s.sas.filter((sa) => !s.programaciones.find((p) => p.id === sa.programacionId && p.subjectId === id)),
-      instruments: s.instruments.filter((i) => i.subjectId !== id),
-      grades: s.grades.filter((g) => !s.instruments.find((i) => i.id === g.instrumentoId && i.subjectId === id)),
-    }));
-    notify("Materia eliminada");
+    setConfirmDialog({
+      message: msg,
+      onConfirm: () => {
+        set((s) => ({
+          ...s,
+          subjects: s.subjects.filter((x) => x.id !== id),
+          programaciones: s.programaciones.filter((p) => p.subjectId !== id),
+          sas: s.sas.filter((sa) => !s.programaciones.find((p) => p.id === sa.programacionId && p.subjectId === id)),
+          instruments: s.instruments.filter((i) => i.subjectId !== id),
+          grades: s.grades.filter((g) => !s.instruments.find((i) => i.id === g.instrumentoId && i.subjectId === id)),
+        }));
+        notify("Materia eliminada");
+        setConfirmDialog(null);
+      },
+    });
   };
 
   const crearGrupo = () => {
@@ -129,14 +135,19 @@ export default function Configuracion() {
     const msg = materias.length
       ? `¿Eliminar a ${t.nombre}? Sus ${materias.length} materia(s) quedarán sin profesorado asignado.`
       : `¿Eliminar a ${t.nombre} del departamento?`;
-    if (!window.confirm(msg)) return;
-    set((s) => ({
-      ...s,
-      teachers: s.teachers.filter((x) => x.id !== id),
-      subjects: s.subjects.map((sub) => (sub.teacherId === id ? { ...sub, teacherId: undefined } : sub)),
-      groups: s.groups.map((gr) => (gr.tutorId === id ? { ...gr, tutorId: s.teachers.find((x) => x.id !== id)?.id ?? s.teachers[0].id } : gr)),
-    }));
-    notify("Profesor/a eliminado/a del departamento");
+    setConfirmDialog({
+      message: msg,
+      onConfirm: () => {
+        set((s) => ({
+          ...s,
+          teachers: s.teachers.filter((x) => x.id !== id),
+          subjects: s.subjects.map((sub) => (sub.teacherId === id ? { ...sub, teacherId: undefined } : sub)),
+          groups: s.groups.map((gr) => (gr.tutorId === id ? { ...gr, tutorId: s.teachers.find((x) => x.id !== id)?.id ?? s.teachers[0].id } : gr)),
+        }));
+        notify("Profesor/a eliminado/a del departamento");
+        setConfirmDialog(null);
+      },
+    });
   };
 
   const asignarMateriaAProfesor = (materiaId: string, profesorId: string | undefined) => {
@@ -188,17 +199,22 @@ export default function Configuracion() {
   const eliminarAlumno = (id: string) => {
     const st = d.students.find((x) => x.id === id);
     if (!st) return;
-    if (!window.confirm(`¿Eliminar a ${st.nombre}? Se eliminarán también sus calificaciones, asistencia y observaciones.`)) return;
-    set((s) => ({
-      ...s,
-      students: s.students.filter((x) => x.id !== id),
-      grades: s.grades.filter((g) => g.studentId !== id),
-      attendance: s.attendance.filter((a) => a.studentId !== id),
-      observations: s.observations.filter((o) => o.studentId !== id),
-      measures: s.measures.filter((m) => m.studentId !== id),
-      recoveries: s.recoveries.filter((r) => r.studentId !== id),
-    }));
-    notify("Alumno/a eliminado/a");
+    setConfirmDialog({
+      message: `¿Eliminar a ${st.nombre}? Se eliminarán también sus calificaciones, asistencia y observaciones.`,
+      onConfirm: () => {
+        set((s) => ({
+          ...s,
+          students: s.students.filter((x) => x.id !== id),
+          grades: s.grades.filter((g) => g.studentId !== id),
+          attendance: s.attendance.filter((a) => a.studentId !== id),
+          observations: s.observations.filter((o) => o.studentId !== id),
+          measures: s.measures.filter((m) => m.studentId !== id),
+          recoveries: s.recoveries.filter((r) => r.studentId !== id),
+        }));
+        notify("Alumno/a eliminado/a");
+        setConfirmDialog(null);
+      },
+    });
   };
 
   /* ---------- resumen estadístico ---------- */
@@ -407,7 +423,7 @@ export default function Configuracion() {
         </Reveal>
 
         <Reveal delay={120}>
-          <DatosPanel reset={reset} notify={notify} d={d} />
+          <DatosPanel reset={reset} notify={notify} d={d} setConfirmDialog={setConfirmDialog} />
           {/* carga lectiva */}
           <div className="card mt-4 p-4">
             <p className="lbl">Carga lectiva por profesor</p>
@@ -788,11 +804,24 @@ export default function Configuracion() {
           <button className={btn} disabled={!editAlumno?.nombre.trim()} onClick={guardarAlumno}><Ic n="check" s={15} /> Guardar cambios</button>
         </div>
       </Modal>
+
+      {/* Modal de confirmación */}
+      <Modal open={!!confirmDialog} onClose={() => setConfirmDialog(null)} title="Confirmar acción">
+        <div className="py-4">
+          <p className="text-[14px] leading-relaxed text-ink">{confirmDialog?.message}</p>
+        </div>
+        <div className="mt-4 flex justify-end gap-2">
+          <button className={btnGhost} onClick={() => setConfirmDialog(null)}>Cancelar</button>
+          <button className={btnDanger} onClick={confirmDialog?.onConfirm}>
+            <Ic n="trash" s={14} /> Confirmar eliminación
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
 
-function DatosPanel({ reset, notify, d }: { reset: () => void; notify: (m: string) => void; d: ReturnType<typeof useApp>["d"] }) {
+function DatosPanel({ reset, notify, d, setConfirmDialog }: { reset: () => void; notify: (m: string) => void; d: ReturnType<typeof useApp>["d"]; setConfirmDialog: (dialog: { message: string; onConfirm: () => void } | null) => void }) {
   const exportar = () => {
     const blob = new Blob([JSON.stringify(d, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -808,7 +837,16 @@ function DatosPanel({ reset, notify, d }: { reset: () => void; notify: (m: strin
       <p className="mb-3 text-[12.5px] leading-relaxed text-ink2">Todo se guarda localmente en el navegador. Puedes exportar una copia JSON o restaurar el dataset de demostración con el curso recalculado a la fecha actual.</p>
       <div className="flex flex-wrap gap-2">
         <button className={btnGhost} onClick={exportar}><Ic n="download" s={15} /> Exportar JSON</button>
-        <button className={btnDanger} onClick={() => { if (window.confirm("¿Restaurar los datos de demostración? Se perderán los cambios locales.")) { reset(); notify("Datos de demostración restaurados"); } }}>
+        <button className={btnDanger} onClick={() => {
+          setConfirmDialog({
+            message: "¿Restaurar los datos de demostración? Se perderán los cambios locales.",
+            onConfirm: () => {
+              reset();
+              notify("Datos de demostración restaurados");
+              setConfirmDialog(null);
+            },
+          });
+        }}>
           <Ic n="refresh" s={14} /> Restaurar demo
         </button>
       </div>

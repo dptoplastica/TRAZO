@@ -31,7 +31,7 @@ function load(): AppData {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as AppData;
-      if (parsed && parsed.version === 8) return parsed;
+      if (parsed && parsed.version === 9) return parsed;
     }
   } catch { /* ignore */ }
   return buildSeed();
