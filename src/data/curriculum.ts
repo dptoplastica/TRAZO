@@ -303,7 +303,7 @@ const DT: Curriculum = {
   ],
 };
 
-/* ---------------- Dibujo Técnico I (1º Bachillerato) ---------------- */
+/* ---------------- Dibujo Técnico I (1º Bachillerato) - LOMLOE oficial ---------------- */
 
 const DT1: Curriculum = {
   id: "dt1-bach",
@@ -312,70 +312,89 @@ const DT1: Curriculum = {
   niveles: "1º Bachillerato",
   bloques: [
     {
-      id: "dt1-A", nombre: "A · Geometría plana y proporcionalidad",
+      id: "dt1-A", nombre: "A · Fundamentos geométricos",
       saberes: [
-        { id: "dt1.A1", codigo: "A1", texto: "Construcciones geométricas fundamentales: ángulos, paralelismo, perpendicularidad y triángulos." },
-        { id: "dt1.A2", codigo: "A2", texto: "Proporcionalidad áurea, proporción y escalas. Polígonos regulares y rosetas." },
-        { id: "dt1.A3", codigo: "A3", texto: "Tangencias entre rectas y circunferencias: enlaces y tangencias comunes." },
-        { id: "dt1.A4", codigo: "A4", texto: "Curvas técnicas: óvalos, ovoides, espirales y volutas." },
+        { id: "dt1.A1", codigo: "A1", texto: "Desarrollo histórico del dibujo técnico. Campos de acción y aplicaciones: dibujo arquitectónico, mecánico, eléctrico y electrónico, geológico, urbanístico, etc." },
+        { id: "dt1.A2", codigo: "A2", texto: "Orígenes de la geometría. Thales, Pitágoras, Euclides, Hipatia de Alejandría." },
+        { id: "dt1.A3", codigo: "A3", texto: "Concepto de lugar geométrico. Arco capaz. Aplicaciones de los lugares geométricos a las construcciones fundamentales." },
+        { id: "dt1.A4", codigo: "A4", texto: "Proporcionalidad, equivalencia y semejanza." },
+        { id: "dt1.A5", codigo: "A5", texto: "Triángulos, cuadriláteros y polígonos regulares. Propiedades y métodos de construcción." },
+        { id: "dt1.A6", codigo: "A6", texto: "Tangencias básicas. Curvas técnicas." },
+        { id: "dt1.A7", codigo: "A7", texto: "Interés por el rigor en los razonamientos y precisión, claridad y limpieza en las ejecuciones." },
       ],
     },
     {
-      id: "dt1-B", nombre: "B · Sistemas de representación",
+      id: "dt1-B", nombre: "B · Geometría proyectiva",
       saberes: [
-        { id: "dt1.B1", codigo: "B1", texto: "Sistema diédrico: punto, recta y plano; posiciones y pertenencia." },
-        { id: "dt1.B2", codigo: "B2", texto: "Intersecciones, paralelismo y perpendicularidad en el diedro." },
-        { id: "dt1.B3", codigo: "B3", texto: "Cambios de plano, giros y abatimientos: verdaderas magnitudes." },
-        { id: "dt1.B4", codigo: "B4", texto: "Axonometría ortogonal: isométrica y dimétrica con y sin coeficientes de reducción." },
+        { id: "dt1.B1", codigo: "B1", texto: "Fundamentos de la geometría proyectiva." },
+        { id: "dt1.B2", codigo: "B2", texto: "Sistema diédrico: Representación de punto, recta y plano. Trazas con planos de proyección. Determinación del plano. Pertenencia." },
+        { id: "dt1.B3", codigo: "B3", texto: "Relaciones entre elementos: Intersecciones, paralelismo y perpendicularidad. Obtención de distancias." },
+        { id: "dt1.B4", codigo: "B4", texto: "Sistema axonométrico, ortogonal y oblicuo. Perspectivas isométrica y caballera. Disposición de los ejes y uso de los coeficientes de reducción. Elementos básicos: punto, recta, plano." },
+        { id: "dt1.B5", codigo: "B5", texto: "Sistema de planos acotados. Fundamentos y elementos básicos. Identificación de elementos para su interpretación en planos." },
+        { id: "dt1.B6", codigo: "B6", texto: "Sistema cónico: fundamentos y elementos del sistema. Perspectiva frontal y oblicua." },
       ],
     },
     {
-      id: "dt1-C", nombre: "C · Normalización y croquización",
+      id: "dt1-C", nombre: "C · Normalización y documentación gráfica de proyectos",
       saberes: [
-        { id: "dt1.C1", codigo: "C1", texto: "Tipos de línea, formatos, escalas y rotulación normalizada." },
-        { id: "dt1.C2", codigo: "C2", texto: "Vistas, cortes, secciones y detalles: criterios de representación." },
-        { id: "dt1.C3", codigo: "C3", texto: "Acotación de piezas y croquis acotados a mano alzada." },
+        { id: "dt1.C1", codigo: "C1", texto: "Escalas numéricas y gráficas. Construcción y uso." },
+        { id: "dt1.C2", codigo: "C2", texto: "Formatos. Doblado de planos." },
+        { id: "dt1.C3", codigo: "C3", texto: "Concepto de normalización. Las normas fundamentales UNE e ISO. Aplicaciones de la normalización: simbología industrial y arquitectónica." },
+        { id: "dt1.C4", codigo: "C4", texto: "Elección de vistas necesarias. Líneas normalizadas. Acotación." },
       ],
     },
     {
-      id: "dt1-D", nombre: "D · Introducción al diseño digital",
+      id: "dt1-D", nombre: "D · Sistemas CAD",
       saberes: [
-        { id: "dt1.D1", codigo: "D1", texto: "CAD 2D: croquizado, restricciones geométricas y dimensionales, exportación." },
+        { id: "dt1.D1", codigo: "D1", texto: "Aplicaciones vectoriales 2D-3D." },
+        { id: "dt1.D2", codigo: "D2", texto: "Fundamentos de diseño de piezas en tres dimensiones." },
+        { id: "dt1.D3", codigo: "D3", texto: "Modelado de caja. Operaciones básicas con primitivas." },
+        { id: "dt1.D4", codigo: "D4", texto: "Aplicaciones de trabajo en grupo para conformar piezas complejas a partir de otras más sencillas." },
       ],
     },
   ],
   ces: [
     {
-      id: "dt1.ce1", codigo: "CE1", descriptorIds: ["STEM1", "STEM2", "CPSAA4"],
-      texto: "Resolver problemas geométricos planos aplicando construcciones fundamentales con precisión, limpieza y justificación del procedimiento.",
+      id: "dt1.ce1", codigo: "CE1", descriptorIds: ["STEM1", "STEM2", "CCL3", "CCEC1"],
+      texto: "Interpretar elementos o conjuntos arquitectónicos y de ingeniería, empleando recursos asociados a la percepción, estudio, construcción e investigación de formas para analizar las estructuras geométricas y los elementos técnicos utilizados.",
       criterios: [
-        { id: "dt1.1.1", ceId: "dt1.ce1", codigo: "1.1", saberIds: ["dt1.A1", "dt1.A2"], texto: "Resolver problemas de proporcionalidad, escalas y polígonos regulares aplicando las construcciones geométricas adecuadas." },
-        { id: "dt1.1.2", ceId: "dt1.ce1", codigo: "1.2", saberIds: ["dt1.A3", "dt1.A4"], texto: "Resolver problemas de tangencias y curvas técnicas justificando las construcciones realizadas." },
+        { id: "dt1.1.1", ceId: "dt1.ce1", codigo: "1.1", saberIds: ["dt1.A1", "dt1.A2", "dt1.A3"], texto: "Analizar, a lo largo de la historia, la relación entre las matemáticas y el dibujo geométrico valorando su importancia en diferentes campos como la arquitectura o la ingeniería, desde la perspectiva de género y la diversidad cultural, empleando adecuadamente el vocabulario específico técnico y artístico." },
       ],
     },
     {
-      id: "dt1.ce2", codigo: "CE2", descriptorIds: ["STEM2", "STEM4", "CPSAA3"],
-      texto: "Representar objetos en los sistemas diédrico y axonométrico, aplicando los procedimientos de verdadera magnitud y seleccionando el sistema más adecuado.",
+      id: "dt1.ce2", codigo: "CE2", descriptorIds: ["STEM2", "STEM3", "CPSAA4"],
+      texto: "Utilizar razonamientos inductivos, deductivos y lógicos en problemas de índole gráfico-matemáticos, aplicando fundamentos de la geometría plana para resolver gráficamente operaciones matemáticas, relaciones, construcciones y transformaciones.",
       criterios: [
-        { id: "dt1.2.1", ceId: "dt1.ce2", codigo: "2.1", saberIds: ["dt1.B1", "dt1.B2"], texto: "Representar piezas sencillas en sistema diédrico, resolviendo pertenencias, paralelismos y perpendicularidades." },
-        { id: "dt1.2.2", ceId: "dt1.ce2", codigo: "2.2", saberIds: ["dt1.B3"], texto: "Obtener verdaderas magnitudes mediante abatimientos y cambios de plano, aplicándolos a piezas prácticas." },
-        { id: "dt1.2.3", ceId: "dt1.ce2", codigo: "2.3", saberIds: ["dt1.B4"], texto: "Elaborar perspectivas isométricas y dimétricas con y sin coeficientes de reducción." },
+        { id: "dt1.2.1", ceId: "dt1.ce2", codigo: "2.1", saberIds: ["dt1.A3", "dt1.A4"], texto: "Solucionar gráficamente cálculos matemáticos y transformaciones básicas aplicando conceptos y propiedades de la geometría plana." },
+        { id: "dt1.2.2", ceId: "dt1.ce2", codigo: "2.2", saberIds: ["dt1.A5", "dt1.A7"], texto: "Trazar gráficamente construcciones poligonales basándose en sus propiedades y mostrando interés por la precisión, claridad y limpieza." },
+        { id: "dt1.2.3", ceId: "dt1.ce2", codigo: "2.3", saberIds: ["dt1.A6", "dt1.A7"], texto: "Resolver gráficamente tangencias y trazar curvas aplicando sus propiedades con rigor en su ejecución." },
       ],
     },
     {
-      id: "dt1.ce3", codigo: "CE3", descriptorIds: ["STEM4", "CPSAA3", "CE3"],
-      texto: "Aplicar la normalización del dibujo técnico en croquis y planos, empleando convenciones gráficas y escalas con rigor.",
+      id: "dt1.ce3", codigo: "CE3", descriptorIds: ["STEM2", "STEM4", "CPSAA3"],
+      texto: "Desarrollar la visión espacial, utilizando la geometría descriptiva en proyectos sencillos, considerando la importancia del dibujo en arquitectura e ingenierías para resolver problemas e interpretar y recrear gráficamente la realidad tridimensional sobre la superficie del plano.",
       criterios: [
-        { id: "dt1.3.1", ceId: "dt1.ce3", codigo: "3.1", saberIds: ["dt1.C1", "dt1.C2"], texto: "Dibujar vistas, cortes y detalles normalizados aplicando normas de línea, rotulación y escalas." },
-        { id: "dt1.3.2", ceId: "dt1.ce3", codigo: "3.2", saberIds: ["dt1.C2", "dt1.C3"], texto: "Acotar y croquizar piezas con corrección, respetando las normas de presentación." },
+        { id: "dt1.3.1", ceId: "dt1.ce3", codigo: "3.1", saberIds: ["dt1.B1", "dt1.B2", "dt1.B3"], texto: "Representar en sistema diédrico elementos básicos en el espacio determinando su relación de pertenencia, posición y distancia." },
+        { id: "dt1.3.2", ceId: "dt1.ce3", codigo: "3.2", saberIds: ["dt1.B4"], texto: "Definir elementos y figuras planas en sistemas axonométricos valorando su importancia como métodos de representación espacial." },
+        { id: "dt1.3.3", ceId: "dt1.ce3", codigo: "3.3", saberIds: ["dt1.B5"], texto: "Representar e interpretar elementos básicos en el sistema de planos acotados haciendo uso de sus fundamentos." },
+        { id: "dt1.3.4", ceId: "dt1.ce3", codigo: "3.4", saberIds: ["dt1.B6"], texto: "Dibujar elementos en el espacio empleando la perspectiva cónica." },
+        { id: "dt1.3.5", ceId: "dt1.ce3", codigo: "3.5", saberIds: ["dt1.A7", "dt1.B1", "dt1.B2"], texto: "Valorar el rigor gráfico del proceso; la claridad, la precisión y el proceso de resolución y construcción gráfica." },
       ],
     },
     {
-      id: "dt1.ce4", codigo: "CE4", descriptorIds: ["CD2", "CD3", "STEM5"],
-      texto: "Utilizar herramientas digitales de diseño 2D para el croquizado y la documentación gráfica de proyectos técnicos.",
+      id: "dt1.ce4", codigo: "CE4", descriptorIds: ["STEM4", "CPSAA3", "CE3"],
+      texto: "Formalizar y definir diseños técnicos aplicando las normas UNE e ISO de manera apropiada, valorando la importancia que tiene el croquis para documentar gráficamente proyectos arquitectónicos e ingenieriles.",
       criterios: [
-        { id: "dt1.4.1", ceId: "dt1.ce4", codigo: "4.1", saberIds: ["dt1.D1"], texto: "Realizar croquizados y planos 2D con herramientas CAD, aplicando restricciones geométricas y dimensionales." },
-        { id: "dt1.4.2", ceId: "dt1.ce4", codigo: "4.2", saberIds: ["dt1.D1", "dt1.C3"], texto: "Comunicar proyectos técnicos integrando croquis analógicos y documentación digital." },
+        { id: "dt1.4.1", ceId: "dt1.ce4", codigo: "4.1", saberIds: ["dt1.C1", "dt1.C2", "dt1.C3", "dt1.C4"], texto: "Documentar gráficamente objetos sencillos mediante sus vistas acotadas aplicando la normativa UNE e ISO en la utilización de sintaxis, escalas y formatos, valorando la importancia de usar un lenguaje técnico común." },
+        { id: "dt1.4.2", ceId: "dt1.ce4", codigo: "4.2", saberIds: ["dt1.C4", "dt1.A7"], texto: "Utilizar el croquis y el boceto como elementos de reflexión en la aproximación e indagación de alternativas y soluciones a los procesos de trabajo." },
+      ],
+    },
+    {
+      id: "dt1.ce5", codigo: "CE5", descriptorIds: ["CD2", "CD3", "STEM5", "CE4"],
+      texto: "Investigar, experimentar y representar digitalmente elementos, planos y esquemas técnicos mediante el uso de programas específicos CAD de manera individual o grupal, apreciando su uso en las profesiones actuales, para virtualizar objetos y espacios en dos dimensiones y tres dimensiones.",
+      criterios: [
+        { id: "dt1.5.1", ceId: "dt1.ce5", codigo: "5.1", saberIds: ["dt1.D1", "dt1.D2"], texto: "Crear figuras planas y tridimensionales mediante programas de dibujo vectorial, usando las herramientas que aportan y las técnicas asociadas." },
+        { id: "dt1.5.2", ceId: "dt1.ce5", codigo: "5.2", saberIds: ["dt1.D3", "dt1.D4"], texto: "Recrear virtualmente piezas en tres dimensiones aplicando operaciones algebraicas entre primitivas para la presentación de proyectos en grupo." },
       ],
     },
   ],
