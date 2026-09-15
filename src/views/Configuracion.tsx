@@ -111,7 +111,7 @@ export default function Configuracion() {
     const nuevo: Teacher = {
       id: uid(),
       nombre: prof.nombre.trim(),
-      email: prof.email?.trim() || `${prof.nombre.trim().toLowerCase().replace(/\s+/g, ".")}@iesatalaya.es`,
+      email: prof.email?.trim() || `${prof.nombre.trim().toLowerCase().replace(/\s+/g, ".")}@educantabria.es`,
       rol: (prof.rol as "profesor" | "admin") ?? "profesor",
       color: prof.color ?? COLORES_PROF[0],
     };
@@ -469,7 +469,7 @@ export default function Configuracion() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2"><label className="lbl">Nombre completo</label><input className="inp" value={prof.nombre ?? ""} onChange={(e) => setProf({ ...prof, nombre: e.target.value })} placeholder="p. ej. Ana Martínez López" /></div>
-            <div><label className="lbl">Correo electrónico</label><input className="inp" value={prof.email ?? ""} onChange={(e) => setProf({ ...prof, email: e.target.value })} placeholder="ana.martinez@iesatalaya.es" /></div>
+            <div><label className="lbl">Correo electrónico</label><input className="inp" value={prof.email ?? ""} onChange={(e) => setProf({ ...prof, email: e.target.value })} placeholder="ana.martinez@educantabria.es" /></div>
             <div>
               <label className="lbl">Rol</label>
               <select className="inp" value={prof.rol} onChange={(e) => setProf({ ...prof, rol: e.target.value as "profesor" | "admin" })}>

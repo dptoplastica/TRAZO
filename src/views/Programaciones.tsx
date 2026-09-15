@@ -330,7 +330,7 @@ function Editor({ prog }: { prog: Prog }) {
         <div className="print-area">
           <div style={{ fontFamily: "Instrument Sans, sans-serif", color: "#13252c", padding: 8 }}>
             <h1 style={{ fontFamily: "Bricolage Grotesque", fontSize: 26, marginBottom: 4 }}>Programación didáctica · {sub.nombre} · {sub.nivel}</h1>
-            <p style={{ fontSize: 13, color: "#47606b", marginBottom: 18 }}>Curso {prog.curso} · IES La Atalaya · Departamento de Dibujo y Artes Plásticas · Estado: {prog.estado}</p>
+            <p style={{ fontSize: 13, color: "#47606b", marginBottom: 18 }}>Curso {prog.curso} · IES Lope de Vega · Santa María de Cayón · Departamento de Dibujo · Estado: {prog.estado}</p>
             <h2 style={{ fontSize: 17, borderBottom: "2px solid #0e7c66", paddingBottom: 4 }}>1 · Contextualización</h2>
             {Object.entries(prog.contexto).map(([k, v]) => <p key={k} style={{ fontSize: 12.5, lineHeight: 1.6, marginBottom: 8 }}><b className="capitalize">{k}:</b> {v}</p>)}
             <h2 style={{ fontSize: 17, borderBottom: "2px solid #0e7c66", paddingBottom: 4, marginTop: 16 }}>2 · Elementos curriculares</h2>

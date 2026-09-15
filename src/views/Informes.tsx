@@ -84,8 +84,8 @@ function Membrete({ titulo, sub }: { titulo: string; sub: string }) {
     <div style={{ borderBottom: "3px solid #13252c", paddingBottom: 12, marginBottom: 18 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
         <div>
-          <p style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 22, fontWeight: 800, margin: 0 }}>IES La Atalaya · Santander</p>
-          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#47606b", margin: "3px 0 0" }}>Departamento de Dibujo y Artes Plásticas · Gobierno de Cantabria</p>
+          <p style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 22, fontWeight: 800, margin: 0 }}>IES Lope de Vega · Santa María de Cayón</p>
+          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#47606b", margin: "3px 0 0" }}>Departamento de Dibujo · Educantabria</p>
         </div>
         <div style={{ textAlign: "right", fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#47606b", lineHeight: 1.7 }}>
           <p style={{ margin: 0 }}>DOC-EV · REV A</p>

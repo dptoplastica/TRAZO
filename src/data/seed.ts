@@ -117,10 +117,10 @@ export const METODOLOGIAS = ["Aprendizaje basado en proyectos", "Aprendizaje bas
 /* ---------------- textos reutilizables de contextualización ---------------- */
 
 const CONTEXTO = {
-  centro: "IES La Atalaya (Santander, Cantabria). Centro público de Educación Secundaria y Bachillerato con 620 alumnos y 58 docentes. El Departamento de Dibujo y Artes Plásticas dispone de dos aulas-taller equipadas, aula de informática con software CAD y de edición audiovisual, y participación activa en programas de innovación (Aulas del Futuro, Red de Centros Educativos Sostenibles). El centro desarrolla el Plan Digital y el Plan de Fomento de la Lectura, e integra las situaciones de aprendizaje en su Proyecto Educativo.",
-  entorno: "Entorno urbano de tamaño medio, con tejido socioeconómico diverso. Oferta cultural cercana: Museo de Prehistoria y Arqueología de Cantabria, CDIS, Filmoteca de Cantabria, centros culturales municipales y patrimonio industrial de la bahía. Se aprovecha el entorno como recurso didáctico (salidas de observación, fotografía urbana, intervenciones en el espacio próximo).",
-  alumnado: "Grupos heterogéneos con motivación alta hacia la creación plástica y audiovisual. Se detectan diferencias significativas en la destreza gráfica de partida y en el manejo de herramientas digitales. Presencia de alumnado con NEAE que requiere adaptaciones de acceso y metodológicas, recogidas en los planes individualizados.",
-  recursos: "Aula-taller con mesas de dibujo y tableros, materiales fungibles de dibujo y pintura, cámaras y trípodes, tabletas gráficas, aula de informática con FreeCAD, Krita, DaVinci Resolve y GIMP, proyector interactivo, pizarra digital y biblioteca de recursos del departamento. Presupuesto anual del departamento para materiales.",
+  centro: "IES Lope de Vega (Santa María de Cayón, Cantabria). Instituto público de Educación Secundaria, Bachillerato y Ciclos Formativos ubicado en Barrio El Sombrero. Centro con reciente ampliación de instalaciones que incluye nuevas aulas y espacios especializados. El Departamento de Dibujo dispone de aula-taller equipada, aula de informática con software CAD y de edición audiovisual, y participa activamente en programas educativos de Educantabria. El centro desarrolla el Plan Digital de Centro y el Plan de Fomento de la Lectura, e integra las situaciones de aprendizaje en su Proyecto Educativo.",
+  entorno: "Santa María de Cayón se ubica en el Valle de Cayón, comarca con rico patrimonio románico (iglesias de los siglos XII-XIII declaradas Bien de Interés Cultural: iglesia de la Asunción, iglesia de San Andrés en Argomilla). Entorno rural-urbano con tejido socioeconómico diverso, vías verdes y arquitectura histórica. La oferta cultural incluye programas municipales de fomento de la expresión artística. Se aprovecha el entorno como recurso didáctico (salidas de observación del patrimonio románico, fotografía del paisaje cántabro, intervenciones en el espacio próximo).",
+  alumnado: "Grupos heterogéneos con motivación hacia la creación plástica y audiovisual. Se detectan diferencias significativas en la destreza gráfica de partida y en el manejo de herramientas digitales. Presencia de alumnado con NEAE que requiere adaptaciones de acceso y metodológicas, recogidas en los planes individualizados coordinados con el Departamento de Orientación.",
+  recursos: "Aula-taller con mesas de dibujo y tableros, materiales fungibles de dibujo y pintura, cámaras y trípodes, tabletas gráficas, aula de informática con FreeCAD, Krita, DaVinci Resolve y GIMP, proyector interactivo, pizarra digital y biblioteca de recursos del departamento. Presupuesto anual del departamento para materiales fungibles.",
   diversidad: "Se aplican medidas ordinarias (agrupamientos flexibles, instrucciones pautadas, modelos de referencia, tiempos ampliados) y, cuando procede, adaptaciones de acceso y no significativas coordinadas con el Departamento de Orientación. Las actividades de ampliación permiten profundizar sin alterar los criterios de evaluación.",
 };
 
@@ -134,9 +134,9 @@ export function buildSeed(): AppData {
   const applied = (iso: string) => iso <= hoy;
 
   const teachers: Teacher[] = [
-    { id: "t1", nombre: "Laura Gómez", email: "laura.gomez@iesatalaya.es", rol: "profesor", color: "#0e7c66" },
-    { id: "t2", nombre: "Miguel Ruiz", email: "miguel.ruiz@iesatalaya.es", rol: "profesor", color: "#2c6e8f" },
-    { id: "t3", nombre: "Carmen Prieto", email: "carmen.prieto@iesatalaya.es", rol: "admin", color: "#d9532c" },
+    { id: "t1", nombre: "Laura Gómez", email: "laura.gomez@educantabria.es", rol: "profesor", color: "#0e7c66" },
+    { id: "t2", nombre: "Miguel Ruiz", email: "miguel.ruiz@educantabria.es", rol: "profesor", color: "#2c6e8f" },
+    { id: "t3", nombre: "Carmen Prieto", email: "carmen.prieto@educantabria.es", rol: "admin", color: "#d9532c" },
   ];
 
   const groups: Group[] = [
@@ -613,7 +613,7 @@ export function buildSeed(): AppData {
   ];
 
   return {
-    version: 9,
+    version: 10,
     role: "profesor",
     teacherId: "t1",
     cursoLabel: c.label,
