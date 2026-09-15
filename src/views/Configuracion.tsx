@@ -32,6 +32,7 @@ export default function Configuracion() {
   const [nuevoAlumno, setNuevoAlumno] = useState(false);
   const [alumno, setAlumno] = useState<Partial<Student>>({ base: 6.5, absRate: 0.05, hue: Math.floor(Math.random() * 360) });
   const [editAlumno, setEditAlumno] = useState<Student | null>(null);
+  const [editGroup, setEditGroup] = useState<Group | null>(null);
 
   /* ---------- vista profesorado (sin admin) ---------- */
   if (!isAdmin) {
@@ -90,6 +91,13 @@ export default function Configuracion() {
     set((s) => ({ ...s, groups: [...s.groups, { id: uid(), nombre: g.nombre!.trim(), nivel: g.nivel ?? "—", tutorId: g.tutorId ?? d.teachers[0].id, dias: g.dias ?? [1, 3] }] }));
     setNuevoGrupo(false); setG({ dias: [1, 3] });
     notify("Grupo creado");
+  };
+
+  const guardarGrupo = () => {
+    if (!editGroup || !editGroup.nombre.trim()) return;
+    set((s) => ({ ...s, groups: s.groups.map((gr) => (gr.id === editGroup.id ? editGroup : gr)) }));
+    setEditGroup(null);
+    notify("Grupo actualizado");
   };
 
   const crearProfesor = () => {
@@ -275,7 +283,7 @@ export default function Configuracion() {
                         {grupos.length > 0 && <span className="mono ml-1 text-[9.5px] text-ink3">· tutor de {grupos.map((g) => g.nombre).join(", ")}</span>}
                       </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
+                    <div className="flex shrink-0 items-center gap-1">
                       <button className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-azul hover:text-azu" onClick={() => setAsignarMaterias(t)} title="Asignar materias">
                         <Ic n="link" s={15} />
                       </button>
@@ -329,7 +337,7 @@ export default function Configuracion() {
                         {prog ? <EstadoBadge estado={prog.estado} /> : <span className="mono rounded-md bg-ambl px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-amb">sin programar</span>}
                       </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
+                    <div className="flex shrink-0 items-center gap-1">
                       <button className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-virl hover:text-vird" onClick={() => setEditMateria(s)} title="Editar materia">
                         <Ic n="edit" s={15} />
                       </button>
@@ -368,13 +376,22 @@ export default function Configuracion() {
                       <p className="mono text-[10.5px] uppercase tracking-widest text-ink3">{gr.nivel} · {nAlumnos} alumnos · {materias.length} materias</p>
                       <p className="mt-0.5 text-[11.5px] text-ink2">Tutoría: <b className="text-ink">{tutor?.nombre ?? "—"}</b></p>
                     </div>
-                    <button
-                      className="cursor-pointer rounded-md p-1.5 text-ink3 transition opacity-0 group-hover:opacity-100 hover:bg-azul hover:text-azu"
-                      onClick={() => setVerAlumnos(gr)}
-                      title="Gestionar alumnos"
-                    >
-                      <Ic n="users" s={15} />
-                    </button>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-azul hover:text-azu"
+                        onClick={() => setVerAlumnos(gr)}
+                        title="Gestionar alumnos"
+                      >
+                        <Ic n="users" s={15} />
+                      </button>
+                      <button
+                        className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-virl hover:text-vird"
+                        onClick={() => setEditGroup(gr)}
+                        title="Editar grupo"
+                      >
+                        <Ic n="edit" s={15} />
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -640,6 +657,35 @@ export default function Configuracion() {
         </div>
       </Modal>
 
+      {/* Modal: editar grupo */}
+      <Modal open={!!editGroup} onClose={() => setEditGroup(null)} title="Editar grupo">
+        {editGroup && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div><label className="lbl">Nombre</label><input className="inp" value={editGroup.nombre} onChange={(e) => setEditGroup({ ...editGroup, nombre: e.target.value })} /></div>
+            <div><label className="lbl">Nivel</label><input className="inp" value={editGroup.nivel} onChange={(e) => setEditGroup({ ...editGroup, nivel: e.target.value })} /></div>
+            <div>
+              <label className="lbl">Tutoría</label>
+              <select className="inp" value={editGroup.tutorId} onChange={(e) => setEditGroup({ ...editGroup, tutorId: e.target.value })}>
+                {d.teachers.map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Días de clase</label>
+              <div className="flex gap-1">
+                {["L", "M", "X", "J", "V"].map((dd, i) => {
+                  const on = editGroup.dias.includes(i + 1);
+                  return <button key={dd} onClick={() => setEditGroup({ ...editGroup, dias: on ? editGroup.dias.filter((x) => x !== i + 1) : [...editGroup.dias, i + 1] })} className={`mono h-9 w-9 cursor-pointer rounded-lg border text-[12px] font-extrabold transition ${on ? "border-vir bg-vir text-white" : "border-line2 bg-card text-ink2"}`}>{dd}</button>;
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="mt-4 flex justify-end gap-2">
+          <button className={btnGhost} onClick={() => setEditGroup(null)}>Cancelar</button>
+          <button className={btn} disabled={!editGroup?.nombre.trim()} onClick={guardarGrupo}><Ic n="check" s={15} /> Guardar cambios</button>
+        </div>
+      </Modal>
+
       {/* Modal: ver/gestionar alumnos de un grupo */}
       <Modal open={!!verAlumnos} onClose={() => { setVerAlumnos(null); setNuevoAlumno(false); setEditAlumno(null); }} title={verAlumnos ? `Alumnos de ${verAlumnos.nombre}` : ""} wide>
         {verAlumnos && (() => {
@@ -668,7 +714,7 @@ export default function Configuracion() {
                         <span className="mono text-[10px] text-ink3">base: {st.base.toFixed(1)} · abs: {(st.absRate * 100).toFixed(0)}%</span>
                       </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
+                    <div className="flex shrink-0 items-center gap-1">
                       <button className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-virl hover:text-vird" onClick={() => setEditAlumno(st)} title="Editar">
                         <Ic n="edit" s={14} />
                       </button>
