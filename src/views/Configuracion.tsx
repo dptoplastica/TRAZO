@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useApp, uid, visibleSubjects } from "../store";
 import { CURRICULA, getCurriculum, allCriterios } from "../data/curriculum";
-import type { Subject, Group, Teacher } from "../data/seed";
+import type { Subject, Group, Teacher, Student } from "../data/seed";
 import { Ic, Reveal, SectionHead, Modal, EmptyState, btn, btnGhost, btnDanger, EstadoBadge } from "../components/ui";
 
 /* ================================================================
@@ -28,6 +28,10 @@ export default function Configuracion() {
   const [prof, setProf] = useState<Partial<Teacher>>({ rol: "profesor", color: COLORES_PROF[0] });
   const [editProf, setEditProf] = useState<Teacher | null>(null);
   const [asignarMaterias, setAsignarMaterias] = useState<Teacher | null>(null);
+  const [verAlumnos, setVerAlumnos] = useState<Group | null>(null);
+  const [nuevoAlumno, setNuevoAlumno] = useState(false);
+  const [alumno, setAlumno] = useState<Partial<Student>>({ base: 6.5, absRate: 0.05, hue: Math.floor(Math.random() * 360) });
+  const [editAlumno, setEditAlumno] = useState<Student | null>(null);
 
   /* ---------- vista profesorado (sin admin) ---------- */
   if (!isAdmin) {
@@ -147,6 +151,46 @@ export default function Configuracion() {
     const nuevo = `${Number(y0) + 1}-${String(Number(y0) + 2).slice(2)}`;
     set((s) => ({ ...s, cursoLabel: nuevo, programaciones: [...s.programaciones, ...s.programaciones.map((p) => ({ ...p, id: uid(), curso: nuevo, estado: "Borrador" as const, actualizada: new Date().toISOString().slice(0, 10) }))] }));
     notify(`Programaciones duplicadas al curso ${nuevo} como borradores`);
+  };
+
+  const crearAlumno = () => {
+    if (!alumno.nombre?.trim() || !verAlumnos) return;
+    const nuevo: Student = {
+      id: uid(),
+      groupId: verAlumnos.id,
+      nombre: alumno.nombre.trim(),
+      base: alumno.base ?? 6.5,
+      absRate: alumno.absRate ?? 0.05,
+      hue: alumno.hue ?? Math.floor(Math.random() * 360),
+      neae: alumno.neae?.trim() || undefined,
+    };
+    set((s) => ({ ...s, students: [...s.students, nuevo] }));
+    setNuevoAlumno(false);
+    setAlumno({ base: 6.5, absRate: 0.05, hue: Math.floor(Math.random() * 360) });
+    notify("Alumno/a añadido/a al grupo");
+  };
+
+  const guardarAlumno = () => {
+    if (!editAlumno || !editAlumno.nombre.trim()) return;
+    set((s) => ({ ...s, students: s.students.map((st) => (st.id === editAlumno.id ? editAlumno : st)) }));
+    setEditAlumno(null);
+    notify("Alumno/a actualizado/a");
+  };
+
+  const eliminarAlumno = (id: string) => {
+    const st = d.students.find((x) => x.id === id);
+    if (!st) return;
+    if (!window.confirm(`¿Eliminar a ${st.nombre}? Se eliminarán también sus calificaciones, asistencia y observaciones.`)) return;
+    set((s) => ({
+      ...s,
+      students: s.students.filter((x) => x.id !== id),
+      grades: s.grades.filter((g) => g.studentId !== id),
+      attendance: s.attendance.filter((a) => a.studentId !== id),
+      observations: s.observations.filter((o) => o.studentId !== id),
+      measures: s.measures.filter((m) => m.studentId !== id),
+      recoveries: s.recoveries.filter((r) => r.studentId !== id),
+    }));
+    notify("Alumno/a eliminado/a");
   };
 
   /* ---------- resumen estadístico ---------- */
@@ -315,7 +359,7 @@ export default function Configuracion() {
                 const nAlumnos = d.students.filter((s) => s.groupId === gr.id).length;
                 const materias = d.subjects.filter((s) => s.grupoId === gr.id);
                 return (
-                  <div key={gr.id} className="flex items-center gap-3 px-4 py-3">
+                  <div key={gr.id} className="group flex items-center gap-3 px-4 py-3 transition hover:bg-virl/20">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ambl text-amb font-display text-[15px] font-extrabold">
                       {gr.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("")}
                     </div>
@@ -324,6 +368,13 @@ export default function Configuracion() {
                       <p className="mono text-[10.5px] uppercase tracking-widest text-ink3">{gr.nivel} · {nAlumnos} alumnos · {materias.length} materias</p>
                       <p className="mt-0.5 text-[11.5px] text-ink2">Tutoría: <b className="text-ink">{tutor?.nombre ?? "—"}</b></p>
                     </div>
+                    <button
+                      className="cursor-pointer rounded-md p-1.5 text-ink3 transition opacity-0 group-hover:opacity-100 hover:bg-azul hover:text-azu"
+                      onClick={() => setVerAlumnos(gr)}
+                      title="Gestionar alumnos"
+                    >
+                      <Ic n="users" s={15} />
+                    </button>
                   </div>
                 );
               })}
@@ -586,6 +637,109 @@ export default function Configuracion() {
         <div className="mt-4 flex justify-end gap-2">
           <button className={btnGhost} onClick={() => setNuevoGrupo(false)}>Cancelar</button>
           <button className={btn} onClick={crearGrupo}><Ic n="check" s={15} /> Crear grupo</button>
+        </div>
+      </Modal>
+
+      {/* Modal: ver/gestionar alumnos de un grupo */}
+      <Modal open={!!verAlumnos} onClose={() => { setVerAlumnos(null); setNuevoAlumno(false); setEditAlumno(null); }} title={verAlumnos ? `Alumnos de ${verAlumnos.nombre}` : ""} wide>
+        {verAlumnos && (() => {
+          const alumnos = d.students.filter((s) => s.groupId === verAlumnos.id);
+          return (
+            <>
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-[12.5px] text-ink2">{alumnos.length} {alumnos.length === 1 ? "alumno matriculado" : "alumnos matriculados"}</p>
+                <button className={btn + " !py-1.5"} onClick={() => setNuevoAlumno(true)}><Ic n="plus" s={14} /> Nuevo alumno</button>
+              </div>
+              <div className="max-h-[500px] overflow-y-auto divide-y divide-line/60 rounded-lg border border-line">
+                {alumnos.length === 0 && (
+                  <div className="px-4 py-8 text-center">
+                    <p className="text-[13px] italic text-ink3">No hay alumnos matriculados en este grupo.</p>
+                  </div>
+                )}
+                {alumnos.map((st) => (
+                  <div key={st.id} className="group flex items-center gap-3 px-4 py-2.5 transition hover:bg-virl/20">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10.5px] font-extrabold text-white" style={{ background: `hsl(${st.hue} 42% 44%)` }}>
+                      {st.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("")}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-bold text-ink">{st.nombre}</p>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {st.neae && <span className="mono rounded bg-rosl px-1.5 py-0.5 text-[9px] font-bold text-ros">NEAE</span>}
+                        <span className="mono text-[10px] text-ink3">base: {st.base.toFixed(1)} · abs: {(st.absRate * 100).toFixed(0)}%</span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
+                      <button className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-virl hover:text-vird" onClick={() => setEditAlumno(st)} title="Editar">
+                        <Ic n="edit" s={14} />
+                      </button>
+                      <button className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-verml hover:text-verm" onClick={() => eliminarAlumno(st.id)} title="Eliminar">
+                        <Ic n="trash" s={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          );
+        })()}
+        <div className="mt-4 flex justify-end">
+          <button className={btnGhost} onClick={() => { setVerAlumnos(null); setNuevoAlumno(false); setEditAlumno(null); }}>Cerrar</button>
+        </div>
+      </Modal>
+
+      {/* Modal: nuevo alumno */}
+      <Modal open={nuevoAlumno} onClose={() => { setNuevoAlumno(false); setAlumno({ base: 6.5, absRate: 0.05, hue: Math.floor(Math.random() * 360) }); }} title="Nuevo alumno/a">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label className="lbl">Nombre completo</label>
+            <input className="inp" value={alumno.nombre ?? ""} onChange={(e) => setAlumno({ ...alumno, nombre: e.target.value })} placeholder="p. ej. María García López" />
+          </div>
+          <div>
+            <label className="lbl">Nivel base estimado (0-10)</label>
+            <input type="number" min={0} max={10} step={0.1} className="inp" value={alumno.base ?? 6.5} onChange={(e) => setAlumno({ ...alumno, base: parseFloat(e.target.value) || 0 })} />
+          </div>
+          <div>
+            <label className="lbl">Tasa de absentismo estimada</label>
+            <input type="number" min={0} max={1} step={0.01} className="inp" value={alumno.absRate ?? 0.05} onChange={(e) => setAlumno({ ...alumno, absRate: parseFloat(e.target.value) || 0 })} />
+            <p className="mono mt-1 text-[9.5px] text-ink3">{((alumno.absRate ?? 0) * 100).toFixed(0)}% de absentismo</p>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="lbl">NEAE (opcional)</label>
+            <input className="inp" value={alumno.neae ?? ""} onChange={(e) => setAlumno({ ...alumno, neae: e.target.value })} placeholder="p. ej. TDAH, Dislexia, TEA…" />
+          </div>
+        </div>
+        <div className="mt-4 flex justify-end gap-2">
+          <button className={btnGhost} onClick={() => { setNuevoAlumno(false); setAlumno({ base: 6.5, absRate: 0.05, hue: Math.floor(Math.random() * 360) }); }}>Cancelar</button>
+          <button className={btn} disabled={!alumno.nombre?.trim()} onClick={crearAlumno}><Ic n="check" s={15} /> Añadir alumno</button>
+        </div>
+      </Modal>
+
+      {/* Modal: editar alumno */}
+      <Modal open={!!editAlumno} onClose={() => setEditAlumno(null)} title="Editar alumno/a">
+        {editAlumno && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="lbl">Nombre completo</label>
+              <input className="inp" value={editAlumno.nombre} onChange={(e) => setEditAlumno({ ...editAlumno, nombre: e.target.value })} />
+            </div>
+            <div>
+              <label className="lbl">Nivel base estimado (0-10)</label>
+              <input type="number" min={0} max={10} step={0.1} className="inp" value={editAlumno.base} onChange={(e) => setEditAlumno({ ...editAlumno, base: parseFloat(e.target.value) || 0 })} />
+            </div>
+            <div>
+              <label className="lbl">Tasa de absentismo</label>
+              <input type="number" min={0} max={1} step={0.01} className="inp" value={editAlumno.absRate} onChange={(e) => setEditAlumno({ ...editAlumno, absRate: parseFloat(e.target.value) || 0 })} />
+              <p className="mono mt-1 text-[9.5px] text-ink3">{(editAlumno.absRate * 100).toFixed(0)}% de absentismo</p>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="lbl">NEAE (opcional)</label>
+              <input className="inp" value={editAlumno.neae ?? ""} onChange={(e) => setEditAlumno({ ...editAlumno, neae: e.target.value || undefined })} placeholder="p. ej. TDAH, Dislexia, TEA…" />
+            </div>
+          </div>
+        )}
+        <div className="mt-4 flex justify-end gap-2">
+          <button className={btnGhost} onClick={() => setEditAlumno(null)}>Cancelar</button>
+          <button className={btn} disabled={!editAlumno?.nombre.trim()} onClick={guardarAlumno}><Ic n="check" s={15} /> Guardar cambios</button>
         </div>
       </Modal>
     </div>
