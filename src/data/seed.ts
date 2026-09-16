@@ -145,6 +145,7 @@ export function buildSeed(): AppData {
     { id: "g3", nombre: "2º Bach B", nivel: "2º Bachillerato", tutorId: "t2", dias: [1, 4] },
     { id: "g4", nombre: "1º Bach B", nivel: "1º Bachillerato", tutorId: "t2", dias: [2, 5] },
     { id: "g5", nombre: "1º Bach C", nivel: "1º Bachillerato", tutorId: "t1", dias: [3, 5] },
+    { id: "g6", nombre: "2º Bach A", nivel: "2º Bachillerato", tutorId: "t1", dias: [1, 3, 4] },
   ];
 
   const mk = (groupId: string, rows: [string, number, number, string?][], hue0: number) =>
@@ -180,6 +181,13 @@ export function buildSeed(): AppData {
       ["Gonzalo Uribe", 5.9, 0.09], ["Clara Mazarío", 9.0, 0.01], ["Samuel Bedia", 4.8, 0.16, "Dislexia · adaptaciones de acceso"],
       ["Nora Colmenares", 7.4, 0.04], ["Hugo Cueto", 6.1, 0.07], ["Valentina Silió", 8.6, 0.02],
     ], 50),
+    ...mk("g6", [
+      ["Lucía Fernández", 8.5, 0.02], ["Marco Ruiz", 7.2, 0.04], ["Aitana Sáiz", 9.1, 0.01],
+      ["Hugo Cobo", 6.8, 0.05], ["Valeria Ríos", 7.9, 0.03], ["Daniel Herrera", 5.4, 0.12, "TDAH · adaptaciones de acceso"],
+      ["Nerea Bustamante", 8.2, 0.02], ["Izan Trueba", 6.5, 0.06], ["Carla Miera", 9.3, 0.01],
+      ["Álvaro Peña", 7.1, 0.04], ["Sofía Ocejo", 8.7, 0.02], ["Mateo Lavín", 6.3, 0.07],
+      ["Elena Torre", 7.6, 0.03], ["Pablo Campuzano", 6.9, 0.05], ["Martina Rozadilla", 9.5, 0.01],
+    ], 280),
   ];
 
   const subjects: Subject[] = [
@@ -189,6 +197,7 @@ export function buildSeed(): AppData {
     { id: "m4", nombre: "Audiovisual y Multimedia", corto: "Audiovisual", etapa: "ESO", nivel: "4º ESO", curriculumId: "epva-eso", teacherId: undefined, grupoId: "g1", color: "#7a5fb0", tipo: "optativa" },
     { id: "m5", nombre: "Dibujo Técnico I", corto: "Dibujo Técnico I", etapa: "Bachillerato", nivel: "1º Bachillerato", curriculumId: "dt1-bach", teacherId: "t2", grupoId: "g4", color: "#0e7c66", tipo: "obligatoria" },
     { id: "m6", nombre: "Taller de Podcast", corto: "Podcast", etapa: "Bachillerato", nivel: "1º Bachillerato", curriculumId: "tp-bach", teacherId: "t1", grupoId: "g5", color: "#a84a6c", tipo: "optativa" },
+    { id: "m7", nombre: "Taller de Cortometraje", corto: "Cortometraje", etapa: "Bachillerato", nivel: "2º Bachillerato", curriculumId: "tc-bach", teacherId: "t1", grupoId: "g6", color: "#7a5fb0", tipo: "optativa" },
   ];
 
   const epvaCrit = ["epva.1.1", "epva.1.2", "epva.2.1", "epva.2.2", "epva.3.1", "epva.3.2", "epva.4.1", "epva.4.2", "epva.5.1", "epva.5.2"];
@@ -234,6 +243,14 @@ export function buildSeed(): AppData {
       criterios: ["tp.1.1", "tp.1.2", "tp.2.1", "tp.2.2", "tp.3.1", "tp.3.2", "tp.3.3", "tp.4.1", "tp.4.2", "tp.5.1", "tp.5.2"],
       ponderaciones: { "tp.1.1": 8, "tp.1.2": 7, "tp.2.1": 12, "tp.2.2": 10, "tp.3.1": 10, "tp.3.2": 15, "tp.3.3": 8, "tp.4.1": 10, "tp.4.2": 8, "tp.5.1": 6, "tp.5.2": 6 },
       ccalificacion: "El proyecto final de podcast (miniserie de 3 episodios) tiene un peso del 40%. Los episodios individuales, el guion técnico y la identidad sonora completan la evaluación. La escucha crítica y los análisis escritos suman un 20%. La autoevaluación y coevaluación del equipo representan un 10%. Se exige la publicación del podcast en plataformas digitales.",
+      actualizada: hoy,
+    },
+    {
+      id: "p6", subjectId: "m7", curso: c.label, estado: "En revisión",
+      contexto: CONTEXTO,
+      criterios: ["tc.1.1", "tc.1.2", "tc.2.1", "tc.2.2", "tc.3.1", "tc.3.2", "tc.4.1", "tc.4.2", "tc.5.1", "tc.5.2", "tc.5.3"],
+      ponderaciones: { "tc.1.1": 8, "tc.1.2": 7, "tc.2.1": 10, "tc.2.2": 10, "tc.3.1": 8, "tc.3.2": 10, "tc.4.1": 12, "tc.4.2": 8, "tc.5.1": 10, "tc.5.2": 10, "tc.5.3": 7 },
+      ccalificacion: "El cortometraje final (5-8 minutos) tiene un peso del 50% de la calificación. El proceso completo (análisis, guion, preproducción, rodaje y postproducción) se evalúa de forma continua. Los ejercicios prácticos de cada bloque suman un 30%. La autoevaluación, coevaluación y defensa del proyecto representan un 20%. Se exige la presentación pública del cortometraje en el festival del centro.",
       actualizada: hoy,
     },
   ];
@@ -505,6 +522,75 @@ export function buildSeed(): AppData {
       ],
       instrumentos: ["i29", "i30", "i31"],
     },
+    {
+      id: "sa13", programacionId: "p6", titulo: "Miradas cinematográficas: del análisis a la creación", eva: 1,
+      inicio: D(10), fin: D(50), sesiones: 16,
+      justificacion: "Antes de crear, hay que saber mirar. Esta SA entrena la mirada crítica del alumnado mediante el análisis de cortometrajes de referencia, identificando recursos narrativos, estéticos y técnicos que serán la base de su propio proyecto.",
+      reto: "¿Qué hace que un cortometraje de 5 minutos te atrape más que una película de 2 horas?",
+      producto: "Dossier de análisis de 5 cortometrajes + ensayo crítico de 1000 palabras + presentación oral.",
+      metodologias: ["Aprendizaje basado en proyectos", "Aula invertida", "Estudio de casos"],
+      agrupamientos: "Individual + cinefórum grupal", espacios: "Aula con proyector y equipo de sonido",
+      recursos: "Selección de cortometrajes (ficción, documental, experimental), fichas de análisis, proyector, pizarra",
+      diversidad: "Cortometrajes con subtítulos y audiodescripción, fichas con niveles de profundidad, ampliación con análisis comparativo de autores.",
+      evidencias: "Dossier de análisis, ensayo crítico, presentación oral, participación en cinefórum.",
+      criterios: ["tc.1.1", "tc.1.2"],
+      objetivos: ["Analizar cortometrajes identificando elementos del lenguaje cinematográfico", "Contextualizar obras en su momento histórico y cultural", "Desarrollar pensamiento crítico sobre el cine"],
+      actividades: [
+        { id: "sa13a1", titulo: "Historia del cine en 90 minutos", desc: "Del cine mudo a la era digital: hitos fundamentales.", fase: "Inicio", sesion: 2, criterioIds: ["tc.1.2"] },
+        { id: "sa13a2", titulo: "Anatomía del plano", desc: "Tipología, composición, movimiento de cámara. Análisis práctico.", fase: "Desarrollo", sesion: 5, criterioIds: ["tc.1.1"] },
+        { id: "sa13a3", titulo: "El arte del montaje", desc: "Teoría y práctica: ritmo, continuidad, elipsis. Ejercicios con material real.", fase: "Desarrollo", sesion: 9, criterioIds: ["tc.1.1"] },
+        { id: "sa13a4", titulo: "Géneros y autores", desc: "Drama, comedia, thriller, documental, experimental. Filmografía comentada.", fase: "Desarrollo", sesion: 12, criterioIds: ["tc.1.2"] },
+        { id: "sa13a5", titulo: "Cinefórum y defensa", desc: "Presentación de análisis y debate grupal sobre los cortometrajes visionados.", fase: "Cierre", sesion: 16, criterioIds: ["tc.1.1", "tc.1.2"] },
+      ],
+      instrumentos: ["i32", "i33"],
+    },
+    {
+      id: "sa14", programacionId: "p6", titulo: "Del papel a la pantalla: guion y preproducción", eva: 2,
+      inicio: toISO(new Date(c.y + 1, 0, 12)), fin: toISO(new Date(c.y + 1, 1, 25)), sesiones: 18,
+      justificacion: "Todo gran cortometraje empieza con una gran idea. Esta SA lleva al alumnado desde la concepción de la idea hasta el plan de rodaje detallado, pasando por la escritura del guion literario y técnico.",
+      reto: "¿Cómo contar una historia que emocione en solo 5 minutos?",
+      producto: "Guion literario profesional + guion técnico + storyboard + plan de rodaje completo.",
+      metodologias: ["Aprendizaje basado en proyectos", "Design thinking", "Gamificación"],
+      agrupamientos: "Equipos de 4-5 personas con roles de guionista", espacios: "Aula, sala de reuniones",
+      recursos: "Software de guion (Celtx, WriterDuet), plantillas de storyboard, papel y rotuladores, referentes de guiones profesionales",
+      diversidad: "Plantillas de guion con andamiaje, tutorías individuales de escritura, ampliación con guiones de mayor complejidad narrativa.",
+      evidencias: "Guion literario, guion técnico, storyboard, plan de rodaje, biblia del proyecto.",
+      criterios: ["tc.2.1", "tc.2.2", "tc.3.1"],
+      objetivos: ["Desarrollar ideas originales para cortometrajes", "Escribir guiones con formato profesional", "Elaborar planes de producción detallados"],
+      actividades: [
+        { id: "sa14a1", titulo: "La idea cinematográfica", desc: "Brainstorming, selección de ideas, desarrollo de conceptos.", fase: "Inicio", sesion: 2, criterioIds: ["tc.2.1"] },
+        { id: "sa14a2", titulo: "Estructura dramática", desc: "Planteamiento, nudo, desenlace. Personajes y conflictos.", fase: "Desarrollo", sesion: 5, criterioIds: ["tc.2.1"] },
+        { id: "sa14a3", titulo: "Escritura del guion literario", desc: "Formato estándar, diálogos, acotaciones. Taller de escritura.", fase: "Desarrollo", sesion: 9, criterioIds: ["tc.2.1"] },
+        { id: "sa14a4", titulo: "Del guion al storyboard", desc: "Guion técnico, plan de rodaje, storyboard visual.", fase: "Desarrollo", sesion: 14, criterioIds: ["tc.2.2"] },
+        { id: "sa14a5", titulo: "Plan de producción", desc: "Presupuesto, cronograma, equipo técnico, localizaciones.", fase: "Desarrollo", sesion: 16, criterioIds: ["tc.3.1"] },
+        { id: "sa14a6", titulo: "Pitch y defensa del proyecto", desc: "Presentación del proyecto ante el grupo y retroalimentación.", fase: "Cierre", sesion: 18, criterioIds: ["tc.2.1", "tc.3.1"] },
+      ],
+      instrumentos: ["i34", "i35", "i36"],
+    },
+    {
+      id: "sa15", programacionId: "p6", titulo: "Rodaje, postproducción y estreno: el cortometraje final", eva: 3,
+      inicio: toISO(new Date(c.y + 1, 2, 20)), fin: toISO(new Date(c.y + 1, 4, 30)), sesiones: 26,
+      justificacion: "El proyecto final integra todos los aprendizajes del curso en la creación de un cortometraje completo (5-8 minutos) que se presentará en el festival del centro. Es la culminación del proceso creativo.",
+      reto: "Crear un cortometraje que merezca ser proyectado en un festival de cine.",
+      producto: "Cortometraje de 5-8 minutos + materiales de promoción (cartel, tráiler, dossier de prensa) + presentación pública en el festival del centro.",
+      metodologias: ["Aprendizaje basado en proyectos", "Aprendizaje cooperativo", "Aprendizaje-servicio"],
+      agrupamientos: "Equipos de producción con roles especializados (director, productor, director de fotografía, sonidista, montador)", espacios: "Aula, exteriores, sala de edición, sala de proyección",
+      recursos: "Cámaras de vídeo, trípodes, iluminación, micrófonos, ordenadores con DaVinci Resolve/Premiere, software de edición",
+      diversidad: "Roles ajustados a fortalezas e intereses, hitos intermedios con retroalimentación, tutorías de proceso, ampliación con técnicas avanzadas de postproducción.",
+      evidencias: "Cortometraje final, materiales de promoción, memoria del proyecto, autoevaluación y coevaluación, defensa pública.",
+      criterios: ["tc.3.2", "tc.4.1", "tc.4.2", "tc.5.1", "tc.5.2", "tc.5.3"],
+      objetivos: ["Coordinar el rodaje del cortometraje", "Dirigir a actores y equipos técnicos", "Realizar la postproducción completa", "Preparar el cortometraje para distribución"],
+      actividades: [
+        { id: "sa15a1", titulo: "Preparación del rodaje", desc: "Casting, ensayos, preparación de localizaciones y equipo.", fase: "Inicio", sesion: 2, criterioIds: ["tc.3.2"] },
+        { id: "sa15a2", titulo: "Rodaje", desc: "Grabación del cortometraje según plan de rodaje. Dirección de actores y equipos.", fase: "Desarrollo", sesion: 8, criterioIds: ["tc.4.1", "tc.4.2"] },
+        { id: "sa15a3", titulo: "Montaje y edición", desc: "Selección de tomas, montaje, ritmo y continuidad.", fase: "Desarrollo", sesion: 14, criterioIds: ["tc.5.1"] },
+        { id: "sa15a4", titulo: "Postproducción avanzada", desc: "Corrección de color, diseño sonoro, música, efectos.", fase: "Desarrollo", sesion: 20, criterioIds: ["tc.5.2"] },
+        { id: "sa15a5", titulo: "Materiales de promoción", desc: "Cartel, tráiler, dossier de prensa, ficha técnica.", fase: "Desarrollo", sesion: 23, criterioIds: ["tc.5.3"] },
+        { id: "sa15a6", titulo: "Festival del centro", desc: "Presentación pública del cortometraje ante la comunidad educativa.", fase: "Cierre", sesion: 25, criterioIds: ["tc.5.3"] },
+        { id: "sa15a7", titulo: "Evaluación y cierre", desc: "Análisis del proceso, autoevaluación, coevaluación y celebración.", fase: "Cierre", sesion: 26, criterioIds: ["tc.3.2", "tc.5.3"] },
+      ],
+      instrumentos: ["i37", "i38", "i39", "i40"],
+    },
   ];
 
   const units: Unit[] = [
@@ -520,6 +606,9 @@ export function buildSeed(): AppData {
     { id: "u10", programacionId: "p5", titulo: "Cultura sonora y análisis crítico", inicio: D(12), fin: D(48), sesiones: 10, saIds: ["sa10"], criterios: ["tp.1.1", "tp.1.2", "tp.5.1"] },
     { id: "u11", programacionId: "p5", titulo: "Guion y producción sonora", inicio: toISO(new Date(c.y + 1, 0, 14)), fin: toISO(new Date(c.y + 1, 1, 20)), sesiones: 11, saIds: ["sa11"], criterios: ["tp.2.1", "tp.2.2", "tp.3.1", "tp.3.2"] },
     { id: "u12", programacionId: "p5", titulo: "Proyecto final: miniserie de podcast", inicio: toISO(new Date(c.y + 1, 2, 24)), fin: toISO(new Date(c.y + 1, 4, 28)), sesiones: 15, saIds: ["sa12"], criterios: ["tp.3.3", "tp.4.1", "tp.4.2", "tp.5.2"] },
+    { id: "u13", programacionId: "p6", titulo: "Lenguaje cinematográfico y análisis fílmico", inicio: D(10), fin: D(50), sesiones: 16, saIds: ["sa13"], criterios: ["tc.1.1", "tc.1.2"] },
+    { id: "u14", programacionId: "p6", titulo: "Guion y preproducción", inicio: toISO(new Date(c.y + 1, 0, 12)), fin: toISO(new Date(c.y + 1, 1, 25)), sesiones: 18, saIds: ["sa14"], criterios: ["tc.2.1", "tc.2.2", "tc.3.1"] },
+    { id: "u15", programacionId: "p6", titulo: "Producción, postproducción y estreno", inicio: toISO(new Date(c.y + 1, 2, 20)), fin: toISO(new Date(c.y + 1, 4, 30)), sesiones: 26, saIds: ["sa15"], criterios: ["tc.3.2", "tc.4.1", "tc.4.2", "tc.5.1", "tc.5.2", "tc.5.3"] },
   ];
 
   const instruments: Instrument[] = [
@@ -556,6 +645,16 @@ export function buildSeed(): AppData {
     { id: "i29", subjectId: "m6", nombre: "Rúbrica · miniserie de podcast", tipo: "rubrica", peso: 40, criterioIds: ["tp.3.3", "tp.4.1", "tp.4.2"], fecha: D(160), rubrica: NIVELES_RUBRICA },
     { id: "i30", subjectId: "m6", nombre: "Identidad sonora y gráfica", tipo: "proyecto", peso: 15, criterioIds: ["tp.3.3"], fecha: D(140) },
     { id: "i31", subjectId: "m6", nombre: "Autoevaluación y memoria del proyecto", tipo: "autoevaluacion", peso: 10, criterioIds: ["tp.5.2"], fecha: D(165) },
+    /* Taller de Cortometraje */
+    { id: "i32", subjectId: "m7", nombre: "Dossier de análisis fílmico", tipo: "proyecto", peso: 15, criterioIds: ["tc.1.1", "tc.1.2"], fecha: D(40) },
+    { id: "i33", subjectId: "m7", nombre: "Ensayo crítico y presentación oral", tipo: "exposicion", peso: 10, criterioIds: ["tc.1.1", "tc.1.2"], fecha: D(50) },
+    { id: "i34", subjectId: "m7", nombre: "Rúbrica · guion literario", tipo: "rubrica", peso: 15, criterioIds: ["tc.2.1"], fecha: D(90), rubrica: NIVELES_RUBRICA },
+    { id: "i35", subjectId: "m7", nombre: "Guion técnico y storyboard", tipo: "proyecto", peso: 15, criterioIds: ["tc.2.2"], fecha: D(100) },
+    { id: "i36", subjectId: "m7", nombre: "Plan de producción y pitch", tipo: "exposicion", peso: 10, criterioIds: ["tc.3.1"], fecha: D(110) },
+    { id: "i37", subjectId: "m7", nombre: "Rúbrica · dirección y rodaje", tipo: "rubrica", peso: 20, criterioIds: ["tc.4.1", "tc.4.2"], fecha: D(140), rubrica: NIVELES_RUBRICA },
+    { id: "i38", subjectId: "m7", nombre: "Cortometraje final · montaje y postproducción", tipo: "proyecto", peso: 30, criterioIds: ["tc.5.1", "tc.5.2"], fecha: D(160) },
+    { id: "i39", subjectId: "m7", nombre: "Materiales de promoción y distribución", tipo: "proyecto", peso: 10, criterioIds: ["tc.5.3"], fecha: D(165) },
+    { id: "i40", subjectId: "m7", nombre: "Autoevaluación, coevaluación y defensa pública", tipo: "autoevaluacion", peso: 15, criterioIds: ["tc.3.2", "tc.5.3"], fecha: D(170) },
   ];
 
   /* calificaciones deterministas a partir del perfil de cada estudiante */
@@ -613,7 +712,7 @@ export function buildSeed(): AppData {
   ];
 
   return {
-    version: 11,
+    version: 12,
     role: "profesor",
     teacherId: "t1",
     cursoLabel: c.label,

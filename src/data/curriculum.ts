@@ -488,12 +488,107 @@ const TP: Curriculum = {
   ],
 };
 
+/* ---------------- Taller de Cortometraje (2º Bachillerato) ---------------- */
+
+const TC: Curriculum = {
+  id: "tc-bach",
+  materia: "Taller de Cortometraje",
+  etapa: "Bachillerato",
+  niveles: "2º Bachillerato",
+  bloques: [
+    {
+      id: "tc-A", nombre: "A · Lenguaje cinematográfico y narrativa audiovisual",
+      saberes: [
+        { id: "tc.A1", codigo: "A1", texto: "Historia del cine: movimientos, autores y obras fundamentales. Del cine mudo a la era digital." },
+        { id: "tc.A2", codigo: "A2", texto: "Elementos del lenguaje cinematográfico: plano, encadenamiento, ritmo, montaje, sonido." },
+        { id: "tc.A3", codigo: "A3", texto: "Géneros cinematográficos: drama, comedia, thriller, documental, experimental." },
+        { id: "tc.A4", codigo: "A4", texto: "Narrativa audiovisual: estructura dramática, personajes, conflictos, arcos narrativos." },
+        { id: "tc.A5", codigo: "A5", texto: "Análisis fílmico: lectura crítica de cortometrajes y largometrajes." },
+      ],
+    },
+    {
+      id: "tc-B", nombre: "B · Guion y preproducción",
+      saberes: [
+        { id: "tc.B1", codigo: "B1", texto: "Ideación y desarrollo de la idea: sinopsis, treatment, biblia." },
+        { id: "tc.B2", codigo: "B2", texto: "Escritura de guion literario: formato estándar, diálogos, acotaciones." },
+        { id: "tc.B3", codigo: "B3", texto: "Guion técnico: plan de rodaje, desglose, storyboard." },
+        { id: "tc.B4", codigo: "B4", texto: "Preproducción: casting, localizaciones, permisos, equipo técnico." },
+        { id: "tc.B5", codigo: "B5", texto: "Diseño de producción: presupuesto, cronograma, logística." },
+      ],
+    },
+    {
+      id: "tc-C", nombre: "C · Producción y rodaje",
+      saberes: [
+        { id: "tc.C1", codigo: "C1", texto: "Dirección de actores: técnicas de interpretación, ensayos, motivación." },
+        { id: "tc.C2", codigo: "C2", texto: "Dirección de fotografía: composición, iluminación, movimiento de cámara." },
+        { id: "tc.C3", codigo: "C3", texto: "Dirección de sonido: captación in situ, microfonía, ambientes." },
+        { id: "tc.C4", codigo: "C4", texto: "Dirección de arte: escenografía, vestuario, maquillaje, utilería." },
+        { id: "tc.C5", codigo: "C5", texto: "Rodaje: organización del set, continuidad, gestión del equipo." },
+      ],
+    },
+    {
+      id: "tc-D", nombre: "D · Postproducción y distribución",
+      saberes: [
+        { id: "tc.D1", codigo: "D1", texto: "Montaje: teoría y práctica del montaje cinematográfico. Ritmo, continuidad, elipsis." },
+        { id: "tc.D2", codigo: "D2", texto: "Edición no lineal con software profesional: DaVinci Resolve, Premiere Pro." },
+        { id: "tc.D3", codigo: "D3", texto: "Corrección de color y etalonaje: teoría del color, LUTs, grading." },
+        { id: "tc.D4", codigo: "D4", texto: "Diseño sonoro: música, efectos, Foley, mezcla final." },
+        { id: "tc.D5", codigo: "D5", texto: "Distribución y festivales: circuitos de exhibición, plataformas, derechos." },
+      ],
+    },
+  ],
+  ces: [
+    {
+      id: "tc.ce1", codigo: "CE1", descriptorIds: ["CCL2", "CCL3", "CCEC1", "CCEC2"],
+      texto: "Analizar obras cinematográficas de referencia, identificando recursos narrativos, estéticos y técnicos, y valorando su contexto histórico y cultural.",
+      criterios: [
+        { id: "tc.1.1", ceId: "tc.ce1", codigo: "1.1", saberIds: ["tc.A1", "tc.A2", "tc.A5"], texto: "Analizar cortometrajes y largometrajes identificando elementos del lenguaje cinematográfico y su función narrativa y expresiva." },
+        { id: "tc.1.2", ceId: "tc.ce1", codigo: "1.2", saberIds: ["tc.A3", "tc.A5"], texto: "Contextualizar obras cinematográficas en su momento histórico y cultural, reconociendo la evolución del lenguaje fílmico." },
+      ],
+    },
+    {
+      id: "tc.ce2", codigo: "CE2", descriptorIds: ["CCL4", "CCEC3", "CE2"],
+      texto: "Diseñar proyectos audiovisuales originales, desarrollando ideas creativas desde la concepción hasta el guion técnico.",
+      criterios: [
+        { id: "tc.2.1", ceId: "tc.ce2", codigo: "2.1", saberIds: ["tc.B1", "tc.B2"], texto: "Desarrollar ideas originales para cortometrajes, elaborando sinopsis, treatment y guion literario con formato profesional." },
+        { id: "tc.2.2", ceId: "tc.ce2", codigo: "2.2", saberIds: ["tc.B3", "tc.B4"], texto: "Elaborar guion técnico, storyboard y plan de rodaje detallado para la producción del cortometraje." },
+      ],
+    },
+    {
+      id: "tc.ce3", codigo: "CE3", descriptorIds: ["CD2", "CD3", "STEM4", "CPSAA3"],
+      texto: "Planificar y organizar la producción de un cortometraje, gestionando recursos humanos, técnicos y económicos.",
+      criterios: [
+        { id: "tc.3.1", ceId: "tc.ce3", codigo: "3.1", saberIds: ["tc.B4", "tc.B5"], texto: "Elaborar un plan de producción completo: presupuesto, cronograma, equipo técnico y artístico, localizaciones y permisos." },
+        { id: "tc.3.2", ceId: "tc.ce3", codigo: "3.2", saberIds: ["tc.C5"], texto: "Coordinar el rodaje del cortometraje, gestionando el equipo, el tiempo y los recursos disponibles." },
+      ],
+    },
+    {
+      id: "tc.ce4", codigo: "CE4", descriptorIds: ["CCEC3", "CD2", "CPSAA1"],
+      texto: "Dirigir el rodaje de un cortometraje, coordinando los aspectos técnicos y artísticos con sensibilidad estética.",
+      criterios: [
+        { id: "tc.4.1", ceId: "tc.ce4", codigo: "4.1", saberIds: ["tc.C1", "tc.C2", "tc.C3"], texto: "Dirigir a actores y coordinar los departamentos de fotografía, sonido y arte durante el rodaje." },
+        { id: "tc.4.2", ceId: "tc.ce4", codigo: "4.2", saberIds: ["tc.C4", "tc.C5"], texto: "Supervisar la dirección de arte y mantener la coherencia estética y narrativa del proyecto." },
+      ],
+    },
+    {
+      id: "tc.ce5", codigo: "CE5", descriptorIds: ["CD2", "CD3", "CCEC3", "CPSAA4"],
+      texto: "Realizar la postproducción del cortometraje, aplicando técnicas de montaje, corrección de color y diseño sonoro.",
+      criterios: [
+        { id: "tc.5.1", ceId: "tc.ce5", codigo: "5.1", saberIds: ["tc.D1", "tc.D2"], texto: "Montar el cortometraje utilizando software profesional, aplicando criterios de ritmo, continuidad y narrativa." },
+        { id: "tc.5.2", ceId: "tc.ce5", codigo: "5.2", saberIds: ["tc.D3", "tc.D4"], texto: "Realizar la corrección de color y el diseño sonoro final del cortometraje." },
+        { id: "tc.5.3", ceId: "tc.ce5", codigo: "5.3", saberIds: ["tc.D5"], texto: "Preparar el cortometraje para su distribución en festivales y plataformas digitales." },
+      ],
+    },
+  ],
+};
+
 export const CURRICULA: Record<string, Curriculum> = {
   "epva-eso": EPVA,
   "ea-bach": EA,
   "dt-bach": DT,
   "dt1-bach": DT1,
   "tp-bach": TP,
+  "tc-bach": TC,
 };
 
 /* ---------------- utilidades de consulta ---------------- */
