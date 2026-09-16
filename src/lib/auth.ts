@@ -46,9 +46,10 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
   
   console.log('✅ Usuario autenticado:', user.email, 'ID:', user.id);
   
+  // Consulta simplificada sin JOIN para evitar errores
   const { data: profile, error } = await supabase
     .from('usuarios')
-    .select('*, centros(id, nombre, codigo)')
+    .select('*')
     .eq('id', user.id)
     .single();
   
@@ -61,6 +62,19 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
   if (!profile) {
     console.error('⚠️ No se encontró perfil para el usuario', user.id);
     return null;
+  }
+  
+  // Obtener datos del centro en una consulta separada
+  if (profile.centro_id) {
+    const { data: centro } = await supabase
+      .from('centros')
+      .select('id, nombre, codigo')
+      .eq('id', profile.centro_id)
+      .single();
+    
+    if (centro) {
+      profile.centros = centro;
+    }
   }
   
   console.log('✅ Perfil obtenido:', profile.nombre, profile.rol);
