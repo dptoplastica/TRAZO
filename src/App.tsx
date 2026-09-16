@@ -1,7 +1,6 @@
 import { AppProvider, useApp } from "./store";
 import { Layout } from "./components/layout";
 import { ToastHost } from "./components/ui";
-import { type UserProfile } from "./lib/auth";
 import Panel from "./views/Panel";
 import Programaciones from "./views/Programaciones";
 import Curriculo from "./views/Curriculo";
@@ -37,10 +36,15 @@ function Router() {
   );
 }
 
-export default function App({ user }: { user: UserProfile }) {
+interface AppProps {
+  currentUser: { id: string; nombre: string; rol: string; email: string };
+  onLogout: () => void;
+}
+
+export default function App({ currentUser, onLogout }: AppProps) {
   return (
     <AppProvider>
-      <Layout>
+      <Layout currentUser={currentUser} onLogout={onLogout}>
         <Router />
       </Layout>
       <ToastHost />

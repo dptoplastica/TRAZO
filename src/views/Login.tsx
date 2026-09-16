@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { signIn } from '../lib/auth';
 import { Ic } from '../components/ui';
 
-export default function Login() {
+interface LoginProps {
+  onLogin: (email: string, password: string) => boolean;
+}
+
+export default function Login({ onLogin }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,8 +17,10 @@ export default function Login() {
     setError('');
     setLoading(true);
     
-    const { error } = await signIn(email, password);
-    if (error) setError(error.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : error.message);
+    const success = onLogin(email, password);
+    if (!success) {
+      setError('Email o contraseña incorrectos');
+    }
     setLoading(false);
   };
 

@@ -53,7 +53,13 @@ function Compass() {
   );
 }
 
-export function Layout({ children }: { children: ReactNode }) {
+interface LayoutProps {
+  children: ReactNode;
+  currentUser: { id: string; nombre: string; rol: string; email: string };
+  onLogout: () => void;
+}
+
+export function Layout({ children, currentUser, onLogout }: LayoutProps) {
   const { d, view, nav, me, isAdmin, set } = useApp();
   const [open, setOpen] = useState(false);
   const c = curso();
@@ -152,6 +158,13 @@ export function Layout({ children }: { children: ReactNode }) {
                 <span className="mono text-[10px] font-bold uppercase tracking-widest text-ink2">
                   {isAdmin ? "Acceso · Departamento" : "Acceso · Profesorado"}
                 </span>
+                <button
+                  onClick={onLogout}
+                  className="ml-2 rounded-md border border-line px-2 py-1 text-[11px] font-semibold text-ink2 transition hover:border-verm hover:bg-verml hover:text-verm cursor-pointer"
+                  title="Cerrar sesión"
+                >
+                  Salir
+                </button>
               </div>
             </div>
           </div>

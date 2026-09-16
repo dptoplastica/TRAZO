@@ -1,29 +1,64 @@
-import { useEffect, useState } from 'react';
-import { getCurrentUser, type UserProfile } from './lib/auth';
-import { supabase } from './lib/supabase';
+import { useState, useEffect } from 'react';
+import { buildSeed, type AppData } from './data/seed';
 import Login from './views/Login';
 import App from './App';
 
+// Sistema de login simple basado en datos locales
+// La integración con Supabase se puede activar más adelante
+
+function getLocalData(): AppData {
+  try {
+    const raw = localStorage.getItem('trazo-lomloe-v11');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.version === 11) return parsed;
+    }
+  } catch { /* ignore */ }
+  const seed = buildSeed();
+  localStorage.setItem('trazo-lomloe-v11', JSON.stringify(seed));
+  return seed;
+}
+
 export default function Root() {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<{ id: string; nombre: string; rol: string; email: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Cargar usuario actual al iniciar
-    getCurrentUser().then(setUser).finally(() => setLoading(false));
-    
-    // Escuchar cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        const profile = await getCurrentUser();
-        setUser(profile);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    // Verificar si hay sesión guardada
+    const savedSession = localStorage.getItem('trazo-session');
+    if (savedSession) {
+      try {
+        setUser(JSON.parse(savedSession));
+      } catch { /* ignore */ }
+    }
+    setLoading(false);
   }, []);
+
+  const handleLogin = (email: string, password: string): boolean => {
+    const data = getLocalData();
+    const teacher = data.teachers.find(t => t.email === email);
+    
+    if (!teacher) return false;
+    
+    // Password simple para demo: Trazo2025!
+    if (password !== 'Trazo2025!') return false;
+    
+    const session = {
+      id: teacher.id,
+      nombre: teacher.nombre,
+      rol: teacher.rol,
+      email: teacher.email,
+    };
+    
+    localStorage.setItem('trazo-session', JSON.stringify(session));
+    setUser(session);
+    return true;
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('trazo-session');
+    setUser(null);
+  };
 
   if (loading) {
     return (
@@ -44,8 +79,8 @@ export default function Root() {
   }
 
   if (!user) {
-    return <Login />;
+    return <Login onLogin={handleLogin} />;
   }
 
-  return <App user={user} />;
+  return <App currentUser={user} onLogout={handleLogout} />;
 }
