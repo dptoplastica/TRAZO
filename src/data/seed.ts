@@ -18,7 +18,8 @@ export interface Programacion {
   ccalificacion: string;
   actualizada: string;
 }
-export interface Actividad { id: string; titulo: string; desc: string; fase: "Inicio" | "Desarrollo" | "Cierre"; sesion: number; criterioIds: string[]; }
+export interface PDFFile { name: string; data: string; size: number; addedAt: string; }
+export interface Actividad { id: string; titulo: string; desc: string; fase: "Inicio" | "Desarrollo" | "Cierre"; sesion: number; criterioIds: string[]; pdfs?: PDFFile[]; }
 export interface SA {
   id: string; programacionId: string; titulo: string; eva: 1 | 2 | 3;
   inicio: string; fin: string; sesiones: number;
@@ -755,7 +756,7 @@ export function buildSeed(): AppData {
   ];
 
   return {
-    version: 12,
+    version: 13,
     role: "profesor",
     teacherId: "t1",
     cursoLabel: c.label,
