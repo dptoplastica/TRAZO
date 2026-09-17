@@ -10,18 +10,12 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: false,
     },
     title: 'TRAZO - Programación Didáctica LOMLOE',
   });
 
   const indexPath = path.join(app.getAppPath(), 'dist', 'index.html');
-  console.log('Cargando archivo:', indexPath);
-  
-  win.loadFile(indexPath).catch(function(err) {
-    console.error('Error al cargar el archivo:', err);
-  });
-  
+  win.loadFile(indexPath);
   win.setMenuBarVisibility(false);
 }
 

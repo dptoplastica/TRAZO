@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "TRAZO - Programación y evaluación LOMLOE",
   "author": "IES Lope de Vega",
-  "main": "electron/main.js",
+  "main": "electron/main.cjs",
   "private": true,
   "type": "module",
   "scripts": {
@@ -24,7 +24,7 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*",
+      "electron/main.cjs",
       "package.json"
     ],
     "win": {
