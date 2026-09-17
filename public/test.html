@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAZO - Prueba de Conexión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f2f4ef;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 { color: #0e7c66; }
+        .success { color: #0e7c66; font-weight: bold; }
+        .error { color: #d9532c; font-weight: bold; }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        button {
+            background: #0e7c66;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #0a5f4e; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🎯 TRAZO - Prueba de Conexión</h1>
+        <p>Esta página prueba la conexión con Supabase y el login.</p>
+        <button onclick="testConnection()">1. Probar Conexión</button>
+        <button onclick="testLogin()">2. Probar Login</button>
+        <button onclick="clearCache()">3. Limpiar Caché</button>
+    </div>
+    
+    <div class="card">
+        <h2>Resultados:</h2>
+        <div id="results"></div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        
+        const supabaseUrl = 'https://nvdfmlxztqirghlkhsgg.supabase.co';
+        const supabaseKey = 'sb_publishable_LKlJz6iQezFSQoDS_RcGcw_RY6rrbHU';
+        
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.style.marginBottom = '10px';
+            if (type === 'success') {
+                div.className = 'success';
+                div.textContent = '✅ ' + message;
+            } else if (type === 'error') {
+                div.className = 'error';
+                div.textContent = '❌ ' + message;
+            } else {
+                div.textContent = 'ℹ️ ' + message;
+            }
+            resultsDiv.appendChild(div);
+        }
+        
+        window.testConnection = async function() {
+            resultsDiv.innerHTML = '';
+            log('Probando conexión con Supabase...');
+            
+            try {
+                const { data, error } = await supabase.from('centros').select('id, nombre').limit(1);
+                
+                if (error) {
+                    log('Error de conexión: ' + error.message, 'error');
+                    log('Detalles: ' + JSON.stringify(error, null, 2), 'error');
+                } else {
+                    log('Conexión exitosa!', 'success');
+                    log('Datos: ' + JSON.stringify(data, null, 2));
+                }
+            } catch (e) {
+                log('Error inesperado: ' + e.message, 'error');
+            }
+        };
+        
+        window.testLogin = async function() {
+            resultsDiv.innerHTML = '';
+            log('Probando login con carmen.prieto@educantabria.es...');
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: 'carmen.prieto@educantabria.es',
+                    password: 'Trazo2025!'
+                });
+                
+                if (error) {
+                    log('Error de login: ' + error.message, 'error');
+                    log('Detalles: ' + JSON.stringify(error, null, 2), 'error');
+                } else {
+                    log('Login exitoso!', 'success');
+                    log('User ID: ' + data.user.id);
+                    log('Email: ' + data.user.email);
+                    
+                    log('Obteniendo perfil...');
+                    const { data: profile, error: profileError } = await supabase
+                        .from('usuarios')
+                        .select('id, email, nombre, rol, centro_id, color')
+                        .eq('id', data.user.id)
+                        .single();
+                    
+                    if (profileError) {
+                        log('Error obteniendo perfil: ' + profileError.message, 'error');
+                        log('Detalles: ' + JSON.stringify(profileError, null, 2), 'error');
+                    } else {
+                        log('Perfil obtenido!', 'success');
+                        log('Datos: ' + JSON.stringify(profile, null, 2));
+                    }
+                }
+            } catch (e) {
+                log('Error inesperado: ' + e.message, 'error');
+            }
+        };
+        
+        window.clearCache = function() {
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) {
+                        caches.delete(name);
+                    }
+                });
+            }
+            localStorage.clear();
+            sessionStorage.clear();
+            log('Caché limpiado. Recarga la página (Ctrl+F5).', 'success');
+        };
+        
+        log('Página cargada. Haz clic en los botones para probar.');
+    </script>
+</body>
+</html>
