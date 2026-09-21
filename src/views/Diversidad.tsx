@@ -4,6 +4,9 @@ import { getCurriculum, allCriterios } from "../data/curriculum";
 import { Ic, Reveal, SectionHead, Modal, EmptyState, btn, btnGhost, LevelChip } from "../components/ui";
 import { toISO } from "../data/seed";
 
+const TIPOS = ["NEAE", "Inclusión", "Refuerzo", "Ampliación", "Metodológica", "Recuperación"];
+const COLOR_TIPO: Record<string, string> = { NEAE: "#a84a6c", Inclusión: "#2c6e8f", Refuerzo: "#c98a12", Ampliación: "#0e7c66", Metodológica: "#5b6b8f", Recuperación: "#d9532c" };
+
 export function Diversidad() {
   const { d, set, notify, nav } = useApp();
   const [filtro, setFiltro] = useState("Todas");
@@ -20,18 +23,26 @@ export function Diversidad() {
 
   return (
     <div>
-      <SectionHead kicker="Inclusión educativa" title="Atención a la diversidad" desc="Medidas ordinarias, inclusiones, refuerzos y ampliaciones." actions={<button className={btn} onClick={() => setNueva(true)}><Ic n="plus" s={15} /> Nueva medida</button>} />
+      <SectionHead kicker="Inclusión educativa" title="Atención a la diversidad" desc="Medidas ordinarias, inclusiones, refuerzos y ampliaciones, asociadas al alumnado y reflejadas en el cuaderno y los informes." actions={<button className={btn} onClick={() => setNueva(true)}><Ic n="plus" s={15} /> Nueva medida</button>} />
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
-        {[{ v: neae.length, l: "alumnado NEAE" }, { v: d.measures.filter((x) => x.studentId).length, l: "medidas individuales" }, { v: d.measures.filter((x) => !x.studentId).length, l: "medidas de grupo" }].map((t) => (
+        {[{ v: neae.length, l: "alumnado con NEAE" }, { v: d.measures.filter((x) => x.studentId).length, l: "medidas individuales" }, { v: d.measures.filter((x) => !x.studentId).length, l: "medidas de grupo" }].map((t) => (
           <Reveal key={t.l}><div className="card px-4 py-3.5"><p className="font-display text-[26px] font-extrabold text-ink">{t.v}</p><p className="mono text-[10px] uppercase tracking-widest text-ink3">{t.l}</p></div></Reveal>
+        ))}
+      </div>
+      <div className="mb-4 flex flex-wrap gap-1.5">
+        {["Todas", ...TIPOS].map((t) => (
+          <button key={t} onClick={() => setFiltro(t)} className={`cursor-pointer rounded-lg border px-3 py-1.5 text-[12px] font-bold transition ${filtro === t ? "border-transparent text-white shadow" : "border-line2 bg-card text-ink2 hover:border-ink3"}`} style={filtro === t ? { background: t === "Todas" ? "#13252c" : COLOR_TIPO[t] } : undefined}>
+            {t}
+          </button>
         ))}
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {measures.map((mm) => (
           <Reveal key={mm.id}>
             <div className="card card-h flex h-full flex-col overflow-hidden">
+              <div className="h-1.5" style={{ background: COLOR_TIPO[mm.tipo] ?? "#0e7c66" }} />
               <div className="flex-1 p-4">
-                <span className="mono rounded px-2 py-0.5 text-[10px] font-extrabold uppercase bg-virl text-vird">{mm.tipo}</span>
+                <span className="mono rounded px-2 py-0.5 text-[10px] font-extrabold uppercase text-white" style={{ background: COLOR_TIPO[mm.tipo] ?? "#0e7c66" }}>{mm.tipo}</span>
                 <p className="mt-2 font-display text-[15.5px] font-extrabold text-ink">{mm.titulo}</p>
                 <p className="mt-1.5 text-[12.5px] text-ink2">{mm.desc}</p>
               </div>
@@ -41,7 +52,7 @@ export function Diversidad() {
       </div>
       <Modal open={nueva} onClose={() => setNueva(false)} title="Nueva medida">
         <label className="lbl">Tipo</label>
-        <select className="inp" value={m.tipo} onChange={(e) => setM({ ...m, tipo: e.target.value })}>{["NEAE", "Refuerzo", "Ampliación", "Metodológica"].map((t) => <option key={t}>{t}</option>)}</select>
+        <select className="inp" value={m.tipo} onChange={(e) => setM({ ...m, tipo: e.target.value })}>{TIPOS.map((t) => <option key={t}>{t}</option>)}</select>
         <label className="lbl mt-3">Título</label>
         <input className="inp" value={m.titulo ?? ""} onChange={(e) => setM({ ...m, titulo: e.target.value })} />
         <label className="lbl mt-3">Descripción</label>
