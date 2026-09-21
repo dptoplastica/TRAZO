@@ -234,7 +234,7 @@ export function buildSeed(): AppData {
       id: "p4", subjectId: "m5", curso: c.label, estado: "En revisión",
       contexto: CONTEXTO,
       criterios: ["dt1.1.1", "dt1.2.1", "dt1.2.2", "dt1.2.3", "dt1.3.1", "dt1.3.2", "dt1.3.3", "dt1.3.4", "dt1.3.5", "dt1.4.1", "dt1.4.2", "dt1.5.1", "dt1.5.2"],
-      ponderaciones: { "dt1.1.1": 5, "dt1.2.1": 8, "dt1.2.2": 10, "dt1.2.3": 10, "dt1.3.1": 12, "dt1.3.2": 10, "dt1.3.3": 5, "dt1.3.4": 5, "dt1.3.5": 3, "dt1.4.1": 10, "dt1.4.2": 7, "dt1.5.1": 8, "dt1.5.2": 7 },
+      ponderaciones: { "dt1.1.1": 8, "dt1.2.1": 8, "dt1.2.2": 10, "dt1.2.3": 10, "dt1.3.1": 10, "dt1.3.2": 8, "dt1.3.3": 5, "dt1.3.4": 5, "dt1.3.5": 3, "dt1.4.1": 12, "dt1.4.2": 10, "dt1.5.1": 6, "dt1.5.2": 5 },
       ccalificacion: "Las láminas se califican con escalas de valoración publicadas al inicio del curso. La limpieza, precisión y justificación del procedimiento son criterios transversales (criterio 3.5). El proyecto final integra geometría, sistemas de representación y CAD. Las prácticas CAD se evalúan con rúbrica específica.",
       actualizada: hoy,
     },
@@ -494,6 +494,63 @@ export function buildSeed(): AppData {
       instrumentos: ["i41", "i42", "i43", "i44"],
     },
     {
+      id: "sa17", programacionId: "p4", titulo: "Arquitectura que habla: lectura geométrica del patrimonio", eva: 1,
+      inicio: D(72), fin: D(92), sesiones: 10,
+      justificacion: "Tras dominar las construcciones geométricas básicas, el alumnado necesita aplicarlas a la interpretación de conjuntos arquitectónicos reales. Esta SA desarrolla la CE1 mediante el análisis de iglesias románicas cántabras, identificando estructuras geométricas, proporciones y trazas reguladoras.",
+      reto: "¿Podemos descifrar las reglas geométricas ocultas tras la aparente simplicidad de una iglesia románica?",
+      producto: "Dossier de análisis de 3 iglesias románicas + lámina de trazado de la traza reguladora de una portada + exposición oral.",
+      metodologias: ["Aprendizaje basado en problemas", "Estudio de casos", "Aprendizaje cooperativo"],
+      agrupamientos: "Individual + equipos de análisis", espacios: "Aula de dibujo, aula de informática",
+      recursos: "Planos de iglesias románicas, fotografías aéreas, software de geometría dinámica (GeoGebra), papel A3",
+      diversidad: "Plantillas de análisis con niveles de profundidad, modelos resueltos, ampliación con trazas reguladoras complejas.",
+      evidencias: "Dossier de análisis, lámina de trazado, exposición oral, cuaderno de bocetos.",
+      criterios: ["dt1.1.1", "dt1.4.1", "dt1.4.2"],
+      objetivos: [
+        "Analizar la relación histórica entre matemáticas y dibujo geométrico en la arquitectura románica",
+        "Interpretar elementos arquitectónicos mediante construcciones geométricas",
+        "Documentar gráficamente objetos sencillos aplicando normativa UNE/ISO",
+        "Utilizar el croquis como herramienta de análisis y reflexión"
+      ],
+      actividades: [
+        { id: "sa17a1", titulo: "Historia de la geometría en la arquitectura", desc: "De Thales y Euclides a los maestros canteros medievales. Cómo se transmitían las reglas geométricas en el románico.", fase: "Inicio", sesion: 1, criterioIds: ["dt1.1.1"] },
+        { id: "sa17a2", titulo: "Proporciones románicas", desc: "Análisis de las proporciones ad modum (módulo generador) en plantas y alzados de iglesias románicas cántabras.", fase: "Desarrollo", sesion: 3, criterioIds: ["dt1.1.1"] },
+        { id: "sa17a3", titulo: "Trazas reguladoras", desc: "Identificación de las trazas geométricas que organizan fachadas y portadas: cuadrados, rectángulos áureos, triángulos.", fase: "Desarrollo", sesion: 5, criterioIds: ["dt1.1.1", "dt1.4.1"] },
+        { id: "sa17a4", titulo: "Análisis de Santa María de Bareyo", desc: "Estudio geométrico completo de la iglesia: planta, alzado, portada. Identificación del módulo generador.", fase: "Desarrollo", sesion: 7, criterioIds: ["dt1.1.1", "dt1.4.2"] },
+        { id: "sa17a5", titulo: "Trazado de la traza reguladora", desc: "Reconstrucción geométrica en lámina A3 de la traza reguladora de una portada románica con justificación de cada paso.", fase: "Desarrollo", sesion: 9, criterioIds: ["dt1.4.1", "dt1.4.2"] },
+        { id: "sa17a6", titulo: "Exposición y debate", desc: "Presentación de los análisis realizados. Debate sobre la presencia de la geometría sagrada en el románico.", fase: "Cierre", sesion: 10, criterioIds: ["dt1.1.1", "dt1.4.2"] },
+      ],
+      instrumentos: ["i45", "i46", "i47"],
+    },
+    {
+      id: "sa18", programacionId: "p4", titulo: "Del croquis al plano: normalización aplicada", eva: 1,
+      inicio: D(94), fin: D(112), sesiones: 10,
+      justificacion: "La normalización es el lenguaje universal del dibujo técnico. Esta SA cierra la primera evaluación integrando todos los conocimientos geométricos previos en la elaboración de croquis y planos normalizados de objetos reales del entorno del alumnado.",
+      reto: "¿Cómo comunicar con precisión universal un objeto tridimensional usando solo líneas, símbolos y números?",
+      producto: "Croquis acotado a mano alzada + plano normalizado A3 con vistas, cortes y acotación completa de un objeto real.",
+      metodologias: ["Aprendizaje basado en proyectos", "Aprendizaje cooperativo"],
+      agrupamientos: "Individual con revisión entre pares", espacios: "Aula de dibujo",
+      recursos: "Objetos reales (piezas mecánicas, objetos cotidianos), tableros, estilógrafos, escalímetros, normas UNE",
+      diversidad: "Objetos con niveles de complejidad graduada, plantillas de acotación, modelos resueltos paso a paso.",
+      evidencias: "Croquis acotado, plano normalizado, memoria del proceso, coevaluación.",
+      criterios: ["dt1.3.1", "dt1.3.2", "dt1.4.1", "dt1.4.2"],
+      objetivos: [
+        "Documentar gráficamente objetos sencillos mediante vistas acotadas aplicando normativa UNE/ISO",
+        "Utilizar el croquis como elemento de reflexión en la aproximación a alternativas y soluciones",
+        "Aplicar escalas, formatos y tipos de línea normalizados",
+        "Valorar la importancia de usar un lenguaje técnico común"
+      ],
+      actividades: [
+        { id: "sa18a1", titulo: "Normas UNE/ISO fundamentales", desc: "Formatos, tipos de línea, escalas normalizadas. Rotulación técnica. Ejercicios de aplicación.", fase: "Inicio", sesion: 1, criterioIds: ["dt1.3.1"] },
+        { id: "sa18a2", titulo: "Elección de vistas", desc: "Criterios para seleccionar las vistas necesarias. Vista principal, alzado, planta, perfil. Ejercicios con objetos reales.", fase: "Desarrollo", sesion: 3, criterioIds: ["dt1.3.1"] },
+        { id: "sa18a3", titulo: "Croquis a mano alzada", desc: "Técnica del croquis acotado: proporciones, trazado libre, acotación. Ejercicios progresivos con objetos cotidianos.", fase: "Desarrollo", sesion: 5, criterioIds: ["dt1.4.2"] },
+        { id: "sa18a4", titulo: "Acotación normalizada", desc: "Reglas de acotación según UNE: líneas de cota, cifras, símbolos. Ejercicios de acotación de piezas sencillas.", fase: "Desarrollo", sesion: 7, criterioIds: ["dt1.3.2"] },
+        { id: "sa18a5", titulo: "Cortes y secciones", desc: "Concepto de corte y sección. Tipos de cortes. Representación normalizada. Aplicación a objetos reales.", fase: "Desarrollo", sesion: 8, criterioIds: ["dt1.3.1"] },
+        { id: "sa18a6", titulo: "Plano normalizado final", desc: "Elaboración del plano definitivo A3 con vistas, corte, acotación completa y cajetín normalizado.", fase: "Desarrollo", sesion: 9, criterioIds: ["dt1.3.1", "dt1.3.2", "dt1.4.1"] },
+        { id: "sa18a7", titulo: "Revisión entre pares y entrega", desc: "Intercambio de planos para revisión con rúbrica. Corrección de errores. Entrega final del dossier completo.", fase: "Cierre", sesion: 10, criterioIds: ["dt1.4.1", "dt1.4.2"] },
+      ],
+      instrumentos: ["i48", "i49", "i50"],
+    },
+    {
       id: "sa10", programacionId: "p5", titulo: "Escuchar el mundo: análisis de podcasts de referencia", eva: 1,
       inicio: D(12), fin: D(48), sesiones: 10,
       justificacion: "Antes de producir, hay que escuchar con criterio. Esta SA entrena la escucha crítica mediante el análisis de podcasts de referencia, identificando géneros, estructuras y recursos narrativos.",
@@ -640,6 +697,8 @@ export function buildSeed(): AppData {
     { id: "u5", programacionId: "p2", titulo: "Espacio, memoria y comunidad", inicio: toISO(new Date(c.y + 1, 0, 15)), fin: toISO(new Date(c.y + 1, 2, 6)), sesiones: 14, saIds: ["sa5"], criterios: ["ea.2.2", "ea.4.1", "ea.5.2"] },
     { id: "u6", programacionId: "p3", titulo: "Geometría, sistemas y proyecto", inicio: D(14), fin: toISO(new Date(c.y + 1, 0, 30)), sesiones: 16, saIds: ["sa6"], criterios: ["dt.1.2", "dt.2.1", "dt.3.1", "dt.4.1"] },
     { id: "u7", programacionId: "p4", titulo: "Fundamentos geométricos y patrimonio", inicio: D(10), fin: D(70), sesiones: 32, saIds: ["sa7", "sa16"], criterios: ["dt1.1.1", "dt1.2.1", "dt1.2.2", "dt1.2.3", "dt1.4.1", "dt1.4.2"] },
+    { id: "u7b", programacionId: "p4", titulo: "Lectura geométrica de la arquitectura", inicio: D(72), fin: D(92), sesiones: 10, saIds: ["sa17"], criterios: ["dt1.1.1", "dt1.4.1", "dt1.4.2"] },
+    { id: "u7c", programacionId: "p4", titulo: "Normalización y documentación gráfica", inicio: D(94), fin: D(112), sesiones: 10, saIds: ["sa18"], criterios: ["dt1.3.1", "dt1.3.2", "dt1.4.1", "dt1.4.2"] },
     { id: "u8", programacionId: "p4", titulo: "Geometría descriptiva y documentación gráfica", inicio: toISO(new Date(c.y + 1, 0, 10)), fin: toISO(new Date(c.y + 1, 1, 28)), sesiones: 12, saIds: ["sa8"], criterios: ["dt1.3.1", "dt1.3.2", "dt1.3.5", "dt1.4.1", "dt1.4.2"] },
     { id: "u9", programacionId: "p4", titulo: "Sistemas CAD y representación digital", inicio: toISO(new Date(c.y + 1, 2, 25)), fin: toISO(new Date(c.y + 1, 4, 30)), sesiones: 14, saIds: ["sa9"], criterios: ["dt1.3.4", "dt1.5.1", "dt1.5.2"] },
     { id: "u10", programacionId: "p5", titulo: "Cultura sonora y análisis crítico", inicio: D(12), fin: D(48), sesiones: 10, saIds: ["sa10"], criterios: ["tp.1.1", "tp.1.2", "tp.5.1"] },
@@ -699,6 +758,14 @@ export function buildSeed(): AppData {
     { id: "i42", subjectId: "m5", nombre: "Examen práctico 2: tangencias y curvas técnicas", tipo: "practica", peso: 20, criterioIds: ["dt1.2.3"], fecha: D(76), rubrica: NIVELES_RUBRICA },
     { id: "i43", subjectId: "m5", nombre: "Dossier de láminas de ejercicios de geometría plana", tipo: "proyecto", peso: 15, criterioIds: ["dt1.2.1", "dt1.2.2", "dt1.2.3"], fecha: D(70) },
     { id: "i44", subjectId: "m5", nombre: "Lámina final: reconstrucción geométrica del románico cántabro", tipo: "proyecto", peso: 15, criterioIds: ["dt1.2.2", "dt1.2.3"], fecha: D(72) },
+    /* Dibujo Técnico I - SA17: Arquitectura que habla (CE1) */
+    { id: "i45", subjectId: "m5", nombre: "Dossier de análisis de iglesias románicas", tipo: "proyecto", peso: 15, criterioIds: ["dt1.1.1"], fecha: D(90) },
+    { id: "i46", subjectId: "m5", nombre: "Lámina: trazado de traza reguladora", tipo: "proyecto", peso: 20, criterioIds: ["dt1.1.1", "dt1.4.1"], fecha: D(92) },
+    { id: "i47", subjectId: "m5", nombre: "Exposición oral del análisis", tipo: "exposicion", peso: 10, criterioIds: ["dt1.1.1", "dt1.4.2"], fecha: D(92) },
+    /* Dibujo Técnico I - SA18: Del croquis al plano (CE4) */
+    { id: "i48", subjectId: "m5", nombre: "Croquis acotado a mano alzada", tipo: "proyecto", peso: 15, criterioIds: ["dt1.4.2"], fecha: D(105) },
+    { id: "i49", subjectId: "m5", nombre: "Plano normalizado A3 con vistas y cortes", tipo: "proyecto", peso: 25, criterioIds: ["dt1.3.1", "dt1.3.2", "dt1.4.1"], fecha: D(110) },
+    { id: "i50", subjectId: "m5", nombre: "Coevaluación de planos entre pares", tipo: "coevaluacion", peso: 10, criterioIds: ["dt1.4.1", "dt1.4.2"], fecha: D(112) },
   ];
 
   /* calificaciones deterministas a partir del perfil de cada estudiante */
@@ -756,7 +823,7 @@ export function buildSeed(): AppData {
   ];
 
   return {
-    version: 13,
+    version: 14,
     role: "profesor",
     teacherId: "t1",
     cursoLabel: c.label,
