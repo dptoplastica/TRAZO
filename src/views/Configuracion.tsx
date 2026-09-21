@@ -5,6 +5,8 @@ import { Ic, Reveal, SectionHead, Modal, btn, btnGhost, btnDanger } from "../com
 export default function Configuracion() {
   const { d, set, notify, isAdmin, reset } = useApp();
   const [showNewSubject, setShowNewSubject] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [subjectToDelete, setSubjectToDelete] = useState<string | null>(null);
   const [newSubject, setNewSubject] = useState<{
     nombre: string;
     corto: string;
@@ -73,13 +75,20 @@ export default function Configuracion() {
   };
 
   const handleDeleteSubject = (subjectId: string) => {
-    if (confirm("¿Estás seguro de que quieres eliminar esta materia? Se eliminarán también todas las programaciones asociadas.")) {
+    setSubjectToDelete(subjectId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (subjectToDelete) {
       set(prev => ({
         ...prev,
-        subjects: prev.subjects.filter(s => s.id !== subjectId),
-        programaciones: prev.programaciones.filter(p => p.subjectId !== subjectId)
+        subjects: prev.subjects.filter(s => s.id !== subjectToDelete),
+        programaciones: prev.programaciones.filter(p => p.subjectId !== subjectToDelete)
       }));
-      notify("Materia eliminada");
+      notify("Materia eliminada correctamente");
+      setShowDeleteConfirm(false);
+      setSubjectToDelete(null);
     }
   };
 
@@ -232,6 +241,25 @@ export default function Configuracion() {
             <div className="flex justify-end gap-2 pt-2">
               <button className={btnGhost} onClick={() => setShowNewSubject(false)}>Cancelar</button>
               <button className={btn} onClick={handleAddSubject}>Crear materia</button>
+            </div>
+          </div>
+        </Modal>
+
+        <Modal open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title="Confirmar eliminación">
+          <div className="space-y-4">
+            <p className="text-ink2">
+              ¿Estás seguro de que quieres eliminar esta materia?
+            </p>
+            <p className="text-verm font-semibold">
+              ⚠️ Se eliminarán también todas las programaciones, situaciones de aprendizaje y calificaciones asociadas.
+            </p>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={() => setShowDeleteConfirm(false)}>
+                Cancelar
+              </button>
+              <button className={btnDanger} onClick={confirmDelete}>
+                <Ic n="trash" s={14} /> Eliminar materia
+              </button>
             </div>
           </div>
         </Modal>
