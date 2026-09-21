@@ -187,6 +187,89 @@ function EditorSA({ sa }: { sa: SA }) {
                     <div className="mt-1 flex flex-wrap gap-1">
                       {a.criterioIds.map((cId) => { const c = cur.ces.flatMap((ce) => ce.criterios).find((x) => x.id === cId); return <span key={cId} className="mono rounded bg-paper border border-line px-1.5 py-0.5 text-[9.5px] font-bold text-ink2">{c?.codigo}</span>; })}
                     </div>
+                    {/* PDFs adjuntos */}
+                    {a.pdfs && a.pdfs.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {a.pdfs.map((pdf, idx) => (
+                          <div key={idx} className="flex items-center gap-2 rounded-md bg-paper border border-line px-2 py-1">
+                            <Ic n="file" s={12} className="text-verm shrink-0" />
+                            <span className="flex-1 truncate text-[11px] text-ink2">{pdf.name}</span>
+                            <span className="mono text-[9px] text-ink3">{(pdf.size / 1024).toFixed(1)} KB</span>
+                            <button
+                              onClick={() => {
+                                const blob = new Blob([Uint8Array.from(atob(pdf.data), c => c.charCodeAt(0))], { type: 'application/pdf' });
+                                const url = URL.createObjectURL(blob);
+                                window.open(url, '_blank');
+                              }}
+                              className="cursor-pointer rounded p-0.5 text-ink3 transition hover:bg-azul hover:text-azu"
+                              title="Ver PDF"
+                            >
+                              <Ic n="eye" s={12} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                const blob = new Blob([Uint8Array.from(atob(pdf.data), c => c.charCodeAt(0))], { type: 'application/pdf' });
+                                const url = URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = pdf.name;
+                                link.click();
+                                URL.revokeObjectURL(url);
+                              }}
+                              className="cursor-pointer rounded p-0.5 text-ink3 transition hover:bg-virl hover:text-vird"
+                              title="Descargar PDF"
+                            >
+                              <Ic n="download" s={12} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                const newPdfs = (a.pdfs ?? []).filter((_, i) => i !== idx);
+                                upd({ actividades: sa.actividades.map(act => act.id === a.id ? { ...act, pdfs: newPdfs } : act) });
+                                notify("PDF eliminado");
+                              }}
+                              className="cursor-pointer rounded p-0.5 text-ink3 transition hover:bg-verml hover:text-verm"
+                              title="Eliminar PDF"
+                            >
+                              <Ic n="x" s={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Botón añadir PDF */}
+                    <div className="mt-2">
+                      <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-dashed border-line2 bg-card px-2 py-1 text-[11px] font-semibold text-ink2 transition hover:border-vir hover:bg-virl/30 hover:text-vird">
+                        <Ic n="plus" s={12} />
+                        <span>Añadir ejercicio PDF</span>
+                        <input
+                          type="file"
+                          accept="application/pdf"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file && file.type === 'application/pdf') {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                const base64 = (reader.result as string).split(',')[1];
+                                const newPdf = {
+                                  name: file.name,
+                                  data: base64,
+                                  size: file.size,
+                                  addedAt: new Date().toISOString()
+                                };
+                                const currentPdfs = a.pdfs ?? [];
+                                upd({ actividades: sa.actividades.map(act => act.id === a.id ? { ...act, pdfs: [...currentPdfs, newPdf] } : act) });
+                                notify("PDF añadido correctamente");
+                              };
+                              reader.readAsDataURL(file);
+                            } else {
+                              notify("Solo se permiten archivos PDF");
+                            }
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
                   <button onClick={() => upd({ actividades: sa.actividades.filter((x) => x.id !== a.id) })} className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-verml hover:text-verm" title="Eliminar actividad"><Ic n="trash" s={15} /></button>
                 </div>
