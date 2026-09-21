@@ -24,14 +24,14 @@ interface Ctx {
   reset: () => void;
 }
 
-const KEY = "trazo-lomloe-v15";
+const KEY = "trazo-lomloe-v16";
 
 function load(): AppData {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as AppData;
-      if (parsed && parsed.version === 15) return parsed;
+      if (parsed && parsed.version === 16) return parsed;
     }
   } catch { /* ignore */ }
   return buildSeed();
