@@ -61,6 +61,19 @@ export default function Configuracion() {
     absRate: 0.05
   });
 
+  const [editingGroup, setEditingGroup] = useState<string | null>(null);
+  const [editGroupData, setEditGroupData] = useState<{
+    nombre: string;
+    nivel: string;
+    tutorId: string;
+    dias: number[];
+  }>({
+    nombre: "",
+    nivel: "1º Bachillerato",
+    tutorId: "",
+    dias: []
+  });
+
   if (!isAdmin) {
     return (
       <div>
@@ -222,6 +235,55 @@ export default function Configuracion() {
     notify("Grupo del alumno actualizado");
   };
 
+  // Funciones para editar grupos
+  const handleEditGroup = (groupId: string) => {
+    const group = d.groups.find(g => g.id === groupId);
+    if (group) {
+      setEditingGroup(groupId);
+      setEditGroupData({
+        nombre: group.nombre,
+        nivel: group.nivel,
+        tutorId: group.tutorId,
+        dias: group.dias
+      });
+    }
+  };
+
+  const handleSaveGroup = () => {
+    if (!editGroupData.nombre) {
+      notify("El nombre del grupo es obligatorio");
+      return;
+    }
+
+    set(prev => ({
+      ...prev,
+      groups: prev.groups.map(g => 
+        g.id === editingGroup 
+          ? { ...g, ...editGroupData }
+          : g
+      )
+    }));
+
+    notify("Grupo actualizado correctamente");
+    setEditingGroup(null);
+    setEditGroupData({
+      nombre: "",
+      nivel: "1º Bachillerato",
+      tutorId: "",
+      dias: []
+    });
+  };
+
+  const handleCancelEditGroup = () => {
+    setEditingGroup(null);
+    setEditGroupData({
+      nombre: "",
+      nivel: "1º Bachillerato",
+      tutorId: "",
+      dias: []
+    });
+  };
+
   return (
     <div>
       <SectionHead kicker="Administración" title="Configuración general" desc="Gestiona profesorado, materias y grupos del departamento." />
@@ -299,6 +361,13 @@ export default function Configuracion() {
                         title="Ver alumnos"
                       >
                         <Ic n="users" s={16} />
+                      </button>
+                      <button 
+                        className="text-vir hover:bg-vir-l p-2 rounded transition-colors"
+                        onClick={() => handleEditGroup(g.id)}
+                        title="Editar grupo"
+                      >
+                        <Ic n="edit" s={16} />
                       </button>
                       <button 
                         className="text-verm hover:text-verm-d hover:bg-verm-l p-2 rounded transition-colors"
@@ -564,6 +633,77 @@ export default function Configuracion() {
               <button className={btnDanger} onClick={confirmDeleteGroup}>
                 <Ic n="trash" s={14} /> Eliminar grupo
               </button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Modal Editar Grupo */}
+        <Modal open={editingGroup !== null} onClose={handleCancelEditGroup} title="Editar grupo">
+          <div className="space-y-4">
+            <div>
+              <label className="lbl">Nombre del grupo</label>
+              <input
+                type="text"
+                className="inp"
+                value={editGroupData.nombre}
+                onChange={(e) => setEditGroupData({ ...editGroupData, nombre: e.target.value })}
+                placeholder="Ej: 1º Bach A"
+              />
+            </div>
+            <div>
+              <label className="lbl">Nivel</label>
+              <select
+                className="inp"
+                value={editGroupData.nivel}
+                onChange={(e) => setEditGroupData({ ...editGroupData, nivel: e.target.value })}
+              >
+                <option value="1º ESO">1º ESO</option>
+                <option value="2º ESO">2º ESO</option>
+                <option value="3º ESO">3º ESO</option>
+                <option value="4º ESO">4º ESO</option>
+                <option value="1º Bachillerato">1º Bachillerato</option>
+                <option value="2º Bachillerato">2º Bachillerato</option>
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Tutor/a</label>
+              <select
+                className="inp"
+                value={editGroupData.tutorId}
+                onChange={(e) => setEditGroupData({ ...editGroupData, tutorId: e.target.value })}
+              >
+                {d.teachers.map(t => (
+                  <option key={t.id} value={t.id}>{t.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Días de clase</label>
+              <div className="flex flex-wrap gap-2">
+                {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"].map((dia, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`px-3 py-1.5 rounded text-[12px] font-bold transition-colors ${
+                      editGroupData.dias.includes(idx + 1)
+                        ? "bg-vir text-white"
+                        : "bg-paper text-ink2 hover:bg-line"
+                    }`}
+                    onClick={() => {
+                      const newDias = editGroupData.dias.includes(idx + 1)
+                        ? editGroupData.dias.filter(d => d !== idx + 1)
+                        : [...editGroupData.dias, idx + 1].sort();
+                      setEditGroupData({ ...editGroupData, dias: newDias });
+                    }}
+                  >
+                    {dia}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={handleCancelEditGroup}>Cancelar</button>
+              <button className={btn} onClick={handleSaveGroup}>Guardar cambios</button>
             </div>
           </div>
         </Modal>
