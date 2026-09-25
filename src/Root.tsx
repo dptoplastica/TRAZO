@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { buildSeed, type AppData } from './data/seed';
 import Login from './views/Login';
 import App from './App';
-import { signInWithSupabase, signOutFromSupabase, checkSupabaseSession } from './lib/dataService';
 
 function getLocalData(): AppData {
   try {
@@ -22,57 +21,18 @@ export default function Root() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar sesión de Supabase
-    checkSupabaseSession().then((session) => {
-      if (session?.user) {
-        // Si hay sesión de Supabase, cargar datos del usuario
-        const data = getLocalData();
-        const teacher = data.teachers.find(t => t.email === session.user.email);
-        if (teacher) {
-          const sessionData = {
-            id: teacher.id,
-            nombre: teacher.nombre,
-            rol: teacher.rol,
-            email: teacher.email,
-          };
-          localStorage.setItem('trazo-session', JSON.stringify(sessionData));
-          setUser(sessionData);
-        }
-      } else {
-        // Si no hay sesión de Supabase, verificar localStorage
-        const savedSession = localStorage.getItem('trazo-session');
-        if (savedSession) {
-          try {
-            setUser(JSON.parse(savedSession));
-          } catch { /* ignore */ }
-        }
-      }
-      setLoading(false);
-    });
+    // Verificar sesión guardada en localStorage
+    const savedSession = localStorage.getItem('trazo-session');
+    if (savedSession) {
+      try {
+        setUser(JSON.parse(savedSession));
+      } catch { /* ignore */ }
+    }
+    setLoading(false);
   }, []);
 
-  const handleLogin = async (email: string, password: string): Promise<boolean> => {
-    // Primero intentar autenticación con Supabase
-    const supabaseResult = await signInWithSupabase(email, password);
-    
-    if (supabaseResult.success) {
-      // Autenticación exitosa con Supabase
-      const data = getLocalData();
-      const teacher = data.teachers.find(t => t.email === email);
-      if (teacher) {
-        const session = {
-          id: teacher.id,
-          nombre: teacher.nombre,
-          rol: teacher.rol,
-          email: teacher.email,
-        };
-        localStorage.setItem('trazo-session', JSON.stringify(session));
-        setUser(session);
-        return true;
-      }
-    }
-    
-    // Fallback: autenticación local (si Supabase falla o no está configurado)
+  const handleLogin = (email: string, password: string): boolean => {
+    // Autenticación local directa
     const data = getLocalData();
     const teacher = data.teachers.find(t => t.email === email);
     if (!teacher) return false;
@@ -89,9 +49,7 @@ export default function Root() {
     return true;
   };
 
-  const handleLogout = async () => {
-    // Cerrar sesión en Supabase
-    await signOutFromSupabase();
+  const handleLogout = () => {
     localStorage.removeItem('trazo-session');
     setUser(null);
   };
