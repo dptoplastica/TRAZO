@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useApp, visibleSubjects, uid, studentsOf } from "../store";
 import { getCurriculum, allCriterios } from "../data/curriculum";
 import { TIPOS_INSTRUMENTO, NIVELES_RUBRICA, toISO, type Instrument } from "../data/seed";
@@ -15,6 +15,11 @@ export default function Evaluacion() {
   const [nuevo, setNuevo] = useState(false);
   const [tab, setTab] = useState<"instrumentos" | "actividades">("instrumentos");
   const [selectedSA, setSelectedSA] = useState<string | null>(null);
+
+  // Reset selectedSA when subject changes
+  useEffect(() => {
+    setSelectedSA(null);
+  }, [subjectId]);
 
   if (!sub || !cur) return <EmptyState icon="clipboard" title="Sin materias" />;
 
@@ -139,12 +144,21 @@ function CalificarActividades({ saId }: { saId: string }) {
   const sa = d.sas.find((s) => s.id === saId);
   const prog = sa ? d.programaciones.find((p) => p.id === sa.programacionId) : null;
   const sub = prog ? d.subjects.find((s) => s.id === prog.subjectId) : null;
-  const students = sub ? studentsOf(d, sub.grupoId) : [];
 
   const [selectedActividad, setSelectedActividad] = useState<string | null>(null);
   const [vals, setVals] = useState<Record<string, string>>({});
 
+  const getNotaAlumno = (studentId: string, actividadId: string): number | null => {
+    const grade = d.grades.find((g) => 
+      g.studentId === studentId && 
+      g.instrumentoId === `act-${actividadId}`
+    );
+    return grade ? grade.value : null;
+  };
+
   if (!sa || !sub) return null;
+
+  const students = studentsOf(d, sub.grupoId);
 
   const actividad = sa.actividades.find((a) => a.id === selectedActividad);
 
@@ -164,11 +178,13 @@ function CalificarActividades({ saId }: { saId: string }) {
         const v = Math.max(0, Math.min(10, parseFloat(raw.replace(",", "."))));
         if (Number.isNaN(v)) continue;
 
+        const criterioId = actividad.criterioIds[0] || "default";
+
         // Buscar si ya existe una calificación para esta actividad y alumno
         const existingIdx = grades.findIndex((g) => 
           g.studentId === st.id && 
           g.instrumentoId === `act-${actividad.id}` &&
-          g.criterioId === actividad.criterioIds[0] // Usar el primer criterio de la actividad
+          g.criterioId === criterioId
         );
 
         if (existingIdx >= 0) {
@@ -178,7 +194,7 @@ function CalificarActividades({ saId }: { saId: string }) {
             id: uid(),
             studentId: st.id,
             instrumentoId: `act-${actividad.id}`,
-            criterioId: actividad.criterioIds[0] || "default",
+            criterioId: criterioId,
             value: v,
             fecha: hoy
           });
@@ -191,14 +207,6 @@ function CalificarActividades({ saId }: { saId: string }) {
 
     setVals({});
     notify(`${nuevasCalificaciones} calificaciones guardadas`);
-  };
-
-  const getNotaAlumno = (studentId: string, actividadId: string): number | null => {
-    const grade = d.grades.find((g) => 
-      g.studentId === studentId && 
-      g.instrumentoId === `act-${actividadId}`
-    );
-    return grade ? grade.value : null;
   };
 
   return (
