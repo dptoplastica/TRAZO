@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { buildSeed, cursoInfo, sessionsFor, toISO, fromISO, type AppData } from "./data/seed";
 import { getCurriculum, allCriterios, ceById, clavesDeCE, type Curriculum, type Criterio } from "./data/curriculum";
+import { saveDataToSupabase } from "./lib/dataService";
 
 export type ViewId =
   | "panel" | "programaciones" | "curriculo" | "situaciones" | "unidades"
@@ -31,7 +32,7 @@ function load(): AppData {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as AppData;
-      if (parsed && parsed.version === 13) return parsed;
+      if (parsed && parsed.version === 19) return parsed;
     }
   } catch { /* ignore */ }
   return buildSeed();
@@ -46,7 +47,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<Toast | null>(null);
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* ignore */ }
+    try { 
+      localStorage.setItem(KEY, JSON.stringify(d));
+      // Intentar sincronizar con Supabase (no bloqueante)
+      saveDataToSupabase(d).catch(err => console.warn('Error sincronizando con Supabase:', err));
+    } catch { /* ignore */ }
   }, [d]);
 
   const value = useMemo<Ctx>(() => {

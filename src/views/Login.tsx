@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Ic } from '../components/ui';
 
-interface LoginProps { onLogin: (email: string, password: string) => boolean; }
+interface LoginProps { onLogin: (email: string, password: string) => Promise<boolean>; }
 
 export default function Login({ onLogin }: LoginProps) {
   const [email, setEmail] = useState('');
@@ -13,8 +13,12 @@ export default function Login({ onLogin }: LoginProps) {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const success = onLogin(email, password);
-    if (!success) setError('Email o contraseña incorrectos');
+    try {
+      const success = await onLogin(email, password);
+      if (!success) setError('Email o contraseña incorrectos');
+    } catch (err) {
+      setError('Error al iniciar sesión');
+    }
     setLoading(false);
   };
 
