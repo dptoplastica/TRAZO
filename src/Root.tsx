@@ -4,14 +4,24 @@ import Login from './views/Login';
 import App from './App';
 
 function getLocalData(): AppData {
+  console.log('📦 Cargando datos locales...');
   try {
     const raw = localStorage.getItem('trazo-lomloe-v19');
+    console.log('📦 Datos en localStorage:', raw ? 'Encontrados' : 'No encontrados');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.version === 19) return parsed;
+      console.log('📦 Versión encontrada:', parsed.version);
+      if (parsed && parsed.version === 19) {
+        console.log('✅ Usando datos de localStorage');
+        return parsed;
+      }
     }
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('❌ Error cargando localStorage:', e);
+  }
+  console.log('🆕 Generando datos nuevos...');
   const seed = buildSeed();
+  console.log('🆕 Datos generados:', seed);
   localStorage.setItem('trazo-lomloe-v19', JSON.stringify(seed));
   return seed;
 }
@@ -32,11 +42,24 @@ export default function Root() {
   }, []);
 
   const handleLogin = (email: string, password: string): boolean => {
+    console.log('🔐 Intentando login con:', { email, password });
+    
     // Autenticación local directa
     const data = getLocalData();
+    console.log('📊 Datos cargados:', data);
+    console.log('👥 Profesores disponibles:', data.teachers);
+    
     const teacher = data.teachers.find(t => t.email === email);
-    if (!teacher) return false;
-    if (password !== 'Trazo2025!') return false;
+    console.log('🔍 Profesor encontrado:', teacher);
+    
+    if (!teacher) {
+      console.error('❌ Email no encontrado');
+      return false;
+    }
+    if (password !== 'Trazo2025!') {
+      console.error('❌ Contraseña incorrecta');
+      return false;
+    }
     
     const session = {
       id: teacher.id,
@@ -44,6 +67,7 @@ export default function Root() {
       rol: teacher.rol,
       email: teacher.email,
     };
+    console.log('✅ Login exitoso:', session);
     localStorage.setItem('trazo-session', JSON.stringify(session));
     setUser(session);
     return true;
