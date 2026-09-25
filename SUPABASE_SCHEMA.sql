@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS measures (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tipo TEXT NOT NULL,
   titulo TEXT NOT NULL,
-  desc TEXT DEFAULT '',
+  descripcion TEXT DEFAULT '',
   student_id UUID REFERENCES students(id) ON DELETE CASCADE,
   group_id UUID REFERENCES groups(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

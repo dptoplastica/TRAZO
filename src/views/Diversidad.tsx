@@ -17,7 +17,7 @@ export function Diversidad() {
 
   const crear = () => {
     if (!m.titulo?.trim()) return;
-    set((s) => ({ ...s, measures: [...s.measures, { id: uid(), tipo: m.tipo, titulo: m.titulo.trim(), desc: m.desc ?? "", studentId: m.studentId, groupId: m.groupId }] }));
+    set((s) => ({ ...s, measures: [...s.measures, { id: uid(), tipo: m.tipo, titulo: m.titulo.trim(), descripcion: m.desc ?? "", studentId: m.studentId, groupId: m.groupId }] }));
     setNueva(false); setM({ tipo: "NEAE" }); notify("Medida registrada");
   };
 
@@ -44,7 +44,7 @@ export function Diversidad() {
               <div className="flex-1 p-4">
                 <span className="mono rounded px-2 py-0.5 text-[10px] font-extrabold uppercase text-white" style={{ background: COLOR_TIPO[mm.tipo] ?? "#0e7c66" }}>{mm.tipo}</span>
                 <p className="mt-2 font-display text-[15.5px] font-extrabold text-ink">{mm.titulo}</p>
-                <p className="mt-1.5 text-[12.5px] text-ink2">{mm.desc}</p>
+                <p className="mt-1.5 text-[12.5px] text-ink2">{mm.descripcion}</p>
               </div>
             </div>
           </Reveal>

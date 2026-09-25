@@ -13,7 +13,7 @@ export interface Instrument { id: string; subjectId: string; nombre: string; tip
 export interface Grade { id: string; studentId: string; instrumentoId: string; criterioId: string; value: number; fecha: string; }
 export interface AttRec { id: string; groupId: string; fecha: string; studentId: string; estado: "P" | "F" | "R"; }
 export interface Obs { id: string; studentId: string; fecha: string; texto: string; autor: string; }
-export interface Measure { id: string; tipo: string; titulo: string; desc: string; studentId?: string; groupId?: string; }
+export interface Measure { id: string; tipo: string; titulo: string; descripcion: string; studentId?: string; groupId?: string; }
 export interface Recovery { id: string; studentId: string; criterioId: string; actividad: string; fecha: string; instrumentoId: string; resultado?: number; }
 
 export interface AppData {
@@ -376,9 +376,9 @@ export function buildSeed(): AppData {
   ];
 
   const measures: Measure[] = [
-    { id: "d1", tipo: "NEAE", titulo: "Adaptaciones de acceso · Daniel Herrera", desc: "Instrucciones en pasos numerados, apoyos visuales, tiempo ampliado.", studentId: "g1-s6", groupId: "g1" },
-    { id: "d2", tipo: "Refuerzo", titulo: "Plan de refuerzo de expresión gráfica · Mateo", desc: "Sesiones breves de trazo y encaje con modelos guiados.", studentId: "g1-s12", groupId: "g1" },
-    { id: "d3", tipo: "Ampliación", titulo: "Identidad visual de la campaña · Carla", desc: "Extensión del reto del cartel al sistema completo de identidad.", studentId: "g1-s9", groupId: "g1" },
+    { id: "d1", tipo: "NEAE", titulo: "Adaptaciones de acceso · Daniel Herrera", descripcion: "Instrucciones en pasos numerados, apoyos visuales, tiempo ampliado.", studentId: "g1-s6", groupId: "g1" },
+    { id: "d2", tipo: "Refuerzo", titulo: "Plan de refuerzo de expresión gráfica · Mateo", descripcion: "Sesiones breves de trazo y encaje con modelos guiados.", studentId: "g1-s12", groupId: "g1" },
+    { id: "d3", tipo: "Ampliación", titulo: "Identidad visual de la campaña · Carla", descripcion: "Extensión del reto del cartel al sistema completo de identidad.", studentId: "g1-s9", groupId: "g1" },
   ];
 
   const recoveries: Recovery[] = [

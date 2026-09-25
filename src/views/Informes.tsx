@@ -198,7 +198,7 @@ function InformeIndividual({ stId, progId, eva }: { stId: string; progId: string
         <>
           <h3 style={{ fontSize: 14, fontWeight: 800, borderBottom: "2px solid #a84a6c", paddingBottom: 3, margin: "16px 0 8px" }}>3 · Medidas de atención a la diversidad</h3>
           <ul style={{ margin: 0, paddingLeft: 18 }}>
-            {medidas.map((m) => <li key={m.id} style={{ marginBottom: 4 }}><b>[{m.tipo}]</b> {m.titulo}: {m.desc}</li>)}
+            {medidas.map((m) => <li key={m.id} style={{ marginBottom: 4 }}><b>[{m.tipo}]</b> {m.titulo}: {m.descripcion}</li>)}
           </ul>
         </>
       )}

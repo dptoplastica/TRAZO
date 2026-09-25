@@ -175,7 +175,7 @@ function Perfil({ stId, progId }: { stId: string; progId: string }) {
                 <span className="mono mt-0.5 shrink-0 rounded bg-azul px-1.5 py-0.5 text-[9.5px] font-extrabold uppercase text-azu">{m.tipo}</span>
                 <div className="min-w-0">
                   <p className="text-[12.5px] font-bold text-ink">{m.titulo}</p>
-                  <p className="text-[11.5px] leading-snug text-ink2">{m.desc}</p>
+                  <p className="text-[11.5px] leading-snug text-ink2">{m.descripcion}</p>
                 </div>
               </div>
             ))}
