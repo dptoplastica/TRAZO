@@ -31,6 +31,18 @@ export default function Root() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Inicializar datos si no existen
+    console.log('🚀 Inicializando aplicación...');
+    const existingData = localStorage.getItem('trazo-lomloe-v19');
+    if (!existingData) {
+      console.log('📦 No hay datos, generando datos iniciales...');
+      const seed = buildSeed();
+      localStorage.setItem('trazo-lomloe-v19', JSON.stringify(seed));
+      console.log('✅ Datos iniciales guardados');
+    } else {
+      console.log('✅ Datos ya existen en localStorage');
+    }
+
     // Verificar sesión guardada en localStorage
     const savedSession = localStorage.getItem('trazo-session');
     if (savedSession) {
