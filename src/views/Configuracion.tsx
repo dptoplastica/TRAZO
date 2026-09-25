@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { useApp, uid, visibleSubjects } from "../store";
 import { Ic, Reveal, SectionHead, Modal, btn, btnGhost, btnDanger } from "../components/ui";
 
@@ -240,7 +240,7 @@ export default function Configuracion() {
   };
 
   // Funciones para importar CSV
-  const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCSVUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
