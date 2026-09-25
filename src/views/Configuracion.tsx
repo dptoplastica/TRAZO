@@ -74,6 +74,10 @@ export default function Configuracion() {
     dias: []
   });
 
+  const [showImportCSV, setShowImportCSV] = useState(false);
+  const [importGroupId, setImportGroupId] = useState<string>("");
+  const [csvPreview, setCsvPreview] = useState<Array<{nombre: string; neae?: string; base: number; absRate: number}>>([]);
+
   if (!isAdmin) {
     return (
       <div>
@@ -235,6 +239,80 @@ export default function Configuracion() {
     notify("Grupo del alumno actualizado");
   };
 
+  // Funciones para importar CSV
+  const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        notify("El archivo CSV está vacío o no tiene datos");
+        return;
+      }
+
+      // Parsear cabecera
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const nombreIdx = headers.findIndex(h => h.includes('nombre'));
+      const neaeIdx = headers.findIndex(h => h.includes('neae') || h.includes('necesidad'));
+      const baseIdx = headers.findIndex(h => h.includes('base') || h.includes('nivel'));
+      const absIdx = headers.findIndex(h => h.includes('absent') || h.includes('absen'));
+
+      if (nombreIdx === -1) {
+        notify("El CSV debe tener una columna 'nombre'");
+        return;
+      }
+
+      // Parsear datos
+      const students: Array<{nombre: string; neae?: string; base: number; absRate: number}> = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        const nombre = values[nombreIdx];
+        if (!nombre) continue;
+
+        const neae = neaeIdx !== -1 ? values[neaeIdx] || undefined : undefined;
+        const base = baseIdx !== -1 ? parseFloat(values[baseIdx]) || 6.5 : 6.5;
+        const absRate = absIdx !== -1 ? parseFloat(values[absIdx]) || 0.05 : 0.05;
+
+        students.push({ nombre, neae, base, absRate });
+      }
+
+      setCsvPreview(students);
+      notify(`${students.length} alumnos cargados desde CSV`);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleImportCSV = () => {
+    if (csvPreview.length === 0) {
+      notify("No hay datos para importar");
+      return;
+    }
+
+    const newStudents = csvPreview.map(student => ({
+      id: uid(),
+      nombre: student.nombre,
+      groupId: importGroupId,
+      base: student.base,
+      neae: student.neae,
+      absRate: student.absRate,
+      hue: Math.floor(Math.random() * 360)
+    }));
+
+    set(prev => ({
+      ...prev,
+      students: [...prev.students, ...newStudents]
+    }));
+
+    notify(`${newStudents.length} alumnos importados correctamente`);
+    setShowImportCSV(false);
+    setCsvPreview([]);
+    setImportGroupId("");
+  };
+
   // Funciones para editar grupos
   const handleEditGroup = (groupId: string) => {
     const group = d.groups.find(g => g.id === groupId);
@@ -383,15 +461,26 @@ export default function Configuracion() {
                       <div className="mt-3 border-t border-line pt-3">
                         <div className="flex items-center justify-between mb-2">
                           <p className="text-[12px] font-bold text-ink2">Alumnos del grupo</p>
-                          <button 
-                            className="text-vir hover:bg-vir-l text-[11px] font-bold px-2 py-1 rounded transition-colors"
-                            onClick={() => {
-                              setNewStudent({ ...newStudent, groupId: g.id });
-                              setShowNewStudent(true);
-                            }}
-                          >
-                            <Ic n="plus" s={12} /> Añadir alumno
-                          </button>
+                          <div className="flex gap-2">
+                            <button 
+                              className="text-vir hover:bg-vir-l text-[11px] font-bold px-2 py-1 rounded transition-colors"
+                              onClick={() => {
+                                setImportGroupId(g.id);
+                                setShowImportCSV(true);
+                              }}
+                            >
+                              <Ic n="download" s={12} /> Importar CSV
+                            </button>
+                            <button 
+                              className="text-vir hover:bg-vir-l text-[11px] font-bold px-2 py-1 rounded transition-colors"
+                              onClick={() => {
+                                setNewStudent({ ...newStudent, groupId: g.id });
+                                setShowNewStudent(true);
+                              }}
+                            >
+                              <Ic n="plus" s={12} /> Añadir alumno
+                            </button>
+                          </div>
                         </div>
                         <div className="space-y-1.5 max-h-60 overflow-y-auto">
                           {d.students.filter(s => s.groupId === g.id).map((s) => (
@@ -791,6 +880,76 @@ export default function Configuracion() {
               </button>
               <button className={btnDanger} onClick={confirmDeleteStudent}>
                 <Ic n="trash" s={14} /> Eliminar alumno
+              </button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Modal Importar CSV */}
+        <Modal open={showImportCSV} onClose={() => { setShowImportCSV(false); setCsvPreview([]); setImportGroupId(""); }} title="Importar alumnos desde CSV">
+          <div className="space-y-4">
+            <div className="bg-azul/30 border border-azul rounded-lg p-3">
+              <p className="text-[12px] font-bold text-azu mb-2">📋 Formato del archivo CSV:</p>
+              <p className="text-[11px] text-ink2 mb-2">El archivo debe tener una cabecera con las siguientes columnas (en cualquier orden):</p>
+              <ul className="text-[11px] text-ink2 space-y-1 ml-4">
+                <li><b>nombre</b> (obligatorio): Nombre completo del alumno</li>
+                <li><b>neae</b> (opcional): Necesidades específicas de apoyo educativo</li>
+                <li><b>base</b> (opcional): Nivel base estimado (0-10, por defecto 6.5)</li>
+                <li><b>absentismo</b> (opcional): Tasa de absentismo (0-1, por defecto 0.05)</li>
+              </ul>
+              <div className="mt-3 p-2 bg-white/50 rounded text-[10px] font-mono text-ink2">
+                <p className="font-bold mb-1">Ejemplo:</p>
+                <p>nombre,neae,base,absentismo</p>
+                <p>María García López,,7.5,0.03</p>
+                <p>Juan Pérez Rodríguez,Dislexia,6.8,0.08</p>
+                <p>Ana Martínez Sánchez,TDAH,7.2,0.12</p>
+              </div>
+            </div>
+
+            <div>
+              <label className="lbl">Seleccionar archivo CSV</label>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleCSVUpload}
+                className="inp"
+              />
+            </div>
+
+            {csvPreview.length > 0 && (
+              <div>
+                <label className="lbl">Vista previa ({csvPreview.length} alumnos)</label>
+                <div className="max-h-48 overflow-y-auto border border-line rounded-lg">
+                  <table className="w-full text-[11px]">
+                    <thead className="bg-paper sticky top-0">
+                      <tr>
+                        <th className="text-left px-2 py-1.5 font-bold">Nombre</th>
+                        <th className="text-left px-2 py-1.5 font-bold">NEAE</th>
+                        <th className="text-center px-2 py-1.5 font-bold">Base</th>
+                        <th className="text-center px-2 py-1.5 font-bold">Absent.</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line/60">
+                      {csvPreview.map((s, i) => (
+                        <tr key={i}>
+                          <td className="px-2 py-1.5 text-ink">{s.nombre}</td>
+                          <td className="px-2 py-1.5 text-ink3">{s.neae || "—"}</td>
+                          <td className="px-2 py-1.5 text-center text-ink">{s.base.toFixed(1)}</td>
+                          <td className="px-2 py-1.5 text-center text-ink">{(s.absRate * 100).toFixed(0)}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={() => { setShowImportCSV(false); setCsvPreview([]); setImportGroupId(""); }}>
+                Cancelar
+              </button>
+              <button className={btn} onClick={handleImportCSV} disabled={csvPreview.length === 0}>
+                <Ic n="download" s={14} /> Importar {csvPreview.length > 0 ? `${csvPreview.length} alumnos` : ""}
               </button>
             </div>
           </div>
