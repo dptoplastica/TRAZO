@@ -385,5 +385,5 @@ export function buildSeed(): AppData {
     { id: "r1", studentId: "g1-s6", criterioId: "epva.1.1", actividad: "Cuaderno de análisis de imágenes: 6 láminas comentadas", fecha: D(80), instrumentoId: "i3" },
   ];
 
-  return { version: 18, role: "profesor", teacherId: "t1", cursoLabel: c.label, teachers, groups, students, subjects, programaciones, sas, units, instruments, grades, attendance, observations, measures, recoveries };
+  return { version: 19, role: "profesor", teacherId: "t1", cursoLabel: c.label, teachers, groups, students, subjects, programaciones, sas, units, instruments, grades, attendance, observations, measures, recoveries };
 }

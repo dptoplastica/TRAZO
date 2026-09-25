@@ -5,14 +5,14 @@ import App from './App';
 
 function getLocalData(): AppData {
   try {
-    const raw = localStorage.getItem('trazo-lomloe-v18');
+    const raw = localStorage.getItem('trazo-lomloe-v19');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.version === 18) return parsed;
+      if (parsed && parsed.version === 19) return parsed;
     }
   } catch { /* ignore */ }
   const seed = buildSeed();
-  localStorage.setItem('trazo-lomloe-v18', JSON.stringify(seed));
+  localStorage.setItem('trazo-lomloe-v19', JSON.stringify(seed));
   return seed;
 }
 
