@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useApp, visibleGroups, groupSessions, studentsOf, uid, fmt, critScore } from "../store";
 import { getCurriculum, allCriterios } from "../data/curriculum";
 import { NIVELES_RUBRICA, toISO } from "../data/seed";
-import { Ic, Reveal, SectionHead, EmptyState, btn, LevelChip } from "../components/ui";
+import { Ic, SectionHead, EmptyState, btn, LevelChip } from "../components/ui";
 
 type Tab = "asistencia" | "notas" | "rubricas" | "obs";
 
@@ -61,60 +61,28 @@ export default function Cuaderno() {
   );
 }
 
-/* ================= asistencia ================= */
-
-function Asistencia({ groupId, students, set }: { groupId: string; students: ReturnType<typeof studentsOf>; set: ReturnType<typeof useApp>["set"] }) {
+function Asistencia({ groupId, students, set }: { groupId: string; students: ReturnType<typeof studentsOf>; set: any }) {
   const { d } = useApp();
   const past = groupSessions(d, groupId).past.slice(-12).reverse();
   const [fecha, setFecha] = useState(past[0] ? toISO(past[0]) : toISO(new Date()));
-  const recs = useMemo(() => new Map(d.attendance.filter((a) => a.fecha === fecha && a.groupId === groupId).map((a) => [a.studentId, a.estado])), [d.attendance, fecha, groupId]);
-
-  const mark = (studentId: string, estado: "P" | "F" | "R") =>
-    set((s) => ({
-      ...s,
-      attendance: [...s.attendance.filter((a) => !(a.fecha === fecha && a.groupId === groupId && a.studentId === studentId)), { id: `a|${studentId}|${fecha}`, groupId, fecha, studentId, estado }],
-    }));
-
-  const counts = { P: 0, F: 0, R: 0 };
-  students.forEach((st) => { const e = recs.get(st.id) ?? "P"; counts[e]++; });
+  const recs = useMemo(() => new Map(d.attendance.filter((a: any) => a.fecha === fecha && a.groupId === groupId).map((a: any) => [a.studentId, a.estado])), [d.attendance, fecha, groupId]);
+  const mark = (studentId: string, estado: "P" | "F" | "R") => set((s: any) => ({ ...s, attendance: [...s.attendance.filter((a: any) => !(a.fecha === fecha && a.groupId === groupId && a.studentId === studentId)), { id: `a|${studentId}|${fecha}`, groupId, fecha, studentId, estado }] }));
 
   return (
     <div className="card overflow-hidden">
       <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-3">
-        <Ic n="calendar" s={16} className="text-vir" />
         <p className="mr-2 text-[13px] font-bold text-ink">Sesión:</p>
-        <div className="flex flex-wrap gap-1.5">
-          {past.map((dt) => {
-            const iso = toISO(dt);
-            return (
-              <button key={iso} onClick={() => setFecha(iso)} className={`mono cursor-pointer rounded-md border px-2 py-1 text-[11px] font-bold capitalize transition ${fecha === iso ? "border-vir bg-vir text-white" : "border-line bg-card text-ink2 hover:border-vir"}`}>
-                {dt.toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" })}
-              </button>
-            );
-          })}
-          <input type="date" className="inp !w-auto !py-1 mono text-[11.5px]" value={fecha} onChange={(e) => e.target.value && setFecha(e.target.value)} />
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <span className="mono rounded-md bg-virl px-2 py-1 text-[11px] font-extrabold text-vird">{counts.P} presentes</span>
-          <span className="mono rounded-md bg-verml px-2 py-1 text-[11px] font-extrabold text-verm">{counts.F} faltas</span>
-          <span className="mono rounded-md bg-ambl px-2 py-1 text-[11px] font-extrabold text-amb">{counts.R} retrasos</span>
-        </div>
+        {past.map((dt) => { const iso = toISO(dt); return (<button key={iso} onClick={() => setFecha(iso)} className={`mono cursor-pointer rounded-md border px-2 py-1 text-[11px] font-bold capitalize ${fecha === iso ? "border-vir bg-vir text-white" : "border-line bg-card text-ink2"}`}>{dt.toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" })}</button>); })}
       </div>
       <div className="divide-y divide-line/60">
-        {students.map((st, i) => {
+        {students.map((st) => {
           const e = recs.get(st.id) ?? "P";
           return (
-            <div key={st.id} className="flex items-center gap-3 px-4 py-2 transition hover:bg-virl/20" style={{ animationDelay: `${i * 20}ms` }}>
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold text-white" style={{ background: `hsl(${st.hue} 42% 44%)` }}>
-                {st.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("")}
-              </span>
-              <p className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-ink">{st.nombre}{st.neae && <span className="ml-2 rounded bg-rosl px-1.5 py-0.5 text-[9.5px] font-bold text-ros">NEAE</span>}</p>
+            <div key={st.id} className="flex items-center gap-3 px-4 py-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold text-white" style={{ background: `hsl(${st.hue} 42% 44%)` }}>{st.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("")}</span>
+              <p className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-ink">{st.nombre}</p>
               <div className="flex gap-1">
-                {([["P", "Presente", "bg-vir"], ["F", "Falta", "bg-verm"], ["R", "Retraso", "bg-amb"]] as const).map(([k, l, col]) => (
-                  <button key={k} onClick={() => mark(st.id, k)} title={l} className={`mono h-8 w-8 cursor-pointer rounded-lg border text-[12px] font-extrabold transition-all duration-150 active:scale-90 ${e === k ? `${col} text-white border-transparent shadow` : "border-line bg-card text-ink3 hover:border-ink3"}`}>
-                    {k}
-                  </button>
-                ))}
+                {([["P", "bg-vir"], ["F", "bg-verm"], ["R", "bg-amb"]] as const).map(([k, col]) => (<button key={k} onClick={() => mark(st.id, k)} className={`mono h-8 w-8 cursor-pointer rounded-lg border text-[12px] font-extrabold ${e === k ? `${col} text-white border-transparent` : "border-line bg-card text-ink3"}`}>{k}</button>))}
               </div>
             </div>
           );
@@ -124,9 +92,7 @@ function Asistencia({ groupId, students, set }: { groupId: string; students: Ret
   );
 }
 
-/* ================= calificaciones ================= */
-
-function Notas({ subjectId, students, set, notify }: { subjectId: string; students: ReturnType<typeof studentsOf>; set: ReturnType<typeof useApp>["set"]; notify: (m: string) => void }) {
+function Notas({ subjectId, students, set, notify }: { subjectId: string; students: ReturnType<typeof studentsOf>; set: any; notify: (m: string) => void }) {
   const { d } = useApp();
   const sub = d.subjects.find((s) => s.id === subjectId)!;
   const cur = getCurriculum(sub.curriculumId);
@@ -134,27 +100,15 @@ function Notas({ subjectId, students, set, notify }: { subjectId: string; studen
   const [insId, setInsId] = useState(instrumentos[0]?.id ?? "");
   const ins = instrumentos.find((i) => i.id === insId);
   const [critId, setCritId] = useState(ins?.criterioIds[0] ?? "");
-  const crit = allCriterios(cur).find((c) => c.id === critId);
   const [vals, setVals] = useState<Record<string, string>>({});
-
-  const existentes = useMemo(() => new Map(
-    d.grades.filter((g) => g.instrumentoId === insId && g.criterioId === critId).map((g) => [g.studentId, g.value])
-  ), [d.grades, insId, critId]);
-
-  const pickIns = (id: string) => {
-    const i = instrumentos.find((x) => x.id === id);
-    setInsId(id);
-    setCritId(i?.criterioIds[0] ?? "");
-    setVals({});
-  };
+  const existentes = useMemo(() => new Map(d.grades.filter((g) => g.instrumentoId === insId && g.criterioId === critId).map((g) => [g.studentId, g.value])), [d.grades, insId, critId]);
 
   const guardar = () => {
     const hoy = toISO(new Date());
-    set((s) => {
+    set((s: any) => {
       let grades = [...s.grades];
       for (const st of students) {
-        const raw = vals[st.id];
-        if (raw === undefined || raw === "") continue;
+        const raw = vals[st.id]; if (raw === undefined || raw === "") continue;
         const v = Math.max(0, Math.min(10, parseFloat(raw.replace(",", "."))));
         if (Number.isNaN(v)) continue;
         grades = grades.filter((g) => !(g.studentId === st.id && g.instrumentoId === insId && g.criterioId === critId));
@@ -162,35 +116,20 @@ function Notas({ subjectId, students, set, notify }: { subjectId: string; studen
       }
       return { ...s, grades };
     });
-    setVals({});
-    notify("Calificaciones guardadas: los niveles se han recalculado");
+    setVals({}); notify("Calificaciones guardadas");
   };
 
-  if (!ins) return <EmptyState icon="clipboard" title="Sin instrumentos" desc="Crea instrumentos en el módulo de Evaluación para poder calificar." />;
+  if (!ins) return <EmptyState icon="clipboard" title="Sin instrumentos" />;
 
   return (
     <div className="card overflow-hidden">
       <div className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3">
-        <div>
-          <label className="lbl !mb-1">Instrumento</label>
-          <select className="inp !w-auto !py-1.5 text-[12.5px]" value={insId} onChange={(e) => pickIns(e.target.value)}>
-            {instrumentos.map((i) => <option key={i.id} value={i.id}>{i.nombre}</option>)}
-          </select>
+        <select className="inp !w-auto !py-1.5 text-[12.5px]" value={insId} onChange={(e) => { setInsId(e.target.value); const i = instrumentos.find((x) => x.id === e.target.value); setCritId(i?.criterioIds[0] ?? ""); setVals({}); }}>
+          {instrumentos.map((i) => <option key={i.id} value={i.id}>{i.nombre}</option>)}
+        </select>
+        <div className="flex flex-wrap gap-1.5">
+          {ins.criterioIds.map((cId) => { const c = allCriterios(cur).find((x) => x.id === cId); return (<button key={cId} onClick={() => { setCritId(cId); setVals({}); }} className={`mono cursor-pointer rounded-md border px-2.5 py-1.5 text-[11.5px] font-extrabold ${critId === cId ? "border-transparent text-white" : "border-line2 bg-card text-ink2"}`} style={critId === cId ? { background: sub.color } : undefined}>{c?.codigo}</button>); })}
         </div>
-        <div>
-          <label className="lbl !mb-1">Criterio evaluado</label>
-          <div className="flex flex-wrap gap-1.5">
-            {ins.criterioIds.map((cId) => {
-              const c = allCriterios(cur).find((x) => x.id === cId);
-              return (
-                <button key={cId} onClick={() => { setCritId(cId); setVals({}); }} className={`mono cursor-pointer rounded-md border px-2.5 py-1.5 text-[11.5px] font-extrabold transition ${critId === cId ? "border-transparent text-white shadow" : "border-line2 bg-card text-ink2 hover:border-ink3"}`} style={critId === cId ? { background: sub.color } : undefined} title={c?.texto}>
-                  {c?.codigo}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <p className="ml-auto max-w-[220px] text-[11.5px] leading-snug text-ink3 italic">{crit?.texto}</p>
       </div>
       <div className="divide-y divide-line/60">
         {students.map((st) => {
@@ -198,37 +137,23 @@ function Notas({ subjectId, students, set, notify }: { subjectId: string; studen
           const r = critScore(d, st.id, critId);
           return (
             <div key={st.id} className="flex items-center gap-3 px-4 py-2">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold text-white" style={{ background: `hsl(${st.hue} 42% 44%)` }}>
-                {st.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("")}
-              </span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold text-white" style={{ background: `hsl(${st.hue} 42% 44%)` }}>{st.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("")}</span>
               <p className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-ink">{st.nombre}</p>
-              <div className="flex items-center gap-2">
-                {cur0 !== undefined && <span className="mono text-[10.5px] text-ink3">actual: {fmt(cur0)}</span>}
-                <input
-                  type="number" min={0} max={10} step={0.1}
-                  className="inp !w-20 !px-2 !py-1 text-right mono text-[13px] font-bold"
-                  placeholder="—"
-                  defaultValue={vals[st.id] !== undefined ? vals[st.id] : cur0 !== undefined ? String(cur0) : ""}
-                  key={st.id + insId + critId}
-                  onChange={(e) => setVals((v) => ({ ...v, [st.id]: e.target.value }))}
-                />
-                <LevelChip score={r.score} sm />
-              </div>
+              <input type="number" min={0} max={10} step={0.1} className="inp !w-20 !px-2 !py-1 text-right mono text-[13px] font-bold" placeholder="—" defaultValue={vals[st.id] !== undefined ? vals[st.id] : cur0 !== undefined ? String(cur0) : ""} key={st.id + insId + critId} onChange={(e) => setVals((v) => ({ ...v, [st.id]: e.target.value }))} />
+              <LevelChip score={r.score} sm />
             </div>
           );
         })}
       </div>
       <div className="flex items-center justify-between border-t border-line bg-paper/60 px-4 py-3">
-        <p className="text-[12px] text-ink2"><b>{Object.values(vals).filter((x) => x !== "").length}</b> calificaciones nuevas o modificadas</p>
-        <button className={btn} onClick={guardar}><Ic n="check" s={15} /> Guardar calificaciones</button>
+        <p className="text-[12px] text-ink2"><b>{Object.values(vals).filter((x) => x !== "").length}</b> calificaciones nuevas</p>
+        <button className={btn} onClick={guardar}><Ic n="check" s={15} /> Guardar</button>
       </div>
     </div>
   );
 }
 
-/* ================= rúbricas ================= */
-
-function Rubricas({ subjectId, students, set, notify }: { subjectId: string; students: ReturnType<typeof studentsOf>; set: ReturnType<typeof useApp>["set"]; notify: (m: string) => void }) {
+function Rubricas({ subjectId, students, set, notify }: { subjectId: string; students: ReturnType<typeof studentsOf>; set: any; notify: (m: string) => void }) {
   const { d } = useApp();
   const sub = d.subjects.find((s) => s.id === subjectId)!;
   const cur = getCurriculum(sub.curriculumId);
@@ -244,9 +169,9 @@ function Rubricas({ subjectId, students, set, notify }: { subjectId: string; stu
   ), [d.grades, insId, critId]);
 
   const setLevel = (studentId: string, valor: number) => {
-    set((s) => ({
+    set((s: any) => ({
       ...s,
-      grades: [...s.grades.filter((g) => !(g.studentId === studentId && g.instrumentoId === insId && g.criterioId === critId)),
+      grades: [...s.grades.filter((g: any) => !(g.studentId === studentId && g.instrumentoId === insId && g.criterioId === critId)),
         { id: uid(), studentId, instrumentoId: insId, criterioId: critId, value: valor, fecha: hoy }],
     }));
     notify("Nivel registrado en la rúbrica");
@@ -305,9 +230,7 @@ function Rubricas({ subjectId, students, set, notify }: { subjectId: string; stu
   );
 }
 
-/* ================= observaciones ================= */
-
-function Obs({ students, set, notify, me }: { students: ReturnType<typeof studentsOf>; set: ReturnType<typeof useApp>["set"]; notify: (m: string) => void; me: string }) {
+function Obs({ students, set, notify, me }: { students: ReturnType<typeof studentsOf>; set: any; notify: (m: string) => void; me: string }) {
   const { d } = useApp();
   const [stId, setStId] = useState(students[0]?.id ?? "");
   const [txt, setTxt] = useState("");
@@ -315,7 +238,7 @@ function Obs({ students, set, notify, me }: { students: ReturnType<typeof studen
 
   const add = () => {
     if (!txt.trim()) return;
-    set((s) => ({ ...s, observations: [...s.observations, { id: uid(), studentId: stId, fecha: toISO(new Date()), texto: txt.trim(), autor: me }] }));
+    set((s: any) => ({ ...s, observations: [...s.observations, { id: uid(), studentId: stId, fecha: toISO(new Date()), texto: txt.trim(), autor: me }] }));
     setTxt("");
     notify("Observación registrada");
   };

@@ -8,15 +8,9 @@ export default function Temporalizacion() {
   const progs = visibleProgramaciones(d);
   const c = curso();
   const total = +c.end - +c.start;
-  const pct = (iso: string) => {
-    const t = +new Date(iso + "T12:00:00");
-    return Math.max(0, Math.min(100, ((t - +c.start) / total) * 100));
-  };
-  const hoyPct = (() => {
-    const h = new Date(); h.setHours(12, 0, 0, 0);
-    return Math.max(0, Math.min(100, ((+h - +c.start) / total) * 100));
-  })();
-
+  const pct = (iso: string) => Math.max(0, Math.min(100, ((+new Date(iso + "T12:00:00") - +c.start) / total) * 100));
+  const hoyPct = Math.max(0, Math.min(100, ((+new Date() - +c.start) / total) * 100));
+  
   const evaBands = c.evas.map((e, i) => ({
     ...e,
     left: pct(e.inicio.toISOString().slice(0, 10)),
@@ -24,26 +18,27 @@ export default function Temporalizacion() {
     color: ["#0e7c66", "#2c6e8f", "#c98a12"][i],
   }));
 
-  const filas = progs.map((p) => {
-    const sub = d.subjects.find((s) => s.id === p.subjectId)!;
-    return { p, sub, sas: d.sas.filter((s) => s.programacionId === p.id) };
+  const filas = progs.map((p) => { 
+    const sub = d.subjects.find((s) => s.id === p.subjectId)!; 
+    return { p, sub, sas: d.sas.filter((s) => s.programacionId === p.id) }; 
   });
 
   return (
     <div>
-      <SectionHead
-        kicker="Planificación temporal"
-        title={`Calendario del curso ${d.cursoLabel}`}
-        desc="Distribución de las situaciones de aprendizaje a lo largo de las tres evaluaciones. La línea continua marca la fecha de hoy."
+      <SectionHead 
+        kicker="Planificación temporal" 
+        title={`Calendario del curso ${d.cursoLabel}`} 
+        desc="Distribución de las situaciones de aprendizaje a lo largo de las tres evaluaciones. La línea continua marca la fecha de hoy." 
       />
-
+      
       {progs.length === 0 ? (
         <EmptyState icon="calendar" title="Nada que temporalizar" desc="No hay programaciones visibles para este perfil." />
       ) : (
         <>
+          {/* Diagrama de Gantt principal */}
           <Reveal>
             <div className="card overflow-hidden">
-              {/* cabecera meses */}
+              {/* Cabecera meses */}
               <div className="border-b-2 border-ink/70">
                 <div className="grid" style={{ gridTemplateColumns: "170px 1fr" }}>
                   <div className="border-r border-line px-3 py-2">
@@ -57,22 +52,35 @@ export default function Temporalizacion() {
                     ))}
                   </div>
                 </div>
-                {/* bandas de evaluación */}
+                
+                {/* Bandas de evaluación */}
                 <div className="grid" style={{ gridTemplateColumns: "170px 1fr" }}>
                   <div className="border-r border-line px-3 py-1.5">
                     <p className="mono text-[9.5px] uppercase tracking-widest text-ink3">Evaluaciones</p>
                   </div>
                   <div className="relative h-7 overflow-hidden">
                     {evaBands.map((e) => (
-                      <div key={e.n} className="absolute inset-y-0 flex items-center justify-center" style={{ left: `${e.left}%`, width: `${e.width}%`, background: `${e.color}14`, borderLeft: `2px solid ${e.color}`, borderRight: `2px solid ${e.color}` }}>
-                        <span className="mono whitespace-nowrap text-[9.5px] font-extrabold uppercase tracking-widest" style={{ color: e.color }}>{e.label}</span>
+                      <div 
+                        key={e.n} 
+                        className="absolute inset-y-0 flex items-center justify-center" 
+                        style={{ 
+                          left: `${e.left}%`, 
+                          width: `${e.width}%`, 
+                          background: `${e.color}14`, 
+                          borderLeft: `2px solid ${e.color}`, 
+                          borderRight: `2px solid ${e.color}` 
+                        }}
+                      >
+                        <span className="mono whitespace-nowrap text-[9.5px] font-extrabold uppercase tracking-widest" style={{ color: e.color }}>
+                          {e.label}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* filas */}
+              {/* Filas de materias */}
               {filas.map(({ p, sub, sas }) => (
                 <div key={p.id} className="border-b border-line/70 last:border-b-0">
                   <div className="grid" style={{ gridTemplateColumns: "170px 1fr" }}>
@@ -84,15 +92,17 @@ export default function Temporalizacion() {
                       </div>
                     </div>
                     <div className="relative">
-                      {/* rejilla de meses */}
+                      {/* Rejilla de meses */}
                       <div className="absolute inset-0 grid grid-cols-10">
                         {MESES.map((m) => <div key={m} className="border-l border-line/50 first:border-l-0" />)}
                       </div>
-                      {/* hoy */}
+                      
+                      {/* Línea de hoy */}
                       <div className="absolute inset-y-0 z-10 w-[2px] bg-verm" style={{ left: `${hoyPct}%` }}>
                         <span className="absolute -top-0 left-1 rounded-b bg-verm px-1 py-0.5 mono text-[8.5px] font-extrabold uppercase text-white">hoy</span>
                       </div>
-                      {/* barras de SA */}
+                      
+                      {/* Barras de SA */}
                       <div className="relative space-y-1.5 py-2 pr-2">
                         {sas.map((sa) => {
                           const left = pct(sa.inicio), width = Math.max(2.5, pct(sa.fin) - left);
@@ -101,7 +111,12 @@ export default function Temporalizacion() {
                               key={sa.id}
                               onClick={() => nav("situaciones", { saId: sa.id })}
                               className="group/card relative block h-9 cursor-pointer overflow-hidden rounded-lg text-left shadow-sm transition-all duration-200 hover:shadow-lg hover:brightness-105 hover:-translate-y-px"
-                              style={{ marginLeft: `${left}%`, width: `${width}%`, background: `linear-gradient(100deg, ${sub.color}, ${sub.color}cc)`, minWidth: 90 }}
+                              style={{ 
+                                marginLeft: `${left}%`, 
+                                width: `${width}%`, 
+                                background: `linear-gradient(100deg, ${sub.color}, ${sub.color}cc)`, 
+                                minWidth: 90 
+                              }}
                               title={`${sa.titulo} · ${sa.sesiones} sesiones`}
                             >
                               <span className="absolute inset-0 flex items-center gap-2 px-2.5">
@@ -121,11 +136,13 @@ export default function Temporalizacion() {
             </div>
           </Reveal>
 
-          {/* unidades en la línea temporal */}
+          {/* Unidades didácticas en la línea temporal */}
           <Reveal delay={80}>
             <div className="mt-4 card overflow-hidden">
               <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-                <p className="flex items-center gap-2 text-[13px] font-bold text-ink"><Ic n="layers" s={15} className="text-azu" /> Unidades didácticas en el curso</p>
+                <p className="flex items-center gap-2 text-[13px] font-bold text-ink">
+                  <Ic n="layers" s={15} className="text-azu" /> Unidades didácticas en el curso
+                </p>
                 <button onClick={() => nav("unidades")} className="mono text-[11px] font-bold text-vir hover:underline cursor-pointer">gestionar →</button>
               </div>
               <div className="relative">
@@ -139,10 +156,22 @@ export default function Temporalizacion() {
                     const left = pct(un.inicio), width = Math.max(3, pct(un.fin) - left);
                     return (
                       <div key={un.id} className="flex items-center gap-2">
-                        <div className="w-[150px] shrink-0 truncate text-[12px] font-bold text-ink2" title={un.titulo}>{un.titulo}</div>
+                        <div className="w-[150px] shrink-0 truncate text-[12px] font-bold text-ink2" title={un.titulo}>
+                          {un.titulo}
+                        </div>
                         <div className="relative h-6 flex-1 rounded-md bg-paper border border-line/60">
-                          <div className="absolute inset-y-0 flex items-center rounded-md px-2" style={{ left: `${left}%`, width: `${width}%`, background: `${sub?.color}26`, border: `1.5px solid ${sub?.color}` }}>
-                            <span className="mono truncate text-[10px] font-extrabold" style={{ color: sub?.color }}>{un.sesiones} sesiones · {fmtFecha(un.inicio)}–{fmtFecha(un.fin)}</span>
+                          <div 
+                            className="absolute inset-y-0 flex items-center rounded-md px-2" 
+                            style={{ 
+                              left: `${left}%`, 
+                              width: `${width}%`, 
+                              background: `${sub?.color}26`, 
+                              border: `1.5px solid ${sub?.color}` 
+                            }}
+                          >
+                            <span className="mono truncate text-[10px] font-extrabold" style={{ color: sub?.color }}>
+                              {un.sesiones} sesiones · {fmtFecha(un.inicio)}–{fmtFecha(un.fin)}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -153,10 +182,12 @@ export default function Temporalizacion() {
             </div>
           </Reveal>
 
-          {/* tabla resumen */}
+          {/* Tabla resumen */}
           <Reveal delay={140}>
             <div className="mt-4 card overflow-hidden">
-              <div className="border-b border-line px-4 py-2.5"><p className="text-[13px] font-bold text-ink">Detalle de la planificación</p></div>
+              <div className="border-b border-line px-4 py-2.5">
+                <p className="text-[13px] font-bold text-ink">Detalle de la planificación</p>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[680px] text-left">
                   <thead>
@@ -172,13 +203,26 @@ export default function Temporalizacion() {
                   </thead>
                   <tbody className="divide-y divide-line/70">
                     {filas.flatMap(({ sub, sas }) => sas.map((sa) => (
-                      <tr key={sa.id} className="cursor-pointer transition hover:bg-virl/25" onClick={() => nav("situaciones", { saId: sa.id })}>
+                      <tr 
+                        key={sa.id} 
+                        className="cursor-pointer transition hover:bg-virl/25" 
+                        onClick={() => nav("situaciones", { saId: sa.id })}
+                      >
                         <td className="px-4 py-2.5 text-[13px] font-bold text-ink">{sa.titulo}</td>
-                        <td className="px-4 py-2.5"><span className="inline-flex items-center gap-1.5 text-[12px] font-bold" style={{ color: sub.color }}><span className="h-2 w-2 rounded-sm" style={{ background: sub.color }} />{sub.corto}</span></td>
+                        <td className="px-4 py-2.5">
+                          <span className="inline-flex items-center gap-1.5 text-[12px] font-bold" style={{ color: sub.color }}>
+                            <span className="h-2 w-2 rounded-sm" style={{ background: sub.color }} />
+                            {sub.corto}
+                          </span>
+                        </td>
                         <td className="mono px-4 py-2.5 text-[12px] text-ink2">{fmtFecha(sa.inicio)}</td>
                         <td className="mono px-4 py-2.5 text-[12px] text-ink2">{fmtFecha(sa.fin)}</td>
                         <td className="mono px-4 py-2.5 text-center text-[12px] font-bold">{sa.sesiones}</td>
-                        <td className="px-4 py-2.5 text-center"><span className="mono rounded bg-paper border border-line px-1.5 py-0.5 text-[10.5px] font-extrabold text-ink2">{sa.eva}ª</span></td>
+                        <td className="px-4 py-2.5 text-center">
+                          <span className="mono rounded bg-paper border border-line px-1.5 py-0.5 text-[10.5px] font-extrabold text-ink2">
+                            {sa.eva}ª
+                          </span>
+                        </td>
                         <td className="mono px-4 py-2.5 text-center text-[12px] font-bold text-vir">{sa.criterios.length}</td>
                       </tr>
                     )))}

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { buildSeed, cursoInfo, sessionsFor, toISO, fromISO, type AppData } from "./data/seed";
 import { getCurriculum, allCriterios, ceById, clavesDeCE, type Curriculum, type Criterio } from "./data/curriculum";
+import { saveDataToSupabase } from "./lib/dataService";
 
 export type ViewId =
   | "panel" | "programaciones" | "curriculo" | "situaciones" | "unidades"
@@ -24,14 +25,14 @@ interface Ctx {
   reset: () => void;
 }
 
-const KEY = "trazo-lomloe-v13";
+const KEY = "trazo-lomloe-v19";
 
 function load(): AppData {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as AppData;
-      if (parsed && parsed.version === 13) return parsed;
+      if (parsed && parsed.version === 19) return parsed;
     }
   } catch { /* ignore */ }
   return buildSeed();
@@ -46,7 +47,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<Toast | null>(null);
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* ignore */ }
+    try { 
+      localStorage.setItem(KEY, JSON.stringify(d));
+      // Intentar sincronizar con Supabase (no bloqueante)
+      saveDataToSupabase(d).catch(err => console.warn('Error sincronizando con Supabase:', err));
+    } catch { /* ignore */ }
   }, [d]);
 
   const value = useMemo<Ctx>(() => {
@@ -72,8 +77,6 @@ export function useApp(): Ctx {
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
-/* ================= visibilidad según perfil ================= */
-
 export const visibleSubjects = (d: AppData) =>
   d.role === "admin" ? d.subjects : d.subjects.filter((s) => s.teacherId === d.teacherId);
 export const visibleGroups = (d: AppData) => {
@@ -85,8 +88,6 @@ export const visibleProgramaciones = (d: AppData) => {
   return d.programaciones.filter((p) => ids.has(p.subjectId));
 };
 export const studentsOf = (d: AppData, groupId: string) => d.students.filter((s) => s.groupId === groupId);
-
-/* ================= cálculo de calificaciones ================= */
 
 export interface CritResult { score: number | null; grades: AppData["grades"]; }
 
@@ -164,8 +165,6 @@ export const pendingCriterios = (d: AppData, studentId: string, subjectId: strin
   });
 };
 
-/* ================= niveles ================= */
-
 export function nivelDe(score: number | null) {
   if (score === null) return { t: "Sin datos", s: "—", cls: "bg-line/60 text-ink2", hex: "#7c929b" };
   if (score < 5) return { t: "Insuficiente", s: "IN", cls: "bg-verml text-verm", hex: "#d9532c" };
@@ -180,8 +179,6 @@ export function claveNivel(score: number | null) {
   if (score < 8) return { t: "En desarrollo", cls: "bg-ambl text-amb", hex: "#c98a12" };
   return { t: "Adquirida", cls: "bg-virl text-vird", hex: "#0e7c66" };
 }
-
-/* ================= fechas y sesiones ================= */
 
 export const curso = () => cursoInfo();
 

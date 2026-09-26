@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { useApp, visibleProgramaciones, uid, fmtFecha } from "../store";
 import { getCurriculum, descriptorById, claveById } from "../data/curriculum";
 import { METODOLOGIAS, type SA, type Actividad } from "../data/seed";
-import { Ic, Reveal, SectionHead, SelChip, Modal, EmptyState, btn, btnGhost } from "../components/ui";
+import { Ic, Reveal, SectionHead, Modal, EmptyState, btn, btnGhost, SelChip } from "../components/ui";
 import { fmtFechaL } from "../store";
+import { useState } from "react";
 
 export default function Situaciones() {
   const { d, params, nav, set, notify } = useApp();
@@ -17,80 +17,51 @@ export default function Situaciones() {
 
   const crear = () => {
     if (!progId || !titulo.trim()) return;
-    const sa: SA = {
-      id: uid(), programacionId: progId, titulo: titulo.trim(), eva: 1,
-      inicio: new Date().toISOString().slice(0, 10), fin: new Date(Date.now() + 20 * 864e5).toISOString().slice(0, 10),
-      sesiones: 6, justificacion: "", reto: "", producto: "", metodologias: ["Aprendizaje basado en proyectos"],
-      agrupamientos: "Gran grupo y equipos", espacios: "Aula-taller", recursos: "", diversidad: "", evidencias: "",
-      criterios: [], objetivos: [], actividades: [], instrumentos: [],
-    };
+    const sa: SA = { id: uid(), programacionId: progId, titulo: titulo.trim(), eva: 1, inicio: new Date().toISOString().slice(0, 10), fin: new Date(Date.now() + 20 * 864e5).toISOString().slice(0, 10), sesiones: 6, justificacion: "", reto: "", producto: "", metodologias: ["Aprendizaje basado en proyectos"], agrupamientos: "Gran grupo", espacios: "Aula-taller", recursos: "", diversidad: "", evidencias: "", criterios: [], objetivos: [], actividades: [], instrumentos: [] };
     set((s) => ({ ...s, sas: [...s.sas, sa] }));
-    setNueva(false); setTitulo("");
-    notify("Situación de aprendizaje creada");
+    setNueva(false); setTitulo(""); notify("SA creada");
     nav("situaciones", { saId: sa.id });
   };
 
   return (
     <div>
-      <SectionHead
-        kicker="Diseño de enseñanza"
-        title="Situaciones de aprendizaje"
-        desc="Retos contextualizados con producto final, metodologías activas y todos los elementos curriculares vinculados: de la idea al cuaderno del profesor."
-        actions={<button className={btn} onClick={() => setNueva(true)}><Ic n="plus" s={15} /> Nueva situación</button>}
-      />
-
-      {progs.map((p, pi) => {
+      <SectionHead kicker="Diseño de enseñanza" title="Situaciones de aprendizaje" desc="Retos contextualizados con producto final y todos los elementos curriculares vinculados." actions={<button className={btn} onClick={() => setNueva(true)}><Ic n="plus" s={15} /> Nueva situación</button>} />
+      {progs.map((p) => {
         const sub = d.subjects.find((s) => s.id === p.subjectId);
         const sas = d.sas.filter((s) => s.programacionId === p.id);
         return (
-          <Reveal key={p.id} delay={pi * 60}>
+          <Reveal key={p.id}>
             <div className="mb-6">
               <div className="mb-2.5 flex items-center gap-2.5">
                 <span className="h-4 w-1.5 rounded-full" style={{ background: sub?.color }} />
                 <p className="font-display text-[16px] font-extrabold text-ink">{sub?.nombre} · {sub?.nivel}</p>
-                <span className="mono text-[11px] font-bold text-ink3">{sas.length} SA</span>
               </div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {sas.map((sa) => (
                   <button key={sa.id} onClick={() => nav("situaciones", { saId: sa.id })} className="card card-h group cursor-pointer overflow-hidden text-left">
-                    <div className="flex items-center justify-between border-b border-line px-4 py-2">
-                      <span className="mono rounded bg-paper px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-widest" style={{ color: sub?.color, border: `1px solid ${sub?.color}40` }}>{sa.eva}ª evaluación</span>
-                      <span className="mono text-[11px] font-bold text-ink3">{sa.sesiones} sesiones</span>
-                    </div>
                     <div className="px-4 py-3">
                       <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors group-hover:text-vir">{sa.titulo}</p>
-                      <p className="mt-1 line-clamp-2 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
-                      <div className="mt-3 flex flex-wrap items-center gap-1">
-                        {sa.criterios.slice(0, 4).map((cId) => {
-                          const cur = getCurriculum(sub?.curriculumId ?? "epva-eso");
-                          const c = cur.ces.flatMap((ce) => ce.criterios).find((x) => x.id === cId);
-                          return <span key={cId} className="mono rounded bg-paper border border-line px-1.5 py-0.5 text-[10px] font-bold text-ink2">{c?.codigo}</span>;
-                        })}
-                        {sa.criterios.length > 4 && <span className="mono text-[10px] font-bold text-ink3">+{sa.criterios.length - 4}</span>}
-                        <span className="ml-auto mono text-[10.5px] font-bold text-ink3">{fmtFecha(sa.inicio)} → {fmtFecha(sa.fin)}</span>
+                      <p className="mt-1 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
+                      <div className="mt-3 flex items-center gap-2">
+                        <span className="mono text-[10.5px] font-bold text-ink3">{sa.sesiones} sesiones</span>
+                        <span className="mono ml-auto text-[10.5px] font-bold text-ink3">{fmtFecha(sa.inicio)} → {fmtFecha(sa.fin)}</span>
                       </div>
                     </div>
                   </button>
                 ))}
-                {sas.length === 0 && <div className="card px-5 py-6 text-[13px] italic text-ink3">Sin situaciones de aprendizaje todavía.</div>}
               </div>
             </div>
           </Reveal>
         );
       })}
-      {progs.length === 0 && <EmptyState icon="spark" title="Sin programaciones" desc="Crea primero una programación para diseñar sus situaciones de aprendizaje." />}
-
       <Modal open={nueva} onClose={() => setNueva(false)} title="Nueva situación de aprendizaje">
-        <label className="lbl">Programación de destino</label>
+        <label className="lbl">Programación</label>
         <select className="inp mb-3" value={progId} onChange={(e) => setProgId(e.target.value)}>
-          <option value="">— elegir programación —</option>
-          {progs.map((p) => {
-            const sub = d.subjects.find((s) => s.id === p.subjectId);
-            return <option key={p.id} value={p.id}>{sub?.nombre} · {sub?.nivel}</option>;
-          })}
+          <option value="">— elegir —</option>
+          {progs.map((p) => { const sub = d.subjects.find((s) => s.id === p.subjectId); return <option key={p.id} value={p.id}>{sub?.nombre}</option>; })}
         </select>
         <label className="lbl">Título</label>
-        <input className="inp mb-4" placeholder="p. ej. Carteles que hablan" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+        <input className="inp mb-4" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
         <div className="flex justify-end gap-2">
           <button className={btnGhost} onClick={() => setNueva(false)}>Cancelar</button>
           <button className={btn} onClick={crear}><Ic n="check" s={15} /> Crear</button>
@@ -101,10 +72,6 @@ export default function Situaciones() {
 }
 
 /* ================= editor de SA ================= */
-
-const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div><label className="lbl">{label}</label>{children}</div>
-);
 
 function EditorSA({ sa }: { sa: SA }) {
   const { d, nav, set, notify } = useApp();
@@ -128,13 +95,6 @@ function EditorSA({ sa }: { sa: SA }) {
   const descriptoresAuto = [...new Set(cur.ces.filter((ce) => ce.criterios.some((c) => sa.criterios.includes(c.id))).flatMap((ce) => ce.descriptorIds))];
   const saberesAuto = [...new Set(cur.ces.flatMap((ce) => ce.criterios).filter((c) => sa.criterios.includes(c.id)).flatMap((c) => c.saberIds))];
 
-  const duplicar = () => {
-    const copia: SA = { ...sa, id: uid(), titulo: sa.titulo + " (copia)", actividades: sa.actividades.map((a) => ({ ...a, id: uid() })) };
-    set((s) => ({ ...s, sas: [...s.sas, copia] }));
-    notify("Situación copiada");
-    nav("situaciones", { saId: copia.id });
-  };
-
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
@@ -143,10 +103,6 @@ function EditorSA({ sa }: { sa: SA }) {
           <h1 className="font-display text-[24px] font-extrabold tracking-tight text-ink sm:text-[28px]">{sa.titulo}</h1>
           <p className="mt-1 text-[13px] text-ink2"><b style={{ color: sub?.color }}>{sub?.nombre}</b> · {sa.eva}ª evaluación · {fmtFechaL(sa.inicio)} → {fmtFechaL(sa.fin)}</p>
         </div>
-        <div className="flex gap-2">
-          <button className={btnGhost} onClick={duplicar}><Ic n="copy" s={15} /> Copiar SA</button>
-          <button className={btnGhost} onClick={() => nav("temporalizacion")}><Ic n="calendar" s={15} /> Ver en el calendario</button>
-        </div>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
@@ -154,29 +110,29 @@ function EditorSA({ sa }: { sa: SA }) {
           {/* ficha */}
           <div className="card p-4">
             <div className="grid gap-3 sm:grid-cols-4">
-              <F label="Título"><input className="inp" value={sa.titulo} onChange={(e) => upd({ titulo: e.target.value })} /></F>
-              <F label="Evaluación">
+              <div><label className="lbl">Título</label><input className="inp" value={sa.titulo} onChange={(e) => upd({ titulo: e.target.value })} /></div>
+              <div><label className="lbl">Evaluación</label>
                 <select className="inp" value={sa.eva} onChange={(e) => upd({ eva: Number(e.target.value) as 1 | 2 | 3 })}>
                   {[1, 2, 3].map((n) => <option key={n} value={n}>{n}ª evaluación</option>)}
                 </select>
-              </F>
-              <F label="Inicio"><input type="date" className="inp" value={sa.inicio} onChange={(e) => upd({ inicio: e.target.value })} /></F>
-              <F label="Final"><input type="date" className="inp" value={sa.fin} onChange={(e) => upd({ fin: e.target.value })} /></F>
+              </div>
+              <div><label className="lbl">Inicio</label><input type="date" className="inp" value={sa.inicio} onChange={(e) => upd({ inicio: e.target.value })} /></div>
+              <div><label className="lbl">Final</label><input type="date" className="inp" value={sa.fin} onChange={(e) => upd({ fin: e.target.value })} /></div>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <F label="Justificación"><textarea rows={3} className="inp" value={sa.justificacion} onChange={(e) => upd({ justificacion: e.target.value })} /></F>
-              <F label="Contexto o reto"><textarea rows={3} className="inp" value={sa.reto} onChange={(e) => upd({ reto: e.target.value })} /></F>
-              <F label="Producto final"><textarea rows={2} className="inp" value={sa.producto} onChange={(e) => upd({ producto: e.target.value })} /></F>
-              <F label="Sesiones previstas"><input type="number" min={1} className="inp" value={sa.sesiones} onChange={(e) => upd({ sesiones: Number(e.target.value) || 1 })} /></F>
+              <div><label className="lbl">Justificación</label><textarea rows={3} className="inp" value={sa.justificacion} onChange={(e) => upd({ justificacion: e.target.value })} /></div>
+              <div><label className="lbl">Contexto o reto</label><textarea rows={3} className="inp" value={sa.reto} onChange={(e) => upd({ reto: e.target.value })} /></div>
+              <div><label className="lbl">Producto final</label><textarea rows={2} className="inp" value={sa.producto} onChange={(e) => upd({ producto: e.target.value })} /></div>
+              <div><label className="lbl">Sesiones previstas</label><input type="number" min={1} className="inp" value={sa.sesiones} onChange={(e) => upd({ sesiones: Number(e.target.value) || 1 })} /></div>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <F label="Agrupamientos"><input className="inp" value={sa.agrupamientos} onChange={(e) => upd({ agrupamientos: e.target.value })} /></F>
-              <F label="Espacios"><input className="inp" value={sa.espacios} onChange={(e) => upd({ espacios: e.target.value })} /></F>
-              <F label="Recursos"><textarea rows={2} className="inp" value={sa.recursos} onChange={(e) => upd({ recursos: e.target.value })} /></F>
-              <F label="Medidas de atención a la diversidad"><textarea rows={2} className="inp" value={sa.diversidad} onChange={(e) => upd({ diversidad: e.target.value })} /></F>
+              <div><label className="lbl">Agrupamientos</label><input className="inp" value={sa.agrupamientos} onChange={(e) => upd({ agrupamientos: e.target.value })} /></div>
+              <div><label className="lbl">Espacios</label><input className="inp" value={sa.espacios} onChange={(e) => upd({ espacios: e.target.value })} /></div>
+              <div><label className="lbl">Recursos</label><textarea rows={2} className="inp" value={sa.recursos} onChange={(e) => upd({ recursos: e.target.value })} /></div>
+              <div><label className="lbl">Atención a la diversidad</label><textarea rows={2} className="inp" value={sa.diversidad} onChange={(e) => upd({ diversidad: e.target.value })} /></div>
             </div>
             <div className="mt-3">
-              <F label="Evidencias de aprendizaje"><textarea rows={2} className="inp" value={sa.evidencias} onChange={(e) => upd({ evidencias: e.target.value })} /></F>
+              <label className="lbl">Evidencias de aprendizaje</label><textarea rows={2} className="inp" value={sa.evidencias} onChange={(e) => upd({ evidencias: e.target.value })} />
             </div>
           </div>
 
@@ -362,19 +318,6 @@ function EditorSA({ sa }: { sa: SA }) {
             </div>
           </div>
           <div className="card p-4">
-            <p className="lbl">Objetivos didácticos</p>
-            <div className="space-y-1.5">
-              {sa.objetivos.map((o, i) => (
-                <div key={i} className="flex items-start gap-2 rounded-lg border border-line bg-paper px-2.5 py-2">
-                  <span className="mono mt-0.5 text-[10px] font-extrabold text-vir">O{i + 1}</span>
-                  <p className="flex-1 text-[12px] leading-snug text-ink">{o}</p>
-                  <button className="cursor-pointer text-ink3 hover:text-verm" onClick={() => upd({ objetivos: sa.objetivos.filter((_, x) => x !== i) })}><Ic n="x" s={13} /></button>
-                </div>
-              ))}
-              <ObjetivoAdd onAdd={(t) => upd({ objetivos: [...sa.objetivos, t] })} />
-            </div>
-          </div>
-          <div className="card p-4">
             <p className="lbl">Resumen curricular</p>
             <div className="grid grid-cols-3 gap-2 text-center">
               {[
@@ -391,16 +334,6 @@ function EditorSA({ sa }: { sa: SA }) {
           </div>
         </aside>
       </div>
-    </div>
-  );
-}
-
-function ObjetivoAdd({ onAdd }: { onAdd: (t: string) => void }) {
-  const [v, setV] = useState("");
-  return (
-    <div className="flex gap-1.5">
-      <input className="inp !py-1.5 text-[12px]" placeholder="Nuevo objetivo…" value={v} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && v.trim()) { onAdd(v.trim()); setV(""); } }} />
-      <button className="rounded-lg bg-ink px-3 text-paper cursor-pointer hover:bg-night transition" onClick={() => { if (v.trim()) { onAdd(v.trim()); setV(""); } }}><Ic n="plus" s={14} /></button>
     </div>
   );
 }

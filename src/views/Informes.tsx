@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useApp, visibleProgramaciones, studentsOf, finalGrade, notaDeEva, ceAgg, claveAgg, pendingCriterios, fmt, nivelDe, claveNivel, curso, fmtFechaL } from "../store";
+import { useApp, visibleProgramaciones, studentsOf, finalGrade, notaDeEva, ceAgg, claveAgg, fmt, nivelDe, claveNivel, curso, fmtFechaL } from "../store";
 import { getCurriculum, CLAVES, clavesDeCE } from "../data/curriculum";
-import type { Student } from "../data/seed";
 import { Ic, Reveal, SectionHead, EmptyState, btn, btnGhost } from "../components/ui";
 
 export default function Informes() {
@@ -114,7 +113,6 @@ function InformeIndividual({ stId, progId, eva }: { stId: string; progId: string
   const final = finalGrade(d, progId, stId);
   const nota = eva === 0 ? final.score : notaDeEva(d, progId, stId, eva as 1 | 2 | 3);
   const notasEvas = [1, 2, 3].map((e) => notaDeEva(d, progId, stId, e as 1 | 2 | 3));
-  const pendientes = pendingCriterios(d, stId, sub.id);
   const obs = d.observations.filter((o) => o.studentId === stId);
   const medidas = d.measures.filter((m) => m.studentId === stId || (m.groupId === st.groupId && !m.studentId));
 
@@ -196,21 +194,16 @@ function InformeIndividual({ stId, progId, eva }: { stId: string; progId: string
         </tbody>
       </table>
 
-      {pendientes.length > 0 && (
+      {medidas.length > 0 && (
         <>
-          <h3 style={{ fontSize: 14, fontWeight: 800, borderBottom: "2px solid #d9532c", paddingBottom: 3, margin: "16px 0 8px" }}>3 · Criterios pendientes y medidas de refuerzo</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 800, borderBottom: "2px solid #a84a6c", paddingBottom: 3, margin: "16px 0 8px" }}>3 · Medidas de atención a la diversidad</h3>
           <ul style={{ margin: 0, paddingLeft: 18 }}>
-            {pendientes.map((crit) => <li key={crit.id} style={{ marginBottom: 4 }}><b style={{ fontFamily: "JetBrains Mono, monospace" }}>{crit.codigo}.</b> {crit.texto}</li>)}
+            {medidas.map((m) => <li key={m.id} style={{ marginBottom: 4 }}><b>[{m.tipo}]</b> {m.titulo}: {m.descripcion}</li>)}
           </ul>
         </>
       )}
-      {medidas.length > 0 && (
-        <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
-          {medidas.map((m) => <li key={m.id} style={{ marginBottom: 4 }}><b>[{m.tipo}]</b> {m.titulo}: {m.desc}</li>)}
-        </ul>
-      )}
 
-      <h3 style={{ fontSize: 14, fontWeight: 800, borderBottom: "2px solid #c98a12", paddingBottom: 3, margin: "16px 0 8px" }}>{pendientes.length || medidas.length ? "4" : "3"} · Observaciones del profesorado y evolución</h3>
+      <h3 style={{ fontSize: 14, fontWeight: 800, borderBottom: "2px solid #c98a12", paddingBottom: 3, margin: "16px 0 8px" }}>{medidas.length ? "4" : "3"} · Observaciones del profesorado y evolución</h3>
       <p style={{ margin: "0 0 6px" }}>Evolución durante el curso: {c.evas.map((e, i) => `${e.n}ª: ${fmt(notasEvas[i])}`).join(" · ") || "sin datos"}.</p>
       {obs.length
         ? <ul style={{ margin: 0, paddingLeft: 18 }}>{obs.map((o) => <li key={o.id} style={{ marginBottom: 4 }}>{o.texto} <span style={{ color: "#7c929b", fontSize: 10.5 }}>({o.fecha}, {o.autor})</span></li>)}</ul>
@@ -238,7 +231,7 @@ function InformeGrupo({ progId, groupId, eva }: { progId: string; groupId: strin
   const cur = getCurriculum(sub.curriculumId);
   const group = d.groups.find((g) => g.id === groupId)!;
   const students = studentsOf(d, groupId);
-  const rows = students.map((st) => ({ st, final: finalGrade(d, progId, st.id), nota: eva === 0 ? finalGrade(d, progId, st.id).score : notaDeEva(d, progId, st.id, eva as 1 | 2 | 3), pend: pendingCriterios(d, st.id, sub.id) }));
+  const rows = students.map((st) => ({ st, final: finalGrade(d, progId, st.id), nota: eva === 0 ? finalGrade(d, progId, st.id).score : notaDeEva(d, progId, st.id, eva as 1 | 2 | 3) }));
   const medias = cur.ces.map((ce) => {
     const vals = students.map((st) => ceAgg(d, cur, st.id, ce.id).score).filter((x): x is number => x !== null);
     return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
@@ -254,7 +247,7 @@ function InformeGrupo({ progId, groupId, eva }: { progId: string; groupId: strin
         sub={`${sub.nombre} · ${group.nombre} · curso ${d.cursoLabel} · ${students.length} alumnos/as`}
       />
       <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
-        {[["Media del grupo", fmt(mg)], ["Aprobados", mediaGrupo.length ? `${aprobados}/${mediaGrupo.length}` : "—"], ["Con criterios pendientes", String(rows.filter((r) => r.pend.length).length)]].map(([k, v]) => (
+        {[["Media del grupo", fmt(mg)], ["Aprobados", mediaGrupo.length ? `${aprobados}/${mediaGrupo.length}` : "—"], ["Con criterios pendientes", String(rows.filter((r) => r.final.score !== null && r.final.score < 5).length)]].map(([k, v]) => (
           <div key={k} style={{ flex: 1, background: "#f2f4ef", border: "1px solid #d9e0d5", borderRadius: 8, padding: "8px 12px" }}>
             <p style={{ margin: 0, fontFamily: "JetBrains Mono, monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", color: "#7c929b" }}>{k}</p>
             <p style={{ margin: 0, fontFamily: "'Bricolage Grotesque'", fontSize: 22, fontWeight: 800 }}>{v}</p>
@@ -267,11 +260,10 @@ function InformeGrupo({ progId, groupId, eva }: { progId: string; groupId: strin
             <th style={{ border: "1px solid #13252c", padding: "5px 8px", textAlign: "left", background: "#13252c", color: "#fff" }}>Alumno/a</th>
             {cur.ces.map((ce) => <th key={ce.id} style={{ border: "1px solid #13252c", padding: "5px 4px", background: "#13252c", color: "#fff", fontFamily: "JetBrains Mono, monospace" }}>{ce.codigo}</th>)}
             <th style={{ border: "1px solid #13252c", padding: "5px 8px", background: "#0e7c66", color: "#fff" }}>Nota</th>
-            <th style={{ border: "1px solid #13252c", padding: "5px 8px", background: "#13252c", color: "#fff" }}>Pend.</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ st, final, nota, pend }) => (
+          {rows.map(({ st, nota }) => (
             <tr key={st.id} style={{ breakInside: "avoid" }}>
               <td style={{ border: "1px solid #d9e0d5", padding: "4px 8px", fontWeight: 700 }}>{st.nombre}{st.neae ? " (NEAE)" : ""}</td>
               {cur.ces.map((ce) => {
@@ -279,18 +271,16 @@ function InformeGrupo({ progId, groupId, eva }: { progId: string; groupId: strin
                 return <td key={ce.id} style={{ border: "1px solid #d9e0d5", padding: "4px 4px", textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontWeight: 700, color: nivelDe(a.score).hex }}>{a.score === null ? "—" : fmt(a.score)}</td>;
               })}
               <td style={{ border: "1px solid #d9e0d5", padding: "4px 8px", textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontWeight: 800, background: "#f2f4ef", color: nivelDe(nota).hex }}>{fmt(nota)}</td>
-              <td style={{ border: "1px solid #d9e0d5", padding: "4px 8px", textAlign: "center", fontFamily: "JetBrains Mono, monospace", color: pend.length ? "#d9532c" : "#0e7c66", fontWeight: 700 }}>{pend.length || "✓"}</td>
             </tr>
           ))}
           <tr style={{ background: "#f2f4ef" }}>
             <td style={{ border: "1px solid #13252c", padding: "4px 8px", fontWeight: 800 }}>MEDIA DEL GRUPO</td>
             {medias.map((m, i) => <td key={i} style={{ border: "1px solid #13252c", padding: "4px 4px", textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontWeight: 800 }}>{m === null ? "—" : fmt(m)}</td>)}
             <td style={{ border: "1px solid #13252c", padding: "4px 8px", textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontWeight: 800, color: nivelDe(mg).hex }}>{fmt(mg)}</td>
-            <td style={{ border: "1px solid #13252c", padding: "4px 8px" }} />
           </tr>
         </tbody>
       </table>
-      <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9.5, color: "#7c929b" }}>Escala: IN insuficiente · SU suficiente · NT notable · SB sobresaliente. Pend.: criterios con calificación inferior a 5.</p>
+      <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9.5, color: "#7c929b" }}>Escala: IN insuficiente · SU suficiente · NT notable · SB sobresaliente.</p>
       <p style={{ marginTop: 12, fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#7c929b", textAlign: "center" }}>Generado con TRAZO · suite de programación y evaluación LOMLOE</p>
     </div>
   );
