@@ -38,8 +38,8 @@ export function ExportarPDF({ open, onClose, prog, data }: Props) {
             <li>✓ Elementos curriculares LOMLOE</li>
             <li>✓ Criterios de calificación</li>
             <li>✓ Situaciones de aprendizaje</li>
-            <li>✓ Unidades didácticas</li>
-            <li>✓ Temporalización</li>
+            <li>✓ Unidades didácticas y temporalización</li>
+            <li>✓ Evaluación (instrumentos y criterios)</li>
             <li>✓ Anexos (si existen)</li>
           </ul>
         </div>
@@ -242,59 +242,105 @@ function ProgramacionDocumento({ prog, sub, cur, sas, units, grupo, profesor, da
         )}
       </section>
 
-      {/* 5. Unidades Didácticas */}
+      {/* 5. Unidades Didácticas y Temporalización */}
       <section style={{ marginBottom: "20px" }}>
         <h2 style={{ fontSize: "14px", fontWeight: 800, color: "#0e7c66", borderBottom: "2px solid #d9e0d5", paddingBottom: "4px", marginBottom: "10px" }}>
-          5. Unidades Didácticas
+          5. Unidades Didácticas y Temporalización
         </h2>
-        {units.length === 0 ? (
-          <p style={{ fontStyle: "italic", color: "#7c929b" }}>No hay unidades didácticas definidas</p>
-        ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
-            <thead>
-              <tr style={{ background: "#f2f4ef" }}>
-                <th style={{ padding: "6px", textAlign: "left", borderBottom: "2px solid #d9e0d5" }}>Unidad</th>
-                <th style={{ padding: "6px", textAlign: "left", borderBottom: "2px solid #d9e0d5" }}>Temporalización</th>
-                <th style={{ padding: "6px", textAlign: "center", borderBottom: "2px solid #d9e0d5", width: "60px" }}>Sesiones</th>
-                <th style={{ padding: "6px", textAlign: "left", borderBottom: "2px solid #d9e0d5" }}>Situaciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {units.map((u, idx) => {
-                const sasUnidad = sas.filter(sa => u.saIds.includes(sa.id));
-                return (
-                  <tr key={u.id} style={{ borderBottom: "1px solid #d9e0d5" }}>
-                    <td style={{ padding: "6px", fontWeight: 700 }}>UD{idx + 1}: {u.titulo}</td>
-                    <td style={{ padding: "6px" }}>{fmtFecha(u.inicio)} - {fmtFecha(u.fin)}</td>
-                    <td style={{ padding: "6px", textAlign: "center" }}>{u.sesiones}</td>
-                    <td style={{ padding: "6px" }}>{sasUnidad.map(sa => sa.titulo).join(", ") || "-"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+        
+        {/* Unidades Didácticas */}
+        <div style={{ marginBottom: "15px" }}>
+          <p style={{ fontSize: "11px", fontWeight: 700, color: "#47606b", margin: "0 0 8px" }}>Unidades Didácticas:</p>
+          {units.length === 0 ? (
+            <p style={{ fontStyle: "italic", color: "#7c929b" }}>No hay unidades didácticas definidas</p>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
+              <thead>
+                <tr style={{ background: "#f2f4ef" }}>
+                  <th style={{ padding: "6px", textAlign: "left", borderBottom: "2px solid #d9e0d5" }}>Unidad</th>
+                  <th style={{ padding: "6px", textAlign: "left", borderBottom: "2px solid #d9e0d5" }}>Temporalización</th>
+                  <th style={{ padding: "6px", textAlign: "center", borderBottom: "2px solid #d9e0d5", width: "60px" }}>Sesiones</th>
+                  <th style={{ padding: "6px", textAlign: "left", borderBottom: "2px solid #d9e0d5" }}>Situaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {units.map((u, idx) => {
+                  const sasUnidad = sas.filter(sa => u.saIds.includes(sa.id));
+                  return (
+                    <tr key={u.id} style={{ borderBottom: "1px solid #d9e0d5" }}>
+                      <td style={{ padding: "6px", fontWeight: 700 }}>UD{idx + 1}: {u.titulo}</td>
+                      <td style={{ padding: "6px" }}>{fmtFecha(u.inicio)} - {fmtFecha(u.fin)}</td>
+                      <td style={{ padding: "6px", textAlign: "center" }}>{u.sesiones}</td>
+                      <td style={{ padding: "6px" }}>{sasUnidad.map(sa => sa.titulo).join(", ") || "-"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Temporalización */}
+        <div>
+          <p style={{ fontSize: "11px", fontWeight: 700, color: "#47606b", margin: "0 0 8px" }}>Distribución Temporal:</p>
+          <div style={{ fontSize: "10px" }}>
+            {c.evas.map((eva: any) => {
+              const sasEva = sas.filter(sa => sa.eva === eva.n);
+              const sesiones = sasEva.reduce((acc, sa) => acc + sa.sesiones, 0);
+              return (
+                <div key={eva.n} style={{ marginBottom: "6px", paddingLeft: "8px", borderLeft: "2px solid #d9e0d5" }}>
+                  <p style={{ margin: 0, fontWeight: 700 }}>{eva.label}: {fmtFecha(eva.inicio.toISOString().slice(0, 10))} - {fmtFecha(eva.fin.toISOString().slice(0, 10))}</p>
+                  <p style={{ margin: "2px 0 0 8px", color: "#47606b" }}>
+                    {sasEva.length} situaciones de aprendizaje · {sesiones} sesiones
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
-      {/* 6. Temporalización */}
+      {/* 6. Evaluación */}
       <section style={{ marginBottom: "20px" }}>
         <h2 style={{ fontSize: "14px", fontWeight: 800, color: "#0e7c66", borderBottom: "2px solid #d9e0d5", paddingBottom: "4px", marginBottom: "10px" }}>
-          6. Temporalización
+          6. Evaluación
         </h2>
-        <div style={{ fontSize: "10px" }}>
-          <p style={{ margin: "0 0 8px", fontWeight: 700 }}>Distribución por evaluaciones:</p>
-          {c.evas.map((eva: any) => {
-            const sasEva = sas.filter(sa => sa.eva === eva.n);
-            const sesiones = sasEva.reduce((acc, sa) => acc + sa.sesiones, 0);
+        
+        {/* Instrumentos de Evaluación */}
+        <div style={{ marginBottom: "15px" }}>
+          <p style={{ fontSize: "11px", fontWeight: 700, color: "#47606b", margin: "0 0 8px" }}>Instrumentos de Evaluación:</p>
+          {(() => {
+            const instruments = data.instruments.filter(i => i.subjectId === sub.id);
+            if (instruments.length === 0) {
+              return <p style={{ fontStyle: "italic", color: "#7c929b" }}>No hay instrumentos de evaluación definidos</p>;
+            }
             return (
-              <div key={eva.n} style={{ marginBottom: "6px", paddingLeft: "8px", borderLeft: "2px solid #d9e0d5" }}>
-                <p style={{ margin: 0, fontWeight: 700 }}>{eva.label}: {fmtFecha(eva.inicio.toISOString().slice(0, 10))} - {fmtFecha(eva.fin.toISOString().slice(0, 10))}</p>
-                <p style={{ margin: "2px 0 0 8px", color: "#47606b" }}>
-                  {sasEva.length} situaciones de aprendizaje · {sesiones} sesiones
-                </p>
-              </div>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
+                <thead>
+                  <tr style={{ background: "#f2f4ef" }}>
+                    <th style={{ padding: "6px", textAlign: "left", borderBottom: "2px solid #d9e0d5" }}>Instrumento</th>
+                    <th style={{ padding: "6px", textAlign: "left", borderBottom: "2px solid #d9e0d5" }}>Tipo</th>
+                    <th style={{ padding: "6px", textAlign: "center", borderBottom: "2px solid #d9e0d5", width: "80px" }}>Peso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {instruments.map((inst) => (
+                    <tr key={inst.id} style={{ borderBottom: "1px solid #d9e0d5" }}>
+                      <td style={{ padding: "6px", fontWeight: 700 }}>{inst.nombre}</td>
+                      <td style={{ padding: "6px", textTransform: "capitalize" }}>{inst.tipo}</td>
+                      <td style={{ padding: "6px", textAlign: "center", fontWeight: 700 }}>{inst.peso}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             );
-          })}
+          })()}
+        </div>
+
+        {/* Criterios de Calificación */}
+        <div>
+          <p style={{ fontSize: "11px", fontWeight: 700, color: "#47606b", margin: "0 0 8px" }}>Criterios de Calificación:</p>
+          <p style={{ margin: 0, fontSize: "10px", whiteSpace: "pre-wrap" }}>{prog.ccalificacion}</p>
         </div>
       </section>
 
