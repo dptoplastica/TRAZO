@@ -3,26 +3,21 @@ import { type AppData } from '../data/seed';
 
 const STORAGE_KEY = 'trazo-lomloe-v19';
 
-// Función para cargar datos desde Supabase
-export async function loadDataFromSupabase(userId: string): Promise<AppData | null> {
+// Verificar conexión con Supabase
+export async function checkSupabaseConnection(): Promise<boolean> {
   try {
-    // Intentar cargar desde Supabase
-    const { data, error } = await supabase
-      .from('programaciones')
-      .select('*')
-      .limit(1);
+    const { error } = await supabase.from('teachers').select('count').limit(1);
+    return !error;
+  } catch {
+    return false;
+  }
+}
 
-    if (error) {
-      console.warn('Error cargando desde Supabase, usando localStorage:', error);
-      return null;
-    }
-
-    // Si no hay datos en Supabase, retornar null
-    if (!data || data.length === 0) {
-      return null;
-    }
-
-    // Cargar todos los datos desde Supabase
+// Función para cargar datos desde Supabase
+export async function loadDataFromSupabase(): Promise<AppData | null> {
+  try {
+    console.log('🔄 Cargando datos desde Supabase...');
+    
     const [teachers, groups, students, subjects, programaciones, sa, units, instruments, grades, attendance, observations, measures, recoveries] = await Promise.all([
       supabase.from('teachers').select('*'),
       supabase.from('groups').select('*'),
@@ -39,12 +34,18 @@ export async function loadDataFromSupabase(userId: string): Promise<AppData | nu
       supabase.from('recoveries').select('*'),
     ]);
 
+    // Si no hay datos, retornar null
+    if (!teachers.data || teachers.data.length === 0) {
+      console.log('⚠️ No hay datos en Supabase');
+      return null;
+    }
+
     // Construir el objeto AppData
     const appData: AppData = {
       version: 19,
       role: 'profesor',
-      teacherId: userId,
-      cursoLabel: new Date().getFullYear() + '-' + (new Date().getFullYear() + 1).toString().slice(2),
+      teacherId: 't1',
+      cursoLabel: '2025-26',
       teachers: teachers.data || [],
       groups: groups.data || [],
       students: students.data || [],
@@ -60,9 +61,10 @@ export async function loadDataFromSupabase(userId: string): Promise<AppData | nu
       recoveries: recoveries.data || [],
     };
 
+    console.log('✅ Datos cargados desde Supabase');
     return appData;
   } catch (error) {
-    console.error('Error cargando datos desde Supabase:', error);
+    console.error('❌ Error cargando datos desde Supabase:', error);
     return null;
   }
 }
@@ -70,7 +72,8 @@ export async function loadDataFromSupabase(userId: string): Promise<AppData | nu
 // Función para guardar datos en Supabase
 export async function saveDataToSupabase(data: AppData): Promise<boolean> {
   try {
-    // Guardar cada tabla en Supabase
+    console.log('💾 Guardando datos en Supabase...');
+    
     const operations = [
       supabase.from('teachers').upsert(data.teachers, { onConflict: 'id' }),
       supabase.from('groups').upsert(data.groups, { onConflict: 'id' }),
@@ -88,26 +91,22 @@ export async function saveDataToSupabase(data: AppData): Promise<boolean> {
     ];
 
     const results = await Promise.all(operations);
-    const hasErrors = results.some(r => r.error);
+    const errors = results.filter(r => r.error);
 
-    if (hasErrors) {
-      console.warn('Algunas operaciones fallaron en Supabase, guardando en localStorage como fallback');
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    if (errors.length > 0) {
+      console.warn('⚠️ Algunos datos no se guardaron en Supabase:', errors);
       return false;
     }
 
-    // También guardar en localStorage como backup
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    console.log('✅ Datos guardados en Supabase');
     return true;
   } catch (error) {
-    console.error('Error guardando en Supabase:', error);
-    // Fallback a localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    console.error('❌ Error guardando en Supabase:', error);
     return false;
   }
 }
 
-// Función para cargar datos (primero Supabase, luego localStorage)
+// Función para cargar datos (primero localStorage, luego Supabase)
 export function loadLocalData(): AppData | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -164,8 +163,8 @@ export async function signOutFromSupabase() {
 // Función para verificar si hay sesión activa
 export async function checkSupabaseSession() {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
+    const result = await supabase.auth.getSession();
+    return result.data?.session || null;
   } catch (error) {
     console.error('Error verificando sesión:', error);
     return null;
