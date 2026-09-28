@@ -78,6 +78,35 @@ export default function Configuracion() {
   const [importGroupId, setImportGroupId] = useState<string>("");
   const [csvPreview, setCsvPreview] = useState<Array<{nombre: string; neae?: string; base: number; absRate: number}>>([]);
 
+  // Estados para gestión de profesorado
+  const [showNewTeacher, setShowNewTeacher] = useState(false);
+  const [showEditTeacher, setShowEditTeacher] = useState(false);
+  const [showDeleteTeacherConfirm, setShowDeleteTeacherConfirm] = useState(false);
+  const [teacherToEdit, setTeacherToEdit] = useState<string | null>(null);
+  const [teacherToDelete, setTeacherToDelete] = useState<string | null>(null);
+  const [newTeacher, setNewTeacher] = useState<{
+    nombre: string;
+    email: string;
+    rol: "admin" | "profesor";
+    color: string;
+  }>({
+    nombre: "",
+    email: "",
+    rol: "profesor",
+    color: "#0e7c66"
+  });
+  const [editTeacherData, setEditTeacherData] = useState<{
+    nombre: string;
+    email: string;
+    rol: "admin" | "profesor";
+    color: string;
+  }>({
+    nombre: "",
+    email: "",
+    rol: "profesor",
+    color: "#0e7c66"
+  });
+
   if (!isAdmin) {
     return (
       <div>
@@ -239,6 +268,112 @@ export default function Configuracion() {
     notify("Grupo del alumno actualizado");
   };
 
+  // Funciones para gestionar profesorado
+  const handleAddTeacher = () => {
+    if (!newTeacher.nombre || !newTeacher.email) {
+      notify("Nombre y email son obligatorios");
+      return;
+    }
+    
+    // Verificar si el email ya existe
+    if (d.teachers.some(t => t.email === newTeacher.email)) {
+      notify("Ya existe un profesor con ese email");
+      return;
+    }
+    
+    const teacher = {
+      id: uid(),
+      ...newTeacher
+    };
+    
+    set(prev => ({ ...prev, teachers: [...prev.teachers, teacher] }));
+    setShowNewTeacher(false);
+    setNewTeacher({
+      nombre: "",
+      email: "",
+      rol: "profesor",
+      color: "#0e7c66"
+    });
+    notify("Profesor añadido correctamente");
+  };
+
+  const handleEditTeacher = (teacherId: string) => {
+    const teacher = d.teachers.find(t => t.id === teacherId);
+    if (teacher) {
+      setTeacherToEdit(teacherId);
+      setEditTeacherData({
+        nombre: teacher.nombre,
+        email: teacher.email,
+        rol: teacher.rol,
+        color: teacher.color
+      });
+      setShowEditTeacher(true);
+    }
+  };
+
+  const handleSaveTeacher = () => {
+    if (!editTeacherData.nombre || !editTeacherData.email) {
+      notify("Nombre y email son obligatorios");
+      return;
+    }
+
+    // Verificar si el email ya existe en otro profesor
+    if (d.teachers.some(t => t.email === editTeacherData.email && t.id !== teacherToEdit)) {
+      notify("Ya existe otro profesor con ese email");
+      return;
+    }
+    
+    set(prev => ({
+      ...prev,
+      teachers: prev.teachers.map(t => 
+        t.id === teacherToEdit 
+          ? { ...t, ...editTeacherData }
+          : t
+      )
+    }));
+    
+    notify("Profesor actualizado correctamente");
+    setShowEditTeacher(false);
+    setTeacherToEdit(null);
+  };
+
+  const handleDeleteTeacher = (teacherId: string) => {
+    setTeacherToDelete(teacherId);
+    setShowDeleteTeacherConfirm(true);
+  };
+
+  const confirmDeleteTeacher = () => {
+    if (teacherToDelete) {
+      // Verificar si es el último admin
+      const teacherToDeleteObj = d.teachers.find(t => t.id === teacherToDelete);
+      if (teacherToDeleteObj?.rol === "admin") {
+        const adminCount = d.teachers.filter(t => t.rol === "admin").length;
+        if (adminCount === 1) {
+          notify("No se puede eliminar el último administrador");
+          setShowDeleteTeacherConfirm(false);
+          setTeacherToDelete(null);
+          return;
+        }
+      }
+
+      set(prev => ({
+        ...prev,
+        teachers: prev.teachers.filter(t => t.id !== teacherToDelete),
+        // Actualizar tutorId en grupos si era tutor
+        groups: prev.groups.map(g => 
+          g.tutorId === teacherToDelete ? { ...g, tutorId: "" } : g
+        ),
+        // Actualizar teacherId en materias si era el profesor
+        subjects: prev.subjects.map(s => 
+          s.teacherId === teacherToDelete ? { ...s, teacherId: undefined } : s
+        )
+      }));
+      notify("Profesor eliminado correctamente");
+      setShowDeleteTeacherConfirm(false);
+      setTeacherToDelete(null);
+    }
+  };
+
   // Funciones para importar CSV
   const handleCSVUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -368,7 +503,12 @@ export default function Configuracion() {
       <div className="grid gap-4 xl:grid-cols-2">
         <Reveal>
           <div className="card overflow-hidden">
-            <div className="border-b border-line px-4 py-3"><p className="text-[13.5px] font-bold text-ink">Profesorado</p></div>
+            <div className="border-b border-line px-4 py-3 flex items-center justify-between">
+              <p className="text-[13.5px] font-bold text-ink">Profesorado</p>
+              <button className={btn} onClick={() => setShowNewTeacher(true)}>
+                <Ic n="plus" s={14} /> Nuevo profesor
+              </button>
+            </div>
             <div className="divide-y divide-line/60">
               {d.teachers.map((t) => (
                 <div key={t.id} className="flex items-center gap-3 px-4 py-3">
@@ -377,6 +517,20 @@ export default function Configuracion() {
                     <p className="text-[14px] font-bold text-ink">{t.nombre}</p>
                     <p className="text-[11.5px] text-ink3">{t.email} · {t.rol === "admin" ? "Jefatura" : "Docente"}</p>
                   </div>
+                  <button 
+                    className="text-azu hover:bg-azul p-2 rounded transition-colors"
+                    onClick={() => handleEditTeacher(t.id)}
+                    title="Editar profesor"
+                  >
+                    <Ic n="edit" s={16} />
+                  </button>
+                  <button 
+                    className="text-verm hover:text-verm-d hover:bg-verm-l p-2 rounded transition-colors"
+                    onClick={() => handleDeleteTeacher(t.id)}
+                    title="Eliminar profesor"
+                  >
+                    <Ic n="trash" s={16} />
+                  </button>
                 </div>
               ))}
             </div>
@@ -950,6 +1104,124 @@ export default function Configuracion() {
               </button>
               <button className={btn} onClick={handleImportCSV} disabled={csvPreview.length === 0}>
                 <Ic n="download" s={14} /> Importar {csvPreview.length > 0 ? `${csvPreview.length} alumnos` : ""}
+              </button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Modal Nuevo Profesor */}
+        <Modal open={showNewTeacher} onClose={() => setShowNewTeacher(false)} title="Nuevo profesor">
+          <div className="space-y-4">
+            <div>
+              <label className="lbl">Nombre completo</label>
+              <input
+                type="text"
+                className="inp"
+                value={newTeacher.nombre}
+                onChange={(e) => setNewTeacher({ ...newTeacher, nombre: e.target.value })}
+                placeholder="Ej: Juan Pérez García"
+              />
+            </div>
+            <div>
+              <label className="lbl">Email</label>
+              <input
+                type="email"
+                className="inp"
+                value={newTeacher.email}
+                onChange={(e) => setNewTeacher({ ...newTeacher, email: e.target.value })}
+                placeholder="juan.perez@educantabria.es"
+              />
+            </div>
+            <div>
+              <label className="lbl">Rol</label>
+              <select
+                className="inp"
+                value={newTeacher.rol}
+                onChange={(e) => setNewTeacher({ ...newTeacher, rol: e.target.value as "admin" | "profesor" })}
+              >
+                <option value="profesor">Docente</option>
+                <option value="admin">Jefatura de Departamento</option>
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Color</label>
+              <input
+                type="color"
+                className="inp h-10"
+                value={newTeacher.color}
+                onChange={(e) => setNewTeacher({ ...newTeacher, color: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={() => setShowNewTeacher(false)}>Cancelar</button>
+              <button className={btn} onClick={handleAddTeacher}>Crear profesor</button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Modal Editar Profesor */}
+        <Modal open={showEditTeacher} onClose={() => setShowEditTeacher(false)} title="Editar profesor">
+          <div className="space-y-4">
+            <div>
+              <label className="lbl">Nombre completo</label>
+              <input
+                type="text"
+                className="inp"
+                value={editTeacherData.nombre}
+                onChange={(e) => setEditTeacherData({ ...editTeacherData, nombre: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="lbl">Email</label>
+              <input
+                type="email"
+                className="inp"
+                value={editTeacherData.email}
+                onChange={(e) => setEditTeacherData({ ...editTeacherData, email: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="lbl">Rol</label>
+              <select
+                className="inp"
+                value={editTeacherData.rol}
+                onChange={(e) => setEditTeacherData({ ...editTeacherData, rol: e.target.value as "admin" | "profesor" })}
+              >
+                <option value="profesor">Docente</option>
+                <option value="admin">Jefatura de Departamento</option>
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Color</label>
+              <input
+                type="color"
+                className="inp h-10"
+                value={editTeacherData.color}
+                onChange={(e) => setEditTeacherData({ ...editTeacherData, color: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={() => setShowEditTeacher(false)}>Cancelar</button>
+              <button className={btn} onClick={handleSaveTeacher}>Guardar cambios</button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Modal Confirmar Eliminación Profesor */}
+        <Modal open={showDeleteTeacherConfirm} onClose={() => setShowDeleteTeacherConfirm(false)} title="Confirmar eliminación">
+          <div className="space-y-4">
+            <p className="text-ink2">
+              ¿Estás seguro de que quieres eliminar este profesor?
+            </p>
+            <p className="text-verm font-semibold">
+              ⚠️ Se desvinculará de todos los grupos y materias donde sea tutor o responsable.
+            </p>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={() => setShowDeleteTeacherConfirm(false)}>
+                Cancelar
+              </button>
+              <button className={btnDanger} onClick={confirmDeleteTeacher}>
+                <Ic n="trash" s={14} /> Eliminar profesor
               </button>
             </div>
           </div>
