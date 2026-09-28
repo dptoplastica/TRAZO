@@ -25,7 +25,7 @@ interface Ctx {
   reset: () => void;
 }
 
-const KEY = "trazo-lomloe-v20";
+const KEY = "trazo-lomloe-v21";
 
 function load(): AppData {
   try {

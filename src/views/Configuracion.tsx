@@ -82,8 +82,10 @@ export default function Configuracion() {
   const [showNewTeacher, setShowNewTeacher] = useState(false);
   const [showEditTeacher, setShowEditTeacher] = useState(false);
   const [showDeleteTeacherConfirm, setShowDeleteTeacherConfirm] = useState(false);
+  const [showAssignSubjects, setShowAssignSubjects] = useState(false);
   const [teacherToEdit, setTeacherToEdit] = useState<string | null>(null);
   const [teacherToDelete, setTeacherToDelete] = useState<string | null>(null);
+  const [teacherToAssign, setTeacherToAssign] = useState<string | null>(null);
   const [newTeacher, setNewTeacher] = useState<{
     nombre: string;
     email: string;
@@ -374,6 +376,35 @@ export default function Configuracion() {
     }
   };
 
+  // Funciones para asignar materias
+  const handleAssignSubjects = (teacherId: string) => {
+    setTeacherToAssign(teacherId);
+    setShowAssignSubjects(true);
+  };
+
+  const toggleSubjectAssignment = (subjectId: string) => {
+    if (!teacherToAssign) return;
+
+    set(prev => ({
+      ...prev,
+      subjects: prev.subjects.map(s => {
+        if (s.id === subjectId) {
+          // Si la materia ya está asignada a este profesor, desasignarla
+          if (s.teacherId === teacherToAssign) {
+            return { ...s, teacherId: undefined };
+          }
+          // Si la materia no está asignada o está asignada a otro profesor, asignarla a este
+          return { ...s, teacherId: teacherToAssign };
+        }
+        return s;
+      })
+    }));
+  };
+
+  const getTeacherSubjects = (teacherId: string) => {
+    return d.subjects.filter(s => s.teacherId === teacherId);
+  };
+
   // Funciones para importar CSV
   const handleCSVUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -510,29 +541,51 @@ export default function Configuracion() {
               </button>
             </div>
             <div className="divide-y divide-line/60">
-              {d.teachers.map((t) => (
-                <div key={t.id} className="flex items-center gap-3 px-4 py-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[12px] font-extrabold text-white" style={{ background: t.color }}>{t.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("")}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-bold text-ink">{t.nombre}</p>
-                    <p className="text-[11.5px] text-ink3">{t.email} · {t.rol === "admin" ? "Jefatura" : "Docente"}</p>
+              {d.teachers.map((t) => {
+                const teacherSubjects = getTeacherSubjects(t.id);
+                return (
+                  <div key={t.id} className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[12px] font-extrabold text-white" style={{ background: t.color }}>{t.nombre.split(" ").map((x) => x[0]).slice(0, 2).join("")}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[14px] font-bold text-ink">{t.nombre}</p>
+                        <p className="text-[11.5px] text-ink3">{t.email} · {t.rol === "admin" ? "Jefatura" : "Docente"}</p>
+                        {teacherSubjects.length > 0 && (
+                          <div className="mt-1.5 flex flex-wrap gap-1">
+                            {teacherSubjects.map(s => (
+                              <span key={s.id} className="inline-flex items-center gap-1 rounded bg-virl px-1.5 py-0.5 text-[10px] font-semibold text-vird">
+                                <span className="h-1.5 w-1.5 rounded-full" style={{ background: s.color }} />
+                                {s.corto}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button 
+                        className="text-vir hover:bg-virl p-2 rounded transition-colors"
+                        onClick={() => handleAssignSubjects(t.id)}
+                        title="Asignar materias"
+                      >
+                        <Ic n="book" s={16} />
+                      </button>
+                      <button 
+                        className="text-azu hover:bg-azul p-2 rounded transition-colors"
+                        onClick={() => handleEditTeacher(t.id)}
+                        title="Editar profesor"
+                      >
+                        <Ic n="edit" s={16} />
+                      </button>
+                      <button 
+                        className="text-verm hover:text-verm-d hover:bg-verm-l p-2 rounded transition-colors"
+                        onClick={() => handleDeleteTeacher(t.id)}
+                        title="Eliminar profesor"
+                      >
+                        <Ic n="trash" s={16} />
+                      </button>
+                    </div>
                   </div>
-                  <button 
-                    className="text-azu hover:bg-azul p-2 rounded transition-colors"
-                    onClick={() => handleEditTeacher(t.id)}
-                    title="Editar profesor"
-                  >
-                    <Ic n="edit" s={16} />
-                  </button>
-                  <button 
-                    className="text-verm hover:text-verm-d hover:bg-verm-l p-2 rounded transition-colors"
-                    onClick={() => handleDeleteTeacher(t.id)}
-                    title="Eliminar profesor"
-                  >
-                    <Ic n="trash" s={16} />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </Reveal>
@@ -1224,6 +1277,73 @@ export default function Configuracion() {
                 <Ic n="trash" s={14} /> Eliminar profesor
               </button>
             </div>
+          </div>
+        </Modal>
+
+        {/* Modal Asignar Materias */}
+        <Modal open={showAssignSubjects} onClose={() => setShowAssignSubjects(false)} title="Asignar materias">
+          <div className="space-y-4">
+            {teacherToAssign && (
+              <>
+                <div className="rounded-lg bg-virl p-3">
+                  <p className="text-[13px] font-semibold text-vird">
+                    {d.teachers.find(t => t.id === teacherToAssign)?.nombre}
+                  </p>
+                  <p className="text-[11.5px] text-ink3 mt-0.5">
+                    Selecciona las materias que quieres asignar a este profesor
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {d.subjects.map((s) => {
+                    const isAssigned = s.teacherId === teacherToAssign;
+                    const assignedToOther = s.teacherId && s.teacherId !== teacherToAssign;
+                    const otherTeacher = assignedToOther ? d.teachers.find(t => t.id === s.teacherId) : null;
+                    
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => toggleSubjectAssignment(s.id)}
+                        className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                          isAssigned 
+                            ? 'border-vir bg-virl/30' 
+                            : assignedToOther
+                            ? 'border-amb bg-ambl/20 opacity-70'
+                            : 'border-line hover:border-vir/50 hover:bg-virl/10'
+                        }`}
+                      >
+                        <span className="h-8 w-1.5 rounded-full" style={{ background: s.color }} />
+                        <div className="flex-1 text-left">
+                          <p className="text-[13px] font-bold text-ink">{s.nombre}</p>
+                          <p className="text-[11px] text-ink3">
+                            {s.corto} · {s.nivel} · {s.grupoId ? d.groups.find(g => g.id === s.grupoId)?.nombre : 'Sin grupo'}
+                          </p>
+                          {assignedToOther && otherTeacher && (
+                            <p className="text-[10.5px] text-amb font-semibold mt-0.5">
+                              ⚠️ Actualmente asignada a: {otherTeacher.nombre}
+                            </p>
+                          )}
+                        </div>
+                        <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                          isAssigned ? 'bg-vir text-white' : 'bg-line/50'
+                        }`}>
+                          {isAssigned && <Ic n="check" s={14} />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {d.subjects.length === 0 && (
+                    <p className="text-center text-[13px] text-ink3 py-8">
+                      No hay materias disponibles para asignar
+                    </p>
+                  )}
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button className={btn} onClick={() => setShowAssignSubjects(false)}>
+                    Cerrar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </Modal>
       </div>
