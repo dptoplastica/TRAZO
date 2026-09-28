@@ -86,6 +86,31 @@ export default function Configuracion() {
   const [teacherToEdit, setTeacherToEdit] = useState<string | null>(null);
   const [teacherToDelete, setTeacherToDelete] = useState<string | null>(null);
   const [teacherToAssign, setTeacherToAssign] = useState<string | null>(null);
+  
+  // Estados para gestión de materias
+  const [showEditSubject, setShowEditSubject] = useState(false);
+  const [subjectToEdit, setSubjectToEdit] = useState<string | null>(null);
+  const [editSubjectData, setEditSubjectData] = useState<{
+    nombre: string;
+    corto: string;
+    etapa: string;
+    nivel: string;
+    curriculumId: string;
+    grupoId: string;
+    teacherId: string;
+    color: string;
+    tipo: "obligatoria" | "optativa";
+  }>({
+    nombre: "",
+    corto: "",
+    etapa: "Bachillerato",
+    nivel: "1º Bachillerato",
+    curriculumId: "dt1-bach",
+    grupoId: "",
+    teacherId: "",
+    color: "#0e7c66",
+    tipo: "obligatoria"
+  });
   const [newTeacher, setNewTeacher] = useState<{
     nombre: string;
     email: string;
@@ -172,6 +197,46 @@ export default function Configuracion() {
       setShowDeleteConfirm(false);
       setSubjectToDelete(null);
     }
+  };
+
+  // Funciones para editar materias
+  const handleEditSubject = (subjectId: string) => {
+    const subject = d.subjects.find(s => s.id === subjectId);
+    if (subject) {
+      setSubjectToEdit(subjectId);
+      setEditSubjectData({
+        nombre: subject.nombre,
+        corto: subject.corto,
+        etapa: subject.etapa,
+        nivel: subject.nivel,
+        curriculumId: subject.curriculumId,
+        grupoId: subject.grupoId,
+        teacherId: subject.teacherId || "",
+        color: subject.color,
+        tipo: subject.tipo
+      });
+      setShowEditSubject(true);
+    }
+  };
+
+  const handleSaveSubject = () => {
+    if (!editSubjectData.nombre || !editSubjectData.corto) {
+      notify("Nombre y código corto son obligatorios");
+      return;
+    }
+
+    set(prev => ({
+      ...prev,
+      subjects: prev.subjects.map(s => 
+        s.id === subjectToEdit 
+          ? { ...s, ...editSubjectData, teacherId: editSubjectData.teacherId || undefined }
+          : s
+      )
+    }));
+
+    notify("Materia actualizada correctamente");
+    setShowEditSubject(false);
+    setSubjectToEdit(null);
   };
 
   // Gestión de Grupos
@@ -598,22 +663,35 @@ export default function Configuracion() {
               </button>
             </div>
             <div className="divide-y divide-line/60">
-              {d.subjects.map((s) => (
-                <div key={s.id} className="flex items-center gap-3 px-4 py-3">
-                  <span className="h-9 w-1.5 shrink-0 rounded-full" style={{ background: s.color }} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13.5px] font-bold text-ink">{s.nombre}</p>
-                    <p className="mono text-[10.5px] text-ink3">{s.corto} · {s.nivel} · {d.groups.find((g) => g.id === s.grupoId)?.nombre}</p>
+              {d.subjects.map((s) => {
+                const teacher = d.teachers.find(t => t.id === s.teacherId);
+                return (
+                  <div key={s.id} className="flex items-center gap-3 px-4 py-3">
+                    <span className="h-9 w-1.5 shrink-0 rounded-full" style={{ background: s.color }} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13.5px] font-bold text-ink">{s.nombre}</p>
+                      <p className="mono text-[10.5px] text-ink3">
+                        {s.corto} · {s.nivel} · {d.groups.find((g) => g.id === s.grupoId)?.nombre || "Sin grupo"}
+                        {teacher && <span className="ml-2">· Prof: {teacher.nombre}</span>}
+                      </p>
+                    </div>
+                    <button 
+                      className="text-azu hover:bg-azul p-2 rounded transition-colors"
+                      onClick={() => handleEditSubject(s.id)}
+                      title="Editar materia"
+                    >
+                      <Ic n="edit" s={16} />
+                    </button>
+                    <button 
+                      className="text-verm hover:text-verm-d hover:bg-verm-l p-2 rounded transition-colors"
+                      onClick={() => handleDeleteSubject(s.id)}
+                      title="Eliminar materia"
+                    >
+                      <Ic n="trash" s={16} />
+                    </button>
                   </div>
-                  <button 
-                    className="text-verm hover:text-verm-d hover:bg-verm-l p-2 rounded transition-colors"
-                    onClick={() => handleDeleteSubject(s.id)}
-                    title="Eliminar materia"
-                  >
-                    <Ic n="trash" s={16} />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </Reveal>
@@ -838,6 +916,125 @@ export default function Configuracion() {
               <button className={btnDanger} onClick={confirmDelete}>
                 <Ic n="trash" s={14} /> Eliminar materia
               </button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Modal Editar Materia */}
+        <Modal open={showEditSubject} onClose={() => setShowEditSubject(false)} title="Editar materia">
+          <div className="space-y-4">
+            <div>
+              <label className="lbl">Nombre completo</label>
+              <input
+                type="text"
+                className="inp"
+                value={editSubjectData.nombre}
+                onChange={(e) => setEditSubjectData({ ...editSubjectData, nombre: e.target.value })}
+                placeholder="Ej: Dibujo Técnico I"
+              />
+            </div>
+            <div>
+              <label className="lbl">Código corto</label>
+              <input
+                type="text"
+                className="inp"
+                value={editSubjectData.corto}
+                onChange={(e) => setEditSubjectData({ ...editSubjectData, corto: e.target.value })}
+                placeholder="Ej: DT1"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="lbl">Etapa</label>
+                <select
+                  className="inp"
+                  value={editSubjectData.etapa}
+                  onChange={(e) => setEditSubjectData({ ...editSubjectData, etapa: e.target.value })}
+                >
+                  <option value="ESO">ESO</option>
+                  <option value="Bachillerato">Bachillerato</option>
+                </select>
+              </div>
+              <div>
+                <label className="lbl">Nivel</label>
+                <select
+                  className="inp"
+                  value={editSubjectData.nivel}
+                  onChange={(e) => setEditSubjectData({ ...editSubjectData, nivel: e.target.value })}
+                >
+                  <option value="1º ESO">1º ESO</option>
+                  <option value="2º ESO">2º ESO</option>
+                  <option value="3º ESO">3º ESO</option>
+                  <option value="4º ESO">4º ESO</option>
+                  <option value="1º Bachillerato">1º Bachillerato</option>
+                  <option value="2º Bachillerato">2º Bachillerato</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="lbl">Currículo</label>
+              <select
+                className="inp"
+                value={editSubjectData.curriculumId}
+                onChange={(e) => setEditSubjectData({ ...editSubjectData, curriculumId: e.target.value })}
+              >
+                <option value="dt1-bach">Dibujo Técnico I</option>
+                <option value="dt2-bach">Dibujo Técnico II</option>
+                <option value="epva-eso">EPVA ESO</option>
+                <option value="ea-bach">Expresión Artística</option>
+                <option value="tp-bach">Taller de Podcast</option>
+                <option value="tc-bach">Taller de Cortometraje</option>
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Grupo asignado</label>
+              <select
+                className="inp"
+                value={editSubjectData.grupoId}
+                onChange={(e) => setEditSubjectData({ ...editSubjectData, grupoId: e.target.value })}
+              >
+                <option value="">Sin grupo asignado</option>
+                {d.groups.map(g => (
+                  <option key={g.id} value={g.id}>{g.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Profesor asignado</label>
+              <select
+                className="inp"
+                value={editSubjectData.teacherId}
+                onChange={(e) => setEditSubjectData({ ...editSubjectData, teacherId: e.target.value })}
+              >
+                <option value="">Sin profesor asignado</option>
+                {d.teachers.map(t => (
+                  <option key={t.id} value={t.id}>{t.nombre} ({t.rol === "admin" ? "Jefatura" : "Profesor"})</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Tipo</label>
+              <select
+                className="inp"
+                value={editSubjectData.tipo}
+                onChange={(e) => setEditSubjectData({ ...editSubjectData, tipo: e.target.value as "obligatoria" | "optativa" })}
+              >
+                <option value="obligatoria">Obligatoria</option>
+                <option value="optativa">Optativa</option>
+              </select>
+            </div>
+            <div>
+              <label className="lbl">Color</label>
+              <input
+                type="color"
+                className="inp h-10"
+                value={editSubjectData.color}
+                onChange={(e) => setEditSubjectData({ ...editSubjectData, color: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={() => setShowEditSubject(false)}>Cancelar</button>
+              <button className={btn} onClick={handleSaveSubject}>Guardar cambios</button>
             </div>
           </div>
         </Modal>
