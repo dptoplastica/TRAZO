@@ -1,29 +1,50 @@
 {
-  "appId": "com.ieslopevega.trazo",
+  "appId": "com.ieslopedevega.trazo",
   "productName": "TRAZO",
   "directories": {
-    "output": "release"
+    "output": "release",
+    "buildResources": "build"
   },
   "files": [
     "dist/**/*",
-    "electron/**/*"
+    "electron-main.js",
+    "package.json"
   ],
   "win": {
-    "target": "nsis",
-    "icon": "public/icon.png"
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icon.ico",
+    "artifactName": "${productName}-${version}-Setup.${ext}"
   },
   "nsis": {
     "oneClick": false,
+    "perMachine": false,
     "allowToChangeInstallationDirectory": true,
+    "deleteAppDataOnUninstall": false,
+    "shortcutName": "TRAZO",
+    "installerIcon": "build/icon.ico",
+    "uninstallerIcon": "build/icon.ico",
+    "installerHeaderIcon": "build/icon.ico",
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true
   },
+  "portable": {
+    "artifactName": "${productName}-${version}-Portable.${ext}"
+  },
   "mac": {
-    "target": "dmg",
-    "icon": "public/icon.png"
+    "target": ["dmg"],
+    "icon": "build/icon.icns"
   },
   "linux": {
-    "target": "AppImage",
-    "icon": "public/icon.png"
+    "target": ["AppImage"],
+    "icon": "build/icon.png"
   }
 }
