@@ -2,6 +2,7 @@ import { useApp, visibleProgramaciones, visibleSubjects, uid, fmtFecha } from ".
 import { getCurriculum, allCriterios, descriptorById, claveById, clavesDeCE } from "../data/curriculum";
 import type { Programacion as Prog } from "../data/seed";
 import { Ic, Reveal, SectionHead, EstadoBadge, Modal, EmptyState, btn, btnGhost } from "../components/ui";
+import { ExportarPDF } from "../components/ExportarPDF";
 import { fmtFechaL } from "../store";
 import { useState, useMemo } from "react";
 
@@ -18,7 +19,7 @@ export default function Programaciones() {
     const sub = d.subjects.find((s) => s.id === subjectId);
     if (!sub) return;
     const cur = getCurriculum(sub.curriculumId);
-    const p: Prog = { id: uid(), subjectId: sub.id, curso: d.cursoLabel, estado: "Borrador", contexto: { centro: d.programaciones[0]?.contexto.centro ?? "", entorno: d.programaciones[0]?.contexto.entorno ?? "", alumnado: "", recursos: "", diversidad: "" }, criterios: allCriterios(cur).map((c) => c.id), ponderaciones: Object.fromEntries(allCriterios(cur).map((c) => [c.id, Math.round(1000 / allCriterios(cur).length) / 10])), ccalificacion: "Pendiente de definir.", actualizada: new Date().toISOString().slice(0, 10) };
+    const p: Prog = { id: uid(), subjectId: sub.id, curso: d.cursoLabel, estado: "Borrador", contexto: { centro: d.programaciones[0]?.contexto.centro ?? "", entorno: d.programaciones[0]?.contexto.entorno ?? "", alumnado: "", recursos: "", diversidad: "" }, criterios: allCriterios(cur).map((c) => c.id), ponderaciones: Object.fromEntries(allCriterios(cur).map((c) => [c.id, Math.round(1000 / allCriterios(cur).length) / 10])), ccalificacion: "Pendiente de definir.", anexos: [], actualizada: new Date().toISOString().slice(0, 10) };
     set((s) => ({ ...s, programaciones: [...s.programaciones, p] }));
     setNuevo(false); notify("Programación creada en borrador");
     nav("programaciones", { programacionId: p.id });
@@ -76,7 +77,8 @@ export default function Programaciones() {
 
 function Editor({ prog }: { prog: Prog }) {
   const { d, nav, set, notify } = useApp();
-  const [tab, setTab] = useState<"contexto" | "curricular" | "calificacion">("curricular");
+  const [tab, setTab] = useState<"contexto" | "curricular" | "calificacion" | "anexo">("curricular");
+  const [showExportPDF, setShowExportPDF] = useState(false);
   const sub = d.subjects.find((s) => s.id === prog.subjectId)!;
   const cur = getCurriculum(sub.curriculumId);
   const criterioEnProg = (id: string) => prog.criterios.includes(id);
@@ -85,6 +87,27 @@ function Editor({ prog }: { prog: Prog }) {
   const setContexto = (k: keyof Prog["contexto"], v: string) => set((s) => ({ ...s, programaciones: s.programaciones.map((p) => (p.id === prog.id ? { ...p, contexto: { ...p.contexto, [k]: v } } : p)) }));
   const setEstado = (v: Prog["estado"]) => { set((s) => ({ ...s, programaciones: s.programaciones.map((p) => (p.id === prog.id ? { ...p, estado: v } : p)) })); notify(`Estado: ${v}`); };
   const suma = Object.values(prog.ponderaciones).reduce((a, b) => a + (b || 0), 0);
+  
+  // Funciones para gestionar anexos
+  const addAnexo = () => {
+    const nuevoAnexo = {
+      id: uid(),
+      titulo: "Nuevo anexo",
+      contenido: "",
+      fecha: new Date().toISOString().slice(0, 10)
+    };
+    set((s) => ({ ...s, programaciones: s.programaciones.map((p) => (p.id === prog.id ? { ...p, anexos: [...p.anexos, nuevoAnexo] } : p)) }));
+    notify("Anexo añadido");
+  };
+  
+  const updateAnexo = (anexoId: string, campo: "titulo" | "contenido", valor: string) => {
+    set((s) => ({ ...s, programaciones: s.programaciones.map((p) => (p.id === prog.id ? { ...p, anexos: p.anexos.map(a => a.id === anexoId ? { ...a, [campo]: valor } : a) } : p)) }));
+  };
+  
+  const deleteAnexo = (anexoId: string) => {
+    set((s) => ({ ...s, programaciones: s.programaciones.map((p) => (p.id === prog.id ? { ...p, anexos: p.anexos.filter(a => a.id !== anexoId) } : p)) }));
+    notify("Anexo eliminado");
+  };
 
   return (
     <div>
@@ -97,11 +120,11 @@ function Editor({ prog }: { prog: Prog }) {
           <select className="inp !w-auto !py-1.5 text-[12.5px]" value={prog.estado} onChange={(e) => setEstado(e.target.value as Prog["estado"])}>
             {["Borrador", "En revisión", "Finalizada"].map((e) => <option key={e}>{e}</option>)}
           </select>
-          <button className={btnGhost} onClick={() => window.print()}><Ic n="print" s={15} /> Exportar PDF</button>
+          <button className={btnGhost} onClick={() => setShowExportPDF(true)}><Ic n="file" s={15} /> Exportar PDF</button>
         </div>
       </div>
       <div className="mb-5 flex gap-1 overflow-x-auto rounded-xl border border-line bg-panel p-1">
-        {([["contexto", "Contextualización", "home"], ["curricular", "Elementos curriculares", "compass"], ["calificacion", "Criterios de calificación", "clipboard"]] as const).map(([id, l, ic]) => (
+        {([["contexto", "Contextualización", "home"], ["curricular", "Elementos curriculares", "compass"], ["calificacion", "Criterios de calificación", "clipboard"], ["anexo", "Anexos", "file"]] as const).map(([id, l, ic]) => (
           <button key={id} onClick={() => setTab(id)} className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-bold transition-all ${tab === id ? "bg-ink text-paper shadow" : "text-ink2 hover:bg-line/50"}`}><Ic n={ic} s={15} /> {l}</button>
         ))}
       </div>
@@ -171,6 +194,71 @@ function Editor({ prog }: { prog: Prog }) {
           </div>
         </div>
       )}
+      {tab === "anexo" && (
+        <div className="pop space-y-4">
+          <div className="card p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-[14px] font-bold text-ink">Anexos de la programación</p>
+                <p className="text-[12px] text-ink2 mt-1">Añade documentos, notas o circunstancias relevantes que surjan durante el curso</p>
+              </div>
+              <button className={btn} onClick={addAnexo}>
+                <Ic n="plus" s={14} /> Añadir anexo
+              </button>
+            </div>
+            {prog.anexos.length === 0 ? (
+              <div className="text-center py-8 text-ink3">
+                <Ic n="file" s={48} className="mx-auto mb-3 opacity-30" />
+                <p className="text-[13px]">No hay anexos todavía</p>
+                <p className="text-[11px] mt-1">Haz clic en "Añadir anexo" para comenzar</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {prog.anexos.map((anexo) => (
+                  <div key={anexo.id} className="card border-2 border-line p-4">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          className="inp font-bold text-[14px]"
+                          value={anexo.titulo}
+                          onChange={(e) => updateAnexo(anexo.id, "titulo", e.target.value)}
+                          placeholder="Título del anexo"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="mono text-[11px] text-ink3">{anexo.fecha}</span>
+                        <button 
+                          className="text-verm hover:bg-verm-l p-2 rounded transition-colors"
+                          onClick={() => deleteAnexo(anexo.id)}
+                          title="Eliminar anexo"
+                        >
+                          <Ic n="trash" s={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <textarea
+                      className="inp"
+                      rows={6}
+                      value={anexo.contenido}
+                      onChange={(e) => updateAnexo(anexo.id, "contenido", e.target.value)}
+                      placeholder="Contenido del anexo..."
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Modal de exportación PDF */}
+      <ExportarPDF 
+        open={showExportPDF} 
+        onClose={() => setShowExportPDF(false)} 
+        prog={prog} 
+        data={d} 
+      />
     </div>
   );
 }
