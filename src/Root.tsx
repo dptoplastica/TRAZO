@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { buildSeed, type AppData } from './data/seed';
 import Login from './views/Login';
 import App from './App';
+import { signIn, signOut, getCurrentUser } from './lib/auth';
 
 function getLocalData(): AppData {
   console.log('📦 Cargando datos locales...');
@@ -43,50 +44,35 @@ export default function Root() {
       console.log('✅ Datos ya existen en localStorage');
     }
 
-    // Verificar sesión guardada en localStorage
-    const savedSession = localStorage.getItem('trazo-session');
-    if (savedSession) {
-      try {
-        setUser(JSON.parse(savedSession));
-      } catch { /* ignore */ }
-    }
-    setLoading(false);
+    // Verificar sesión de Supabase
+    const checkSession = async () => {
+      const currentUser = await getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
+      }
+      setLoading(false);
+    };
+
+    checkSession();
   }, []);
 
-  const handleLogin = (email: string, password: string): boolean => {
-    console.log('🔐 Intentando login con:', { email, password });
+  const handleLogin = async (email: string, password: string): Promise<boolean> => {
+    console.log('🔐 Intentando login con Supabase:', { email });
     
-    // Autenticación local directa
-    const data = getLocalData();
-    console.log('📊 Datos cargados:', data);
-    console.log('👥 Profesores disponibles:', data.teachers);
+    const { user: authUser, error } = await signIn(email, password);
     
-    const teacher = data.teachers.find(t => t.email === email);
-    console.log('🔍 Profesor encontrado:', teacher);
-    
-    if (!teacher) {
-      console.error('❌ Email no encontrado');
-      return false;
-    }
-    if (password !== 'Trazo2025!') {
-      console.error('❌ Contraseña incorrecta');
+    if (error || !authUser) {
+      console.error('❌ Error de autenticación:', error);
       return false;
     }
     
-    const session = {
-      id: teacher.id,
-      nombre: teacher.nombre,
-      rol: teacher.rol,
-      email: teacher.email,
-    };
-    console.log('✅ Login exitoso:', session);
-    localStorage.setItem('trazo-session', JSON.stringify(session));
-    setUser(session);
+    console.log('✅ Login exitoso:', authUser);
+    setUser(authUser);
     return true;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('trazo-session');
+  const handleLogout = async () => {
+    await signOut();
     setUser(null);
   };
 

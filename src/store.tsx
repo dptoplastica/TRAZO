@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { buildSeed, cursoInfo, sessionsFor, toISO, fromISO, type AppData } from "./data/seed";
 import { getCurriculum, allCriterios, ceById, clavesDeCE, type Curriculum, type Criterio } from "./data/curriculum";
-import { saveDataToSupabase } from "./lib/dataService";
+import { saveAppData } from "./lib/dataService";
 
 export type ViewId =
   | "panel" | "programaciones" | "curriculo" | "situaciones" | "unidades"
@@ -50,7 +50,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try { 
       localStorage.setItem(KEY, JSON.stringify(d));
       // Intentar sincronizar con Supabase (no bloqueante)
-      saveDataToSupabase(d).catch(err => console.warn('Error sincronizando con Supabase:', err));
+      saveAppData(d).catch((err: Error) => console.warn('Error sincronizando con Supabase:', err));
     } catch { /* ignore */ }
   }, [d]);
 

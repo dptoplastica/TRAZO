@@ -1,24 +1,27 @@
 import { supabase } from './supabase';
-import { type AppData } from '../data/seed';
+import type { AppData } from '../data/seed';
 
-const STORAGE_KEY = 'trazo-lomloe-v19';
-
-// Verificar conexión con Supabase
-export async function checkSupabaseConnection(): Promise<boolean> {
-  try {
-    const { error } = await supabase.from('teachers').select('count').limit(1);
-    return !error;
-  } catch {
-    return false;
-  }
-}
-
-// Función para cargar datos desde Supabase
-export async function loadDataFromSupabase(): Promise<AppData | null> {
+// Cargar todos los datos desde Supabase
+export async function loadAppData(): Promise<AppData | null> {
   try {
     console.log('🔄 Cargando datos desde Supabase...');
-    
-    const [teachers, groups, students, subjects, programaciones, sa, units, instruments, grades, attendance, observations, measures, recoveries] = await Promise.all([
+
+    // Cargar todas las tablas en paralelo
+    const [
+      teachersRes,
+      groupsRes,
+      studentsRes,
+      subjectsRes,
+      programacionesRes,
+      sasRes,
+      unitsRes,
+      instrumentsRes,
+      gradesRes,
+      attendanceRes,
+      observationsRes,
+      measuresRes,
+      recoveriesRes,
+    ] = await Promise.all([
       supabase.from('teachers').select('*'),
       supabase.from('groups').select('*'),
       supabase.from('students').select('*'),
@@ -34,46 +37,63 @@ export async function loadDataFromSupabase(): Promise<AppData | null> {
       supabase.from('recoveries').select('*'),
     ]);
 
-    // Si no hay datos, retornar null
-    if (!teachers.data || teachers.data.length === 0) {
-      console.log('⚠️ No hay datos en Supabase');
+    // Verificar errores
+    const errors = [
+      teachersRes.error,
+      groupsRes.error,
+      studentsRes.error,
+      subjectsRes.error,
+      programacionesRes.error,
+      sasRes.error,
+      unitsRes.error,
+      instrumentsRes.error,
+      gradesRes.error,
+      attendanceRes.error,
+      observationsRes.error,
+      measuresRes.error,
+      recoveriesRes.error,
+    ].filter(Boolean);
+
+    if (errors.length > 0) {
+      console.error('❌ Errores al cargar datos:', errors);
       return null;
     }
 
-    // Construir el objeto AppData
-    const appData: AppData = {
-      version: 19,
+    // Construir objeto AppData
+    const data: AppData = {
+      version: 23,
       role: 'profesor',
-      teacherId: 't1',
+      teacherId: teachersRes.data?.[0]?.id || '',
       cursoLabel: '2025-26',
-      teachers: teachers.data || [],
-      groups: groups.data || [],
-      students: students.data || [],
-      subjects: subjects.data || [],
-      programaciones: programaciones.data || [],
-      sas: sa.data || [],
-      units: units.data || [],
-      instruments: instruments.data || [],
-      grades: grades.data || [],
-      attendance: attendance.data || [],
-      observations: observations.data || [],
-      measures: measures.data || [],
-      recoveries: recoveries.data || [],
+      teachers: teachersRes.data || [],
+      groups: groupsRes.data || [],
+      students: studentsRes.data || [],
+      subjects: subjectsRes.data || [],
+      programaciones: programacionesRes.data || [],
+      sas: sasRes.data || [],
+      units: unitsRes.data || [],
+      instruments: instrumentsRes.data || [],
+      grades: gradesRes.data || [],
+      attendance: attendanceRes.data || [],
+      observations: observationsRes.data || [],
+      measures: measuresRes.data || [],
+      recoveries: recoveriesRes.data || [],
     };
 
     console.log('✅ Datos cargados desde Supabase');
-    return appData;
+    return data;
   } catch (error) {
-    console.error('❌ Error cargando datos desde Supabase:', error);
+    console.error('❌ Error al cargar datos:', error);
     return null;
   }
 }
 
-// Función para guardar datos en Supabase
-export async function saveDataToSupabase(data: AppData): Promise<boolean> {
+// Guardar todos los datos en Supabase
+export async function saveAppData(data: AppData): Promise<boolean> {
   try {
     console.log('💾 Guardando datos en Supabase...');
-    
+
+    // Guardar cada tabla
     const operations = [
       supabase.from('teachers').upsert(data.teachers, { onConflict: 'id' }),
       supabase.from('groups').upsert(data.groups, { onConflict: 'id' }),
@@ -91,82 +111,59 @@ export async function saveDataToSupabase(data: AppData): Promise<boolean> {
     ];
 
     const results = await Promise.all(operations);
-    const errors = results.filter(r => r.error);
+    const errors = results.map(r => r.error).filter(Boolean);
 
     if (errors.length > 0) {
-      console.warn('⚠️ Algunos datos no se guardaron en Supabase:', errors);
+      console.error('❌ Errores al guardar:', errors);
       return false;
     }
 
     console.log('✅ Datos guardados en Supabase');
     return true;
   } catch (error) {
-    console.error('❌ Error guardando en Supabase:', error);
+    console.error('❌ Error al guardar datos:', error);
     return false;
   }
 }
 
-// Función para cargar datos (primero localStorage, luego Supabase)
-export function loadLocalData(): AppData | null {
+// Guardar solo una tabla específica
+export async function saveTable(tableName: string, data: any[]): Promise<boolean> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.version === 19) return parsed;
-    }
-  } catch (error) {
-    console.error('Error cargando desde localStorage:', error);
-  }
-  return null;
-}
-
-// Función para guardar datos en localStorage
-export function saveLocalData(data: AppData): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.error('Error guardando en localStorage:', error);
-  }
-}
-
-// Función para autenticar usuario con Supabase
-export async function signInWithSupabase(email: string, password: string) {
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { error } = await supabase.from(tableName).upsert(data, { onConflict: 'id' });
+    
     if (error) {
-      console.error('Error de autenticación:', error);
-      return { success: false, error: error.message };
+      console.error(`❌ Error al guardar ${tableName}:`, error);
+      return false;
     }
 
-    return { success: true, user: data.user };
+    console.log(`✅ ${tableName} guardado en Supabase`);
+    return true;
   } catch (error) {
-    console.error('Error inesperado en autenticación:', error);
-    return { success: false, error: 'Error inesperado' };
+    console.error(`❌ Error al guardar ${tableName}:`, error);
+    return false;
   }
 }
 
-// Función para cerrar sesión
-export async function signOutFromSupabase() {
-  try {
-    await supabase.auth.signOut();
-    return { success: true };
-  } catch (error) {
-    console.error('Error cerrando sesión:', error);
-    return { success: false, error };
-  }
-}
+// Suscribirse a cambios en tiempo real
+export function subscribeToChanges(callback: () => void) {
+  const channel = supabase
+    .channel('app-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'teachers' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'subjects' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'programaciones' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'situaciones_aprendizaje' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'units' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'instruments' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'grades' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'observations' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'measures' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'recoveries' }, callback)
+    .subscribe();
 
-// Función para verificar si hay sesión activa
-export async function checkSupabaseSession() {
-  try {
-    const result = await supabase.auth.getSession();
-    return result.data?.session || null;
-  } catch (error) {
-    console.error('Error verificando sesión:', error);
-    return null;
-  }
+  return () => {
+    supabase.removeChannel(channel);
+  };
 }
