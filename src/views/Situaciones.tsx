@@ -80,6 +80,7 @@ function EditorSA({ sa }: { sa: SA }) {
   const cur = getCurriculum(sub?.curriculumId ?? "epva-eso");
   const upd = (patch: Partial<SA>) => set((s) => ({ ...s, sas: s.sas.map((x) => (x.id === sa.id ? { ...x, ...patch } : x)) }));
   const [act, setAct] = useState<Partial<Actividad>>({ fase: "Inicio", sesion: 1 });
+  const [editingAct, setEditingAct] = useState<Actividad | null>(null);
 
   const toggleCrit = (id: string) => upd({ criterios: sa.criterios.includes(id) ? sa.criterios.filter((c) => c !== id) : [...sa.criterios, id] });
   const toggleMet = (m: string) => upd({ metodologias: sa.metodologias.includes(m) ? sa.metodologias.filter((x) => x !== m) : [...sa.metodologias, m] });
@@ -90,6 +91,13 @@ function EditorSA({ sa }: { sa: SA }) {
     upd({ actividades: [...sa.actividades, { id: uid(), titulo: act.titulo, desc: act.desc ?? "", fase: (act.fase ?? "Inicio") as Actividad["fase"], sesion: act.sesion ?? 1, criterioIds: act.criterioIds ?? [] }] });
     setAct({ fase: "Inicio", sesion: (sa.actividades.length ? sa.actividades[sa.actividades.length - 1].sesion : 0) + 1 });
     notify("Actividad añadida");
+  };
+
+  const updateActividad = () => {
+    if (!editingAct || !editingAct.titulo?.trim()) return;
+    upd({ actividades: sa.actividades.map((a) => (a.id === editingAct.id ? editingAct : a)) });
+    setEditingAct(null);
+    notify("Actividad actualizada");
   };
 
   const descriptoresAuto = [...new Set(cur.ces.filter((ce) => ce.criterios.some((c) => sa.criterios.includes(c.id))).flatMap((ce) => ce.descriptorIds))];
@@ -271,6 +279,7 @@ function EditorSA({ sa }: { sa: SA }) {
                       </label>
                     </div>
                   </div>
+                  <button onClick={() => setEditingAct(a)} className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-azul hover:text-azu" title="Editar actividad"><Ic n="edit" s={15} /></button>
                   <button onClick={() => upd({ actividades: sa.actividades.filter((x) => x.id !== a.id) })} className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-verml hover:text-verm" title="Eliminar actividad"><Ic n="trash" s={15} /></button>
                 </div>
               ))}
@@ -334,6 +343,79 @@ function EditorSA({ sa }: { sa: SA }) {
           </div>
         </aside>
       </div>
+
+      {/* Modal de edición de actividad */}
+      <Modal open={!!editingAct} onClose={() => setEditingAct(null)} title="Editar actividad">
+        {editingAct && (
+          <div className="space-y-4">
+            <div>
+              <label className="lbl">Título</label>
+              <input
+                className="inp"
+                value={editingAct.titulo}
+                onChange={(e) => setEditingAct({ ...editingAct, titulo: e.target.value })}
+                placeholder="Título de la actividad"
+              />
+            </div>
+            <div>
+              <label className="lbl">Descripción</label>
+              <textarea
+                rows={3}
+                className="inp"
+                value={editingAct.desc}
+                onChange={(e) => setEditingAct({ ...editingAct, desc: e.target.value })}
+                placeholder="Descripción de la actividad"
+              />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="lbl">Fase</label>
+                <select
+                  className="inp"
+                  value={editingAct.fase}
+                  onChange={(e) => setEditingAct({ ...editingAct, fase: e.target.value as Actividad["fase"] })}
+                >
+                  {["Inicio", "Desarrollo", "Cierre"].map((f) => <option key={f}>{f}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="lbl">Sesión</label>
+                <input
+                  type="number"
+                  min={1}
+                  className="inp"
+                  value={editingAct.sesion}
+                  onChange={(e) => setEditingAct({ ...editingAct, sesion: Number(e.target.value) })}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="lbl">Criterios de evaluación</label>
+              <div className="flex flex-wrap gap-1.5">
+                {sa.criterios.map((cId) => {
+                  const c = cur.ces.flatMap((ce) => ce.criterios).find((x) => x.id === cId);
+                  const on = editingAct.criterioIds.includes(cId);
+                  return (
+                    <SelChip
+                      key={cId}
+                      active={on}
+                      onClick={() => setEditingAct({ ...editingAct, criterioIds: on ? editingAct.criterioIds.filter((x) => x !== cId) : [...editingAct.criterioIds, cId] })}
+                      color={sub?.color}
+                    >
+                      {c?.codigo}
+                    </SelChip>
+                  );
+                })}
+                {sa.criterios.length === 0 && <span className="text-[11.5px] italic text-ink3">No hay criterios seleccionados en la SA</span>}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={() => setEditingAct(null)}>Cancelar</button>
+              <button className={btn} onClick={updateActividad}><Ic n="check" s={15} /> Guardar cambios</button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
