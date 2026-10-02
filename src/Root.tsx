@@ -2,20 +2,28 @@ import { useState, useEffect } from 'react';
 import { buildSeed, type AppData } from './data/seed';
 import Login from './views/Login';
 import App from './App';
-
-// Sistema de login simple basado en datos locales
-// La integración con Supabase se puede activar más adelante
+import { signIn, signOut, getCurrentUser } from './lib/auth';
 
 function getLocalData(): AppData {
+  console.log('📦 Cargando datos locales...');
   try {
-    const raw = localStorage.getItem('trazo-lomloe-v13');
+    const raw = localStorage.getItem('trazo-lomloe-v23');
+    console.log('📦 Datos en localStorage:', raw ? 'Encontrados' : 'No encontrados');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.version === 13) return parsed;
+      console.log('📦 Versión encontrada:', parsed.version);
+      if (parsed && parsed.version === 23) {
+        console.log('✅ Usando datos de localStorage');
+        return parsed;
+      }
     }
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('❌ Error cargando localStorage:', e);
+  }
+  console.log('🆕 Generando datos nuevos...');
   const seed = buildSeed();
-  localStorage.setItem('trazo-lomloe-v13', JSON.stringify(seed));
+  console.log('🆕 Datos generados:', seed);
+  localStorage.setItem('trazo-lomloe-v23', JSON.stringify(seed));
   return seed;
 }
 
@@ -24,39 +32,47 @@ export default function Root() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar si hay sesión guardada
-    const savedSession = localStorage.getItem('trazo-session');
-    if (savedSession) {
-      try {
-        setUser(JSON.parse(savedSession));
-      } catch { /* ignore */ }
+    // Inicializar datos si no existen
+    console.log('🚀 Inicializando aplicación...');
+    const existingData = localStorage.getItem('trazo-lomloe-v23');
+    if (!existingData) {
+      console.log('📦 No hay datos, generando datos iniciales...');
+      const seed = buildSeed();
+      localStorage.setItem('trazo-lomloe-v23', JSON.stringify(seed));
+      console.log('✅ Datos iniciales guardados');
+    } else {
+      console.log('✅ Datos ya existen en localStorage');
     }
-    setLoading(false);
+
+    // Verificar sesión de Supabase
+    const checkSession = async () => {
+      const currentUser = await getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
+      }
+      setLoading(false);
+    };
+
+    checkSession();
   }, []);
 
-  const handleLogin = (email: string, password: string): boolean => {
-    const data = getLocalData();
-    const teacher = data.teachers.find(t => t.email === email);
+  const handleLogin = async (email: string, password: string): Promise<boolean> => {
+    console.log('🔐 Intentando login con Supabase:', { email });
     
-    if (!teacher) return false;
+    const { user: authUser, error } = await signIn(email, password);
     
-    // Password simple para demo: Trazo2025!
-    if (password !== 'Trazo2025!') return false;
+    if (error || !authUser) {
+      console.error('❌ Error de autenticación:', error);
+      return false;
+    }
     
-    const session = {
-      id: teacher.id,
-      nombre: teacher.nombre,
-      rol: teacher.rol,
-      email: teacher.email,
-    };
-    
-    localStorage.setItem('trazo-session', JSON.stringify(session));
-    setUser(session);
+    console.log('✅ Login exitoso:', authUser);
+    setUser(authUser);
     return true;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('trazo-session');
+  const handleLogout = async () => {
+    await signOut();
     setUser(null);
   };
 
