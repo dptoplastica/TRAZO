@@ -15,7 +15,7 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false
     },
-    icon: path.join(__dirname, 'public/icon.png'),
+    icon: path.join(__dirname, 'build', 'icon.png'),
     title: 'TRAZO - Programación Didáctica LOMLOE',
     show: false,
     backgroundColor: '#f2f4ef'
@@ -26,7 +26,7 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
+    mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
 
   // Mostrar ventana cuando esté lista
