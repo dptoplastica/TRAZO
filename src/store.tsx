@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { buildSeed, cursoInfo, sessionsFor, toISO, fromISO, type AppData } from "./data/seed";
 import { getCurriculum, allCriterios, ceById, clavesDeCE, type Curriculum, type Criterio } from "./data/curriculum";
-import { saveAppData } from "./lib/dataService";
+import { loadAppData, saveAppData } from "./lib/dataService";
 
 export type ViewId =
   | "panel" | "programaciones" | "curriculo" | "situaciones" | "unidades"
@@ -23,48 +23,84 @@ interface Ctx {
   nav: (view: ViewId, params?: Params) => void;
   notify: (msg: string) => void;
   reset: () => void;
-}
-
-const KEY = "trazo-lomloe-v23";
-
-function load(): AppData {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as AppData;
-      if (parsed && parsed.version === 19) return parsed;
-    }
-  } catch { /* ignore */ }
-  return buildSeed();
+  loading: boolean;
 }
 
 const AppCtx = createContext<Ctx | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [d, setD] = useState<AppData>(load);
+  const [d, setD] = useState<AppData>(buildSeed());
   const [view, setView] = useState<ViewId>("panel");
   const [params, setParams] = useState<Params>({});
   const [toast, setToast] = useState<Toast | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Cargar datos desde Supabase al inicio
   useEffect(() => {
-    try { 
-      localStorage.setItem(KEY, JSON.stringify(d));
-      // Intentar sincronizar con Supabase (no bloqueante)
-      saveAppData(d).catch((err: Error) => console.warn('Error sincronizando con Supabase:', err));
-    } catch { /* ignore */ }
-  }, [d]);
+    const loadData = async () => {
+      try {
+        console.log('🔄 Cargando datos desde Supabase...');
+        const cloudData = await loadAppData();
+        
+        if (cloudData) {
+          console.log('✅ Datos cargados desde Supabase');
+          setD(cloudData);
+        } else {
+          console.warn('⚠️ No se pudieron cargar datos de Supabase, usando datos locales');
+          // Intentar cargar desde localStorage como fallback
+          const localRaw = localStorage.getItem('trazo-lomloe-v23');
+          if (localRaw) {
+            const localData = JSON.parse(localRaw);
+            if (localData && localData.version === 23) {
+              setD(localData);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error cargando datos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Guardar en Supabase y localStorage en cada cambio
+  useEffect(() => {
+    if (loading) return; // No guardar durante la carga inicial
+
+    try {
+      // Guardar en localStorage como caché
+      localStorage.setItem('trazo-lomloe-v23', JSON.stringify(d));
+      
+      // Guardar en Supabase (no bloqueante)
+      saveAppData(d).catch(err => {
+        console.warn('⚠️ Error sincronizando con Supabase:', err);
+      });
+    } catch (error) {
+      console.error('❌ Error guardando datos:', error);
+    }
+  }, [d, loading]);
 
   const value = useMemo<Ctx>(() => {
     const me = d.teachers.find((t) => t.id === d.teacherId) ?? d.teachers[0];
     return {
       d, view, params, toast, me,
       isAdmin: d.role === "admin",
+      loading,
       set: (fn) => setD((prev) => ({ ...fn(prev) })),
       nav: (v, p) => { setView(v); setParams(p ?? {}); window.scrollTo({ top: 0 }); },
       notify: (msg) => setToast({ msg, key: Date.now() }),
-      reset: () => { const fresh = buildSeed(); setD(fresh); setView("panel"); setParams({}); },
+      reset: async () => { 
+        const fresh = buildSeed(); 
+        setD(fresh); 
+        setView("panel"); 
+        setParams({});
+        await saveAppData(fresh);
+      },
     };
-  }, [d, view, params, toast]);
+  }, [d, view, params, toast, loading]);
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }
