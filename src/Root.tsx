@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { buildSeed, type AppData } from './data/seed';
 import Login from './views/Login';
 import App from './App';
-import { signIn, signOut, getCurrentUser } from './lib/auth';
 
 function getLocalData(): AppData {
   console.log('📦 Cargando datos locales...');
@@ -44,35 +43,54 @@ export default function Root() {
       console.log('✅ Datos ya existen en localStorage');
     }
 
-    // Verificar sesión de Supabase
-    const checkSession = async () => {
-      const currentUser = await getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
-      }
-      setLoading(false);
-    };
-
-    checkSession();
+    // Verificar sesión guardada en localStorage
+    const savedSession = localStorage.getItem('trazo-session');
+    if (savedSession) {
+      try {
+        setUser(JSON.parse(savedSession));
+      } catch { /* ignore */ }
+    }
+    setLoading(false);
   }, []);
 
-  const handleLogin = async (email: string, password: string): Promise<boolean> => {
-    console.log('🔐 Intentando login con Supabase:', { email });
+  const handleLogin = (email: string, password: string): boolean => {
+    console.log('🔐 Intentando login:', { email });
     
-    const { user: authUser, error } = await signIn(email, password);
-    
-    if (error || !authUser) {
-      console.error('❌ Error de autenticación:', error);
+    // Cargar datos desde localStorage
+    const dataRaw = localStorage.getItem('trazo-lomloe-v24');
+    if (!dataRaw) {
+      console.error('❌ No hay datos en localStorage');
       return false;
     }
     
-    console.log('✅ Login exitoso:', authUser);
-    setUser(authUser);
+    const data = JSON.parse(dataRaw);
+    const teacher = data.teachers.find((t: any) => t.email === email);
+    
+    if (!teacher) {
+      console.error('❌ Email no encontrado');
+      return false;
+    }
+    
+    if (password !== 'Trazo2025!') {
+      console.error('❌ Contraseña incorrecta');
+      return false;
+    }
+    
+    const session = {
+      id: teacher.id,
+      nombre: teacher.nombre,
+      rol: teacher.rol,
+      email: teacher.email,
+    };
+    
+    console.log('✅ Login exitoso:', session);
+    localStorage.setItem('trazo-session', JSON.stringify(session));
+    setUser(session);
     return true;
   };
 
-  const handleLogout = async () => {
-    await signOut();
+  const handleLogout = () => {
+    localStorage.removeItem('trazo-session');
     setUser(null);
   };
 
