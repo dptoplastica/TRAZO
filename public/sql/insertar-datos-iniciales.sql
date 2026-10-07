@@ -1,16 +1,42 @@
--- Script para insertar datos iniciales en Supabase
+-- Script para verificar y corregir datos en Supabase
 -- Ejecutar en Supabase SQL Editor
 
 -- ============================================
--- 1. INSERTAR PROFESORES
+-- 1. VERIFICAR DATOS EXISTENTES
+-- ============================================
+SELECT '=== DATOS EXISTENTES ===' AS info;
+
+SELECT 'Profesores:' AS tabla, COUNT(*) AS cantidad FROM teachers
+UNION ALL
+SELECT 'Grupos:', COUNT(*) FROM groups
+UNION ALL
+SELECT 'Asignaturas:', COUNT(*) FROM subjects
+UNION ALL
+SELECT 'Programaciones:', COUNT(*) FROM programaciones
+UNION ALL
+SELECT 'Situaciones de aprendizaje:', COUNT(*) FROM situaciones_aprendizaje
+UNION ALL
+SELECT 'Unidades:', COUNT(*) FROM units
+UNION ALL
+SELECT 'Instrumentos:', COUNT(*) FROM instruments
+UNION ALL
+SELECT 'Alumnos:', COUNT(*) FROM students;
+
+-- ============================================
+-- 2. INSERTAR/ACTUALIZAR PROFESORES (usando ON CONFLICT)
 -- ============================================
 INSERT INTO teachers (id, email, nombre, rol, color) VALUES
   ('t1', 'laura.gomez@educantabria.es', 'Laura Gómez', 'profesor', '#0e7c66'),
   ('t2', 'miguel.ruiz@educantabria.es', 'Miguel Ruiz', 'profesor', '#2c6e8f'),
-  ('t3', 'carmen.prieto@educantabria.es', 'Carmen Prieto', 'admin', '#d9532c');
+  ('t3', 'carmen.prieto@educantabria.es', 'Carmen Prieto', 'admin', '#d9532c')
+ON CONFLICT (id) DO UPDATE SET
+  email = EXCLUDED.email,
+  nombre = EXCLUDED.nombre,
+  rol = EXCLUDED.rol,
+  color = EXCLUDED.color;
 
 -- ============================================
--- 2. INSERTAR GRUPOS
+-- 3. INSERTAR/ACTUALIZAR GRUPOS
 -- ============================================
 INSERT INTO groups (id, nombre, nivel, tutor_id, dias) VALUES
   ('g1', '4º ESO A', '4º ESO', 't1', ARRAY[1, 3]),
@@ -18,10 +44,15 @@ INSERT INTO groups (id, nombre, nivel, tutor_id, dias) VALUES
   ('g3', '2º Bach B', '2º Bachillerato', 't2', ARRAY[1, 4]),
   ('g4', '1º Bach B', '1º Bachillerato', 't2', ARRAY[2, 5]),
   ('g5', '1º Bach C', '1º Bachillerato', 't1', ARRAY[3, 5]),
-  ('g6', '2º Bach A', '2º Bachillerato', 't1', ARRAY[1, 3, 4]);
+  ('g6', '2º Bach A', '2º Bachillerato', 't1', ARRAY[1, 3, 4])
+ON CONFLICT (id) DO UPDATE SET
+  nombre = EXCLUDED.nombre,
+  nivel = EXCLUDED.nivel,
+  tutor_id = EXCLUDED.tutor_id,
+  dias = EXCLUDED.dias;
 
 -- ============================================
--- 3. INSERTAR ASIGNATURAS
+-- 4. INSERTAR/ACTUALIZAR ASIGNATURAS
 -- ============================================
 INSERT INTO subjects (id, nombre, corto, etapa, nivel, curriculum_id, teacher_id, group_id, color, tipo) VALUES
   ('m1', 'Educación Plástica, Visual y Audiovisual', 'EPVA', 'ESO', '4º ESO', 'epva-eso', 't1', 'g1', '#d9532c', 'optativa'),
@@ -30,10 +61,20 @@ INSERT INTO subjects (id, nombre, corto, etapa, nivel, curriculum_id, teacher_id
   ('m4', 'Audiovisual y Multimedia', 'Audiovisual', 'ESO', '4º ESO', 'epva-eso', NULL, 'g1', '#7a5fb0', 'optativa'),
   ('m5', 'Dibujo Técnico I', 'Dibujo Técnico I', 'Bachillerato', '1º Bachillerato', 'dt1-bach', 't2', 'g4', '#0e7c66', 'obligatoria'),
   ('m6', 'Taller de Podcast', 'Podcast', 'Bachillerato', '1º Bachillerato', 'tp-bach', 't1', 'g5', '#a84a6c', 'optativa'),
-  ('m7', 'Taller de Cortometraje', 'Cortometraje', 'Bachillerato', '2º Bachillerato', 'tc-bach', 't1', 'g6', '#7a5fb0', 'optativa');
+  ('m7', 'Taller de Cortometraje', 'Cortometraje', 'Bachillerato', '2º Bachillerato', 'tc-bach', 't1', 'g6', '#7a5fb0', 'optativa')
+ON CONFLICT (id) DO UPDATE SET
+  nombre = EXCLUDED.nombre,
+  corto = EXCLUDED.corto,
+  etapa = EXCLUDED.etapa,
+  nivel = EXCLUDED.nivel,
+  curriculum_id = EXCLUDED.curriculum_id,
+  teacher_id = EXCLUDED.teacher_id,
+  group_id = EXCLUDED.group_id,
+  color = EXCLUDED.color,
+  tipo = EXCLUDED.tipo;
 
 -- ============================================
--- 4. INSERTAR PROGRAMACIONES
+-- 5. INSERTAR/ACTUALIZAR PROGRAMACIONES
 -- ============================================
 INSERT INTO programaciones (id, subject_id, curso, estado, contexto, criterios, ponderaciones, ccalificacion, anexos, actualizada) VALUES
   ('p1', 'm1', '2025-26', 'Finalizada', 
@@ -71,13 +112,29 @@ INSERT INTO programaciones (id, subject_id, curso, estado, contexto, criterios, 
    ARRAY['tc.1.1', 'tc.1.2', 'tc.2.1', 'tc.2.2', 'tc.3.1', 'tc.3.2', 'tc.4.1', 'tc.4.2', 'tc.5.1', 'tc.5.2', 'tc.5.3'],
    '{"tc.1.1": 8, "tc.1.2": 7, "tc.2.1": 8, "tc.2.2": 8, "tc.3.1": 7, "tc.3.2": 8, "tc.4.1": 10, "tc.4.2": 7, "tc.5.1": 10, "tc.5.2": 10, "tc.5.3": 7}',
    'El cortometraje final tiene un peso del 50%.',
-   '[]', '2026-01-15');
+   '[]', '2026-01-15')
+ON CONFLICT (id) DO UPDATE SET
+  subject_id = EXCLUDED.subject_id,
+  curso = EXCLUDED.curso,
+  estado = EXCLUDED.estado,
+  contexto = EXCLUDED.contexto,
+  criterios = EXCLUDED.criterios,
+  ponderaciones = EXCLUDED.ponderaciones,
+  ccalificacion = EXCLUDED.ccalificacion,
+  anexos = EXCLUDED.anexos,
+  actualizada = EXCLUDED.actualizada;
 
 -- ============================================
--- VERIFICAR INSERCIÓN
+-- 6. VERIFICAR RESULTADO FINAL
 -- ============================================
-SELECT '✅ Datos iniciales insertados correctamente' AS mensaje;
-SELECT COUNT(*) AS profesores FROM teachers;
-SELECT COUNT(*) AS grupos FROM groups;
-SELECT COUNT(*) AS asignaturas FROM subjects;
-SELECT COUNT(*) AS programaciones FROM programaciones;
+SELECT '=== RESULTADO FINAL ===' AS info;
+
+SELECT 'Profesores:' AS tabla, COUNT(*) AS cantidad FROM teachers
+UNION ALL
+SELECT 'Grupos:', COUNT(*) FROM groups
+UNION ALL
+SELECT 'Asignaturas:', COUNT(*) FROM subjects
+UNION ALL
+SELECT 'Programaciones:', COUNT(*) FROM programaciones;
+
+SELECT '✅ Datos insertados/actualizados correctamente' AS mensaje;
