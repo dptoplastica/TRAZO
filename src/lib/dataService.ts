@@ -56,12 +56,13 @@ export async function loadAppData(teacherId?: string): Promise<AppData | null> {
 
     if (errors.length > 0) {
       console.error('❌ Errores al cargar datos:', errors);
+      console.warn('⚠️ Usando datos locales como fallback');
       return null;
     }
 
     // Si no hay profesores, retornar null
     if (!teachersRes.data || teachersRes.data.length === 0) {
-      console.warn('⚠️ No hay profesores en la base de datos');
+      console.warn('⚠️ No hay profesores en la base de datos, usando datos locales');
       return null;
     }
 

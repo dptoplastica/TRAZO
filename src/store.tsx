@@ -39,25 +39,47 @@ export function AppProvider({ children, initialTeacherId }: { children: ReactNod
   useEffect(() => {
     const loadData = async () => {
       try {
-        console.log('🔄 Cargando datos desde Supabase...');
+        console.log('🔄 Cargando datos...');
+        
+        // Primero intentar cargar desde localStorage (más rápido y confiable)
+        const localRaw = localStorage.getItem('trazo-lomloe-v24');
+        let localData: AppData | null = null;
+        
+        if (localRaw) {
+          try {
+            const parsed = JSON.parse(localRaw);
+            if (parsed && parsed.version === 24) {
+              localData = parsed;
+              console.log('✅ Datos cargados desde localStorage');
+            }
+          } catch (e) {
+            console.warn('⚠️ Error parseando localStorage:', e);
+          }
+        }
+        
+        // Luego intentar cargar desde Supabase
         const cloudData = await loadAppData(initialTeacherId);
         
-        if (cloudData) {
+        if (cloudData && cloudData.teachers.length > 0) {
           console.log('✅ Datos cargados desde Supabase');
           setD(cloudData);
+          // Actualizar localStorage con los datos de Supabase
+          localStorage.setItem('trazo-lomloe-v24', JSON.stringify(cloudData));
+        } else if (localData) {
+          console.log('✅ Usando datos locales (Supabase no disponible o vacío)');
+          setD(localData);
         } else {
-          console.warn('⚠️ No se pudieron cargar datos de Supabase, usando datos locales');
-          // Intentar cargar desde localStorage como fallback
-          const localRaw = localStorage.getItem('trazo-lomloe-v24');
-          if (localRaw) {
-            const localData = JSON.parse(localRaw);
-            if (localData && localData.version === 23) {
-              setD(localData);
-            }
-          }
+          console.warn('⚠️ No hay datos en Supabase ni localStorage, usando datos iniciales');
+          // Usar datos iniciales del seed
+          const seedData = buildSeed();
+          setD(seedData);
+          localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
         }
       } catch (error) {
         console.error('❌ Error cargando datos:', error);
+        // En caso de error, usar datos iniciales
+        const seedData = buildSeed();
+        setD(seedData);
       } finally {
         setLoading(false);
       }
@@ -71,12 +93,20 @@ export function AppProvider({ children, initialTeacherId }: { children: ReactNod
     if (loading) return; // No guardar durante la carga inicial
 
     try {
-      // Guardar en localStorage como caché
+      // Guardar en localStorage (siempre funciona)
       localStorage.setItem('trazo-lomloe-v24', JSON.stringify(d));
+      console.log('💾 Datos guardados en localStorage');
       
-      // Guardar en Supabase (no bloqueante)
-      saveAppData(d).catch(err => {
-        console.warn('⚠️ Error sincronizando con Supabase:', err);
+      // Intentar guardar en Supabase (no bloqueante)
+      // Si falla, no pasa nada, los datos ya están en localStorage
+      saveAppData(d).then(success => {
+        if (success) {
+          console.log('✅ Datos sincronizados con Supabase');
+        } else {
+          console.warn('⚠️ No se pudo sincronizar con Supabase (datos guardados localmente)');
+        }
+      }).catch(err => {
+        console.warn('⚠️ Error sincronizando con Supabase:', err.message);
       });
     } catch (error) {
       console.error('❌ Error guardando datos:', error);
