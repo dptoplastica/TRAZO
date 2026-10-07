@@ -28,7 +28,7 @@ interface Ctx {
 
 const AppCtx = createContext<Ctx | null>(null);
 
-export function AppProvider({ children }: { children: ReactNode }) {
+export function AppProvider({ children, initialTeacherId }: { children: ReactNode; initialTeacherId?: string }) {
   const [d, setD] = useState<AppData>(buildSeed());
   const [view, setView] = useState<ViewId>("panel");
   const [params, setParams] = useState<Params>({});
@@ -40,7 +40,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const loadData = async () => {
       try {
         console.log('🔄 Cargando datos desde Supabase...');
-        const cloudData = await loadAppData();
+        const cloudData = await loadAppData(initialTeacherId);
         
         if (cloudData) {
           console.log('✅ Datos cargados desde Supabase');
@@ -64,7 +64,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
 
     loadData();
-  }, []);
+  }, [initialTeacherId]);
 
   // Guardar en Supabase y localStorage en cada cambio
   useEffect(() => {

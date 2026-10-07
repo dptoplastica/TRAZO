@@ -2,7 +2,7 @@ import { supabase } from './supabase';
 import type { AppData } from '../data/seed';
 
 // Cargar todos los datos desde Supabase
-export async function loadAppData(): Promise<AppData | null> {
+export async function loadAppData(teacherId?: string): Promise<AppData | null> {
   try {
     console.log('🔄 Cargando datos desde Supabase...');
 
@@ -59,11 +59,38 @@ export async function loadAppData(): Promise<AppData | null> {
       return null;
     }
 
+    // Si no hay profesores, retornar null
+    if (!teachersRes.data || teachersRes.data.length === 0) {
+      console.warn('⚠️ No hay profesores en la base de datos');
+      return null;
+    }
+
+    // Determinar el teacherId
+    let currentTeacherId: string;
+    if (!teacherId) {
+      // Si no se proporciona, usar el primer profesor
+      currentTeacherId = teachersRes.data[0].id;
+      console.log('⚠️ No se proporcionó teacherId, usando el primer profesor:', currentTeacherId);
+    } else {
+      // Verificar que el teacherId existe en la lista
+      const teacherExists = teachersRes.data.some(t => t.id === teacherId);
+      if (!teacherExists) {
+        console.warn('⚠️ teacherId no encontrado, usando el primer profesor');
+        currentTeacherId = teachersRes.data[0].id;
+      } else {
+        currentTeacherId = teacherId;
+      }
+    }
+
+    // Obtener el rol del profesor actual
+    const currentTeacher = teachersRes.data.find(t => t.id === currentTeacherId);
+    const role = currentTeacher?.rol || 'profesor';
+
     // Construir objeto AppData
     const data: AppData = {
       version: 23,
-      role: 'profesor',
-      teacherId: teachersRes.data?.[0]?.id || '',
+      role: role as 'admin' | 'profesor',
+      teacherId: currentTeacherId,
       cursoLabel: '2025-26',
       teachers: teachersRes.data || [],
       groups: groupsRes.data || [],
@@ -81,6 +108,7 @@ export async function loadAppData(): Promise<AppData | null> {
     };
 
     console.log('✅ Datos cargados desde Supabase');
+    console.log('👤 Profesor actual:', currentTeacher?.nombre, '(', role, ')');
     return data;
   } catch (error) {
     console.error('❌ Error al cargar datos:', error);

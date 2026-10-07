@@ -43,7 +43,7 @@ interface AppProps {
 
 export default function App({ currentUser, onLogout }: AppProps) {
   return (
-    <AppProvider>
+    <AppProvider initialTeacherId={currentUser.id}>
       <Layout currentUser={currentUser} onLogout={onLogout}>
         <Router />
       </Layout>
