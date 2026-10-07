@@ -48,7 +48,7 @@ export function AppProvider({ children, initialTeacherId }: { children: ReactNod
         } else {
           console.warn('⚠️ No se pudieron cargar datos de Supabase, usando datos locales');
           // Intentar cargar desde localStorage como fallback
-          const localRaw = localStorage.getItem('trazo-lomloe-v23');
+          const localRaw = localStorage.getItem('trazo-lomloe-v24');
           if (localRaw) {
             const localData = JSON.parse(localRaw);
             if (localData && localData.version === 23) {
@@ -72,7 +72,7 @@ export function AppProvider({ children, initialTeacherId }: { children: ReactNod
 
     try {
       // Guardar en localStorage como caché
-      localStorage.setItem('trazo-lomloe-v23', JSON.stringify(d));
+      localStorage.setItem('trazo-lomloe-v24', JSON.stringify(d));
       
       // Guardar en Supabase (no bloqueante)
       saveAppData(d).catch(err => {

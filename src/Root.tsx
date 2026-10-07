@@ -7,7 +7,7 @@ import { signIn, signOut, getCurrentUser } from './lib/auth';
 function getLocalData(): AppData {
   console.log('📦 Cargando datos locales...');
   try {
-    const raw = localStorage.getItem('trazo-lomloe-v23');
+    const raw = localStorage.getItem('trazo-lomloe-v24');
     console.log('📦 Datos en localStorage:', raw ? 'Encontrados' : 'No encontrados');
     if (raw) {
       const parsed = JSON.parse(raw);
@@ -23,7 +23,7 @@ function getLocalData(): AppData {
   console.log('🆕 Generando datos nuevos...');
   const seed = buildSeed();
   console.log('🆕 Datos generados:', seed);
-  localStorage.setItem('trazo-lomloe-v23', JSON.stringify(seed));
+  localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seed));
   return seed;
 }
 
@@ -34,11 +34,11 @@ export default function Root() {
   useEffect(() => {
     // Inicializar datos si no existen
     console.log('🚀 Inicializando aplicación...');
-    const existingData = localStorage.getItem('trazo-lomloe-v23');
+    const existingData = localStorage.getItem('trazo-lomloe-v24');
     if (!existingData) {
       console.log('📦 No hay datos, generando datos iniciales...');
       const seed = buildSeed();
-      localStorage.setItem('trazo-lomloe-v23', JSON.stringify(seed));
+      localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seed));
       console.log('✅ Datos iniciales guardados');
     } else {
       console.log('✅ Datos ya existen en localStorage');

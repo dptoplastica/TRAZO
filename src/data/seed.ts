@@ -271,6 +271,35 @@ export function buildSeed(): AppData {
       { id: "sa19a5", titulo: "Postproducción", desc: "Corrección de color, diseño sonoro, mezcla", fase: "Desarrollo", sesion: 22, criterioIds: ["tc.5.2"] },
       { id: "sa19a6", titulo: "Distribución y estreno", desc: "Materiales de promoción, festivales, plataformas", fase: "Cierre", sesion: 26, criterioIds: ["tc.5.3"] },
     ], instrumentos: ["i37", "i38", "i39", "i40"] },
+    // DIBUJO TÉCNICO II - 1ª Evaluación
+    { id: "sa25", programacionId: "p3", titulo: "Geometría avanzada y construcciones", eva: 1, inicio: D(10), fin: D(60), sesiones: 16, justificacion: "La geometría avanzada es fundamental para resolver problemas complejos de diseño técnico.", reto: "¿Cómo aplicar la geometría avanzada para resolver problemas de diseño industrial?", producto: "Dossier de 6 láminas de geometría avanzada + examen práctico", metodologias: ["Aprendizaje basado en problemas", "Estudio de casos"], agrupamientos: "Individual + corrección entre pares", espacios: "Aula de dibujo técnico", recursos: "Tableros, compases de precisión, reglas, escuadras, cartabones, papel A3", diversidad: "Ejercicios con diferentes niveles de complejidad, plantillas guía", evidencias: "Dossier de láminas, examen práctico", criterios: ["dt.1.1", "dt.1.2"], objetivos: ["Resolver problemas geométricos complejos", "Aplicar construcciones geométricas avanzadas", "Desarrollar la precisión en el trazado"], actividades: [
+      { id: "sa25a1", titulo: "Lugares geométricos avanzados", desc: "Arcos capaces, lugares geométricos compuestos. Aplicación a problemas de diseño.", fase: "Inicio", sesion: 2, criterioIds: ["dt.1.1"] },
+      { id: "sa25a2", titulo: "Proporcionalidad avanzada", desc: "Potencia de un punto, inversión, aplicaciones en diseño.", fase: "Desarrollo", sesion: 5, criterioIds: ["dt.1.1"] },
+      { id: "sa25a3", titulo: "Polígonos regulares: métodos avanzados", desc: "Métodos generales y particulares, polígonos estrellados, aplicaciones decorativas.", fase: "Desarrollo", sesion: 8, criterioIds: ["dt.1.2"] },
+      { id: "sa25a4", titulo: "Tangencias complejas", desc: "Problemas de tangencias con condiciones múltiples, enlaces complejos.", fase: "Desarrollo", sesion: 11, criterioIds: ["dt.1.2"] },
+      { id: "sa25a5", titulo: "Curvas cónicas: propiedades y aplicaciones", desc: "Elipse, parábola, hipérbola. Propiedades focales, trazado por puntos y tangentes. Aplicaciones técnicas.", fase: "Desarrollo", sesion: 14, criterioIds: ["dt.1.2"] },
+      { id: "sa25a6", titulo: "Examen práctico de geometría", desc: "Resolución de problemas geométricos complejos con justificación.", fase: "Cierre", sesion: 16, criterioIds: ["dt.1.1", "dt.1.2"] },
+    ], instrumentos: ["i53", "i54"] },
+    // DIBUJO TÉCNICO II - 2ª Evaluación
+    { id: "sa26", programacionId: "p3", titulo: "Sistemas de representación avanzados", eva: 2, inicio: toISO(new Date(c.y + 1, 0, 10)), fin: toISO(new Date(c.y + 1, 2, 5)), sesiones: 18, justificacion: "Los sistemas de representación son esenciales para comunicar ideas técnicas de forma precisa.", reto: "¿Cómo representar objetos complejos en diferentes sistemas de proyección?", producto: "Láminas de sistema diédrico, axonométrico y cónico + examen práctico", metodologias: ["Aprendizaje basado en problemas", "Aprendizaje cooperativo"], agrupamientos: "Individual + trabajo en parejas", espacios: "Aula de dibujo técnico", recursos: "Tableros, instrumentos de dibujo, piezas industriales, software GeoGebra", diversidad: "Piezas con diferentes niveles de complejidad", evidencias: "Láminas normalizadas, examen práctico", criterios: ["dt.2.1", "dt.2.2"], objetivos: ["Representar objetos en sistema diédrico", "Elaborar perspectivas axonométricas y cónicas", "Resolver intersecciones y secciones"], actividades: [
+      { id: "sa26a1", titulo: "Sistema diédrico: punto, recta y plano", desc: "Representación de elementos fundamentales, posiciones relativas, verdaderas magnitudes.", fase: "Inicio", sesion: 2, criterioIds: ["dt.2.1"] },
+      { id: "sa26a2", titulo: "Sistema diédrico: sólidos", desc: "Representación de poliedros y cuerpos de revolución, posiciones particulares.", fase: "Desarrollo", sesion: 5, criterioIds: ["dt.2.1"] },
+      { id: "sa26a3", titulo: "Intersecciones y secciones en diédrico", desc: "Intersección de rectas y planos con sólidos, secciones planas, desarrollo de superficies.", fase: "Desarrollo", sesion: 8, criterioIds: ["dt.2.1"] },
+      { id: "sa26a4", titulo: "Sistema axonométrico: isométrica y caballera", desc: "Fundamentos, coeficientes de reducción, representación de sólidos, secciones.", fase: "Desarrollo", sesion: 11, criterioIds: ["dt.2.2"] },
+      { id: "sa26a5", titulo: "Sistema cónico: perspectiva cónica", desc: "Fundamentos, puntos de fuga, representación de objetos arquitectónicos.", fase: "Desarrollo", sesion: 14, criterioIds: ["dt.2.2"] },
+      { id: "sa26a6", titulo: "Examen práctico de sistemas de representación", desc: "Resolución de problemas de representación en diferentes sistemas.", fase: "Cierre", sesion: 18, criterioIds: ["dt.2.1", "dt.2.2"] },
+    ], instrumentos: ["i55", "i56"] },
+    // DIBUJO TÉCNICO II - 3ª Evaluación
+    { id: "sa27", programacionId: "p3", titulo: "Normalización y proyecto final CAD", eva: 3, inicio: toISO(new Date(c.y + 1, 2, 10)), fin: toISO(new Date(c.y + 1, 4, 30)), sesiones: 20, justificacion: "La normalización y el diseño asistido por ordenador son competencias esenciales en el diseño técnico moderno.", reto: "¿Cómo documentar y modelar un proyecto técnico completo siguiendo normas internacionales?", producto: "Proyecto técnico completo: planos normalizados + modelo 3D CAD + memoria técnica", metodologias: ["Aprendizaje basado en proyectos", "Aula invertida"], agrupamientos: "Individual + trabajo en parejas", espacios: "Aula de dibujo y aula de informática", recursos: "Normas UNE-ISO, software FreeCAD/AutoCAD, piezas industriales", diversidad: "Proyectos con diferentes niveles de complejidad", evidencias: "Planos normalizados, modelo 3D, memoria técnica, presentación oral", criterios: ["dt.3.1", "dt.3.2", "dt.4.1", "dt.4.2"], objetivos: ["Aplicar la normalización en la documentación técnica", "Modelar piezas y conjuntos en 3D con CAD", "Presentar proyectos técnicos de forma profesional"], actividades: [
+      { id: "sa27a1", titulo: "Normalización: formatos, escalas y líneas", desc: "Formatos UNE, escalas normalizadas, tipos de líneas y sus aplicaciones.", fase: "Inicio", sesion: 2, criterioIds: ["dt.3.1"] },
+      { id: "sa27a2", titulo: "Normalización: vistas, cortes y secciones", desc: "Selección de vistas, tipos de cortes, secciones, rotura de piezas.", fase: "Desarrollo", sesion: 5, criterioIds: ["dt.3.1"] },
+      { id: "sa27a3", titulo: "Acotación normalizada", desc: "Principios de acotación, sistemas de acotación, acotación de piezas y conjuntos.", fase: "Desarrollo", sesion: 8, criterioIds: ["dt.3.1"] },
+      { id: "sa27a4", titulo: "Introducción al CAD 3D", desc: "Interfaz de FreeCAD/AutoCAD, modelado de primitivas, operaciones booleanas.", fase: "Desarrollo", sesion: 11, criterioIds: ["dt.4.1"] },
+      { id: "sa27a5", titulo: "Modelado de piezas complejas", desc: "Operaciones avanzadas: revoluciones, barridos, loft. Ensamblajes.", fase: "Desarrollo", sesion: 14, criterioIds: ["dt.4.1", "dt.4.2"] },
+      { id: "sa27a6", titulo: "Generación de planos desde el modelo 3D", desc: "Obtención de vistas, cortes y secciones desde el modelo 3D. Acotación automática.", fase: "Desarrollo", sesion: 17, criterioIds: ["dt.4.2"] },
+      { id: "sa27a7", titulo: "Proyecto final: diseño y documentación", desc: "Diseño de una pieza o conjunto completo: modelado 3D, planos normalizados, memoria técnica.", fase: "Desarrollo", sesion: 19, criterioIds: ["dt.3.1", "dt.3.2", "dt.4.1", "dt.4.2"] },
+      { id: "sa27a8", titulo: "Presentación y defensa del proyecto", desc: "Presentación oral del proyecto técnico ante el grupo. Evaluación con rúbrica.", fase: "Cierre", sesion: 20, criterioIds: ["dt.3.1", "dt.3.2", "dt.4.1", "dt.4.2"] },
+    ], instrumentos: ["i57", "i58", "i59"] },
   ];
 
   const units: Unit[] = [
@@ -280,6 +309,10 @@ export function buildSeed(): AppData {
     { id: "u7", programacionId: "p4", titulo: "Fundamentos geométricos y patrimonio", inicio: D(10), fin: D(70), sesiones: 32, saIds: ["sa7"], criterios: ["dt1.1.1", "dt1.2.1", "dt1.2.2", "dt1.2.3", "dt1.4.1", "dt1.4.2"] },
     { id: "u8", programacionId: "p4", titulo: "Sistemas de representación", inicio: toISO(new Date(c.y + 1, 0, 8)), fin: toISO(new Date(c.y + 1, 1, 28)), sesiones: 14, saIds: ["sa14"], criterios: ["dt1.3.1", "dt1.3.2", "dt1.3.3", "dt1.3.5"] },
     { id: "u9", programacionId: "p4", titulo: "Normalización y CAD", inicio: toISO(new Date(c.y + 1, 2, 25)), fin: toISO(new Date(c.y + 1, 4, 30)), sesiones: 14, saIds: ["sa15"], criterios: ["dt1.4.1", "dt1.4.2", "dt1.5.1", "dt1.5.2"] },
+    // Dibujo Técnico II
+    { id: "u16", programacionId: "p3", titulo: "Geometría avanzada", inicio: D(10), fin: D(60), sesiones: 16, saIds: ["sa25"], criterios: ["dt.1.1", "dt.1.2"] },
+    { id: "u17", programacionId: "p3", titulo: "Sistemas de representación avanzados", inicio: toISO(new Date(c.y + 1, 0, 10)), fin: toISO(new Date(c.y + 1, 2, 5)), sesiones: 18, saIds: ["sa26"], criterios: ["dt.2.1", "dt.2.2"] },
+    { id: "u18", programacionId: "p3", titulo: "Normalización y proyecto CAD", inicio: toISO(new Date(c.y + 1, 2, 10)), fin: toISO(new Date(c.y + 1, 4, 30)), sesiones: 20, saIds: ["sa27"], criterios: ["dt.3.1", "dt.3.2", "dt.4.1", "dt.4.2"] },
     { id: "u10", programacionId: "p5", titulo: "Cultura sonora y análisis crítico", inicio: D(12), fin: D(95), sesiones: 28, saIds: ["sa10", "sa20", "sa23"], criterios: ["tp.1.1", "tp.1.2", "tp.2.1", "tp.3.1", "tp.3.2", "tp.5.1"] },
     { id: "u11", programacionId: "p5", titulo: "Guion y producción sonora", inicio: toISO(new Date(c.y + 1, 0, 14)), fin: toISO(new Date(c.y + 1, 2, 15)), sesiones: 22, saIds: ["sa16", "sa21"], criterios: ["tp.2.1", "tp.2.2", "tp.3.1", "tp.3.2"] },
     { id: "u12", programacionId: "p5", titulo: "Proyecto final de podcast", inicio: toISO(new Date(c.y + 1, 2, 24)), fin: toISO(new Date(c.y + 1, 5, 20)), sesiones: 23, saIds: ["sa17", "sa22"], criterios: ["tp.3.3", "tp.4.1", "tp.4.2", "tp.5.2"] },
@@ -339,6 +372,16 @@ export function buildSeed(): AppData {
     { id: "i50", subjectId: "m5", nombre: "Lámina de reconstrucción románica", tipo: "rubrica", peso: 20, criterioIds: ["dt1.2.2", "dt1.2.3", "dt1.4.1", "dt1.4.2"], fecha: D(70), rubrica: NIVELES_RUBRICA },
     { id: "i51", subjectId: "m5", nombre: "Examen práctico 1 · geometría plana", tipo: "practica", peso: 20, criterioIds: ["dt1.2.1", "dt1.2.2"], fecha: D(40) },
     { id: "i52", subjectId: "m5", nombre: "Examen práctico 2 · tangencias y curvas", tipo: "practica", peso: 20, criterioIds: ["dt1.2.3"], fecha: D(55) },
+    // Dibujo Técnico II - 1ª Evaluación
+    { id: "i53", subjectId: "m3", nombre: "Dossier de 6 láminas de geometría avanzada", tipo: "portfolio", peso: 40, criterioIds: ["dt.1.1", "dt.1.2"], fecha: D(55) },
+    { id: "i54", subjectId: "m3", nombre: "Examen práctico de geometría avanzada", tipo: "practica", peso: 30, criterioIds: ["dt.1.1", "dt.1.2"], fecha: D(60) },
+    // Dibujo Técnico II - 2ª Evaluación
+    { id: "i55", subjectId: "m3", nombre: "Láminas de sistemas de representación", tipo: "portfolio", peso: 40, criterioIds: ["dt.2.1", "dt.2.2"], fecha: toISO(new Date(c.y + 1, 1, 25)) },
+    { id: "i56", subjectId: "m3", nombre: "Examen práctico de sistemas de representación", tipo: "practica", peso: 30, criterioIds: ["dt.2.1", "dt.2.2"], fecha: toISO(new Date(c.y + 1, 2, 5)) },
+    // Dibujo Técnico II - 3ª Evaluación
+    { id: "i57", subjectId: "m3", nombre: "Planos normalizados del proyecto", tipo: "proyecto", peso: 25, criterioIds: ["dt.3.1", "dt.3.2"], fecha: toISO(new Date(c.y + 1, 4, 10)) },
+    { id: "i58", subjectId: "m3", nombre: "Modelo 3D CAD del proyecto", tipo: "digital", peso: 25, criterioIds: ["dt.4.1", "dt.4.2"], fecha: toISO(new Date(c.y + 1, 4, 15)) },
+    { id: "i59", subjectId: "m3", nombre: "Presentación y defensa del proyecto final", tipo: "exposicion", peso: 20, criterioIds: ["dt.3.1", "dt.3.2", "dt.4.1", "dt.4.2"], fecha: toISO(new Date(c.y + 1, 4, 30)) },
   ];
 
   const grades: Grade[] = [];
@@ -386,5 +429,5 @@ export function buildSeed(): AppData {
     { id: "r1", studentId: "g1-s6", criterioId: "epva.1.1", actividad: "Cuaderno de análisis de imágenes: 6 láminas comentadas", fecha: D(80), instrumentoId: "i3" },
   ];
 
-  return { version: 23, role: "profesor", teacherId: "t1", cursoLabel: c.label, teachers, groups, students, subjects, programaciones, sas, units, instruments, grades, attendance, observations, measures, recoveries };
+  return { version: 24, role: "profesor", teacherId: "t1", cursoLabel: c.label, teachers, groups, students, subjects, programaciones, sas, units, instruments, grades, attendance, observations, measures, recoveries };
 }
