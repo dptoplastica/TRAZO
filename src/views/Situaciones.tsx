@@ -54,27 +54,23 @@ export default function Situaciones() {
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {sas.map((sa) => (
                   <div key={sa.id} className="card card-h group relative overflow-hidden">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSaToDelete(sa.id);
+                      }}
+                      className="absolute right-2 top-2 z-10 rounded-md p-1.5 text-ink3 transition-all hover:bg-verml hover:text-verm"
+                      title="Eliminar situación de aprendizaje"
+                    >
+                      <Ic n="trash" s={14} />
+                    </button>
                     <button 
                       onClick={() => nav("situaciones", { saId: sa.id })} 
                       className="block w-full cursor-pointer text-left"
                     >
                       <div className="px-4 py-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors group-hover:text-vir">{sa.titulo}</p>
-                            <p className="mt-1 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSaToDelete(sa.id);
-                            }}
-                            className="shrink-0 rounded-md p-1.5 text-ink3 transition-all hover:bg-verml hover:text-verm"
-                            title="Eliminar situación de aprendizaje"
-                          >
-                            <Ic n="trash" s={14} />
-                          </button>
-                        </div>
+                        <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors group-hover:text-vir">{sa.titulo}</p>
+                        <p className="mt-1 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
                         <div className="mt-3 flex items-center gap-2">
                           <span className="mono text-[10.5px] font-bold text-ink3">{sa.sesiones} sesiones</span>
                           <span className="mono ml-auto text-[10.5px] font-bold text-ink3">{fmtFecha(sa.inicio)} → {fmtFecha(sa.fin)}</span>
