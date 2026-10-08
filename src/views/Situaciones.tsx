@@ -59,23 +59,27 @@ export default function Situaciones() {
                       className="block w-full cursor-pointer text-left"
                     >
                       <div className="px-4 py-3">
-                        <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors group-hover:text-vir">{sa.titulo}</p>
-                        <p className="mt-1 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors group-hover:text-vir">{sa.titulo}</p>
+                            <p className="mt-1 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSaToDelete(sa.id);
+                            }}
+                            className="shrink-0 rounded-md p-1.5 text-ink3 transition-all hover:bg-verml hover:text-verm"
+                            title="Eliminar situación de aprendizaje"
+                          >
+                            <Ic n="trash" s={14} />
+                          </button>
+                        </div>
                         <div className="mt-3 flex items-center gap-2">
                           <span className="mono text-[10.5px] font-bold text-ink3">{sa.sesiones} sesiones</span>
                           <span className="mono ml-auto text-[10.5px] font-bold text-ink3">{fmtFecha(sa.inicio)} → {fmtFecha(sa.fin)}</span>
                         </div>
                       </div>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSaToDelete(sa.id);
-                      }}
-                      className="absolute right-2 top-2 rounded-md p-1.5 text-ink3 opacity-0 transition-all hover:bg-verml hover:text-verm group-hover:opacity-100"
-                      title="Eliminar situación de aprendizaje"
-                    >
-                      <Ic n="trash" s={14} />
                     </button>
                   </div>
                 ))}
