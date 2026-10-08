@@ -1,7 +1,7 @@
 // Script de diagnóstico completo de Supabase
 // Ejecutar en la consola del navegador (F12)
 
-async function diagnosticoCompleto() {
+async function diagnosticarSupabase() {
   const SUPABASE_URL = 'https://hhsmjmgxarxofyigystd.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_q8GojCWi5kKiybPp_kd6yQ_DlD-sJ-o';
   
@@ -18,9 +18,10 @@ async function diagnosticoCompleto() {
     });
     
     if (response.ok) {
-      console.log('✅ Conexión con Supabase: OK');
+      console.log('✅ Conexión con Supabase: OK\n');
     } else {
-      console.error('❌ Error de conexión:', response.status);
+      console.error('❌ Error de conexión:', response.status, response.statusText);
+      console.error('   Detalles:', await response.text());
       return;
     }
   } catch (error) {
@@ -29,7 +30,7 @@ async function diagnosticoCompleto() {
   }
   
   // 2. Verificar tablas existentes
-  console.log('\n2️⃣ Verificando tablas...');
+  console.log('2️⃣ Verificando tablas...');
   const tablas = [
     'teachers', 'groups', 'students', 'subjects', 
     'programaciones', 'situaciones_aprendizaje', 'units',
@@ -38,6 +39,8 @@ async function diagnosticoCompleto() {
   ];
   
   const resultados = {};
+  let tablasOk = 0;
+  let tablasError = 0;
   
   for (const tabla of tablas) {
     try {
@@ -52,54 +55,84 @@ async function diagnosticoCompleto() {
         const data = await response.json();
         resultados[tabla] = data.length;
         console.log(`  ✅ ${tabla}: ${data.length} registros`);
+        tablasOk++;
       } else {
         const errorText = await response.text();
         resultados[tabla] = 'ERROR';
         console.error(`  ❌ ${tabla}: Error ${response.status}`);
         
-        // Si el error es 404, la tabla no existe
         if (response.status === 404) {
           console.error(`     → La tabla "${tabla}" NO EXISTE`);
-          console.error(`     → Necesitas ejecutar el SQL de creación de tablas`);
+        } else if (response.status === 401) {
+          console.error(`     → Error de permisos (RLS activo)`);
+          console.error(`     → Ejecuta: ALTER TABLE ${tabla} DISABLE ROW LEVEL SECURITY;`);
         }
+        tablasError++;
       }
     } catch (error) {
       resultados[tabla] = 'ERROR';
       console.error(`  ❌ ${tabla}: ${error.message}`);
+      tablasError++;
     }
   }
   
-  // 3. Resumen
-  console.log('\n3️⃣ === RESUMEN ===');
-  const tablasOK = Object.entries(resultados).filter(([k, v]) => typeof v === 'number');
-  const tablasError = Object.entries(resultados).filter(([k, v]) => v === 'ERROR');
+  // 3. Verificar datos específicos
+  console.log('\n3️⃣ Verificando datos importantes...');
   
-  console.log(`✅ Tablas OK: ${tablasOK.length}`);
-  console.log(`❌ Tablas con error: ${tablasError.length}`);
+  // Profesores
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/teachers?select=id,email,nombre,rol`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    
+    if (response.ok) {
+      const teachers = await response.json();
+      console.log(`\n👥 Profesores (${teachers.length}):`);
+      teachers.forEach(t => {
+        console.log(`   - ${t.nombre} (${t.email}) - ${t.rol}`);
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error verificando profesores:', error.message);
+  }
   
-  if (tablasError.length > 0) {
-    console.log('\n⚠️  PROBLEMA DETECTADO:');
-    console.log('Algunas tablas no existen o tienen errores.');
-    console.log('\n📋 SOLUCIÓN:');
-    console.log('1. Ve a Supabase Dashboard → SQL Editor');
-    console.log('2. Ejecuta el archivo: public/sql/cambiar-uuid-a-text.sql');
-    console.log('3. Luego ejecuta: public/sql/insertar-datos-iniciales.sql');
-    console.log('4. Recarga la página y vuelve a ejecutar este diagnóstico');
-  } else if (resultados['teachers'] === 0) {
-    console.log('\n⚠️  PROBLEMA DETECTADO:');
-    console.log('Las tablas existen pero están vacías.');
-    console.log('\n📋 SOLUCIÓN:');
-    console.log('1. Ve a Supabase Dashboard → SQL Editor');
-    console.log('2. Ejecuta el archivo: public/sql/insertar-datos-iniciales.sql');
-    console.log('3. Recarga la página y vuelve a ejecutar este diagnóstico');
+  // Resumen
+  console.log('\n4️⃣ === RESUMEN ===');
+  console.log(`✅ Tablas OK: ${tablasOk}/${tablas.length}`);
+  console.log(`❌ Tablas con error: ${tablasError}/${tablas.length}`);
+  
+  if (tablasError === 0) {
+    console.log('\n🎉 ¡TODO CORRECTO!');
+    console.log('✅ Supabase está configurado correctamente');
+    console.log('✅ Todas las tablas existen y tienen datos');
+    console.log('✅ La conexión funciona perfectamente');
+    console.log('\n📊 Total de registros:');
+    Object.entries(resultados).forEach(([tabla, count]) => {
+      console.log(`   - ${tabla}: ${count}`);
+    });
   } else {
-    console.log('\n✅ TODO CORRECTO:');
-    console.log('Supabase está configurado correctamente.');
-    console.log('Los cambios deberían ser permanentes.');
+    console.log('\n⚠️  PROBLEMAS DETECTADOS:');
+    
+    if (resultados['teachers'] === 'ERROR') {
+      console.log('\n❌ La tabla "teachers" tiene problemas');
+      console.log('   Posibles causas:');
+      console.log('   1. La tabla no existe → Ejecuta el SQL de creación');
+      console.log('   2. RLS está activo → Ejecuta: ALTER TABLE teachers DISABLE ROW LEVEL SECURITY;');
+      console.log('   3. No hay datos → Ejecuta el SQL de inserción de profesores');
+    }
+    
+    console.log('\n📋 PRÓXIMOS PASOS:');
+    console.log('1. Ve a Supabase SQL Editor');
+    console.log('2. Ejecuta: public/sql/desactivar-rls.sql');
+    console.log('3. Ejecuta: public/sql/configuracion-completa.sql');
+    console.log('4. Vuelve a ejecutar este diagnóstico');
   }
   
   return resultados;
 }
 
 // Ejecutar diagnóstico
-diagnosticoCompleto();
+diagnosticarSupabase();
