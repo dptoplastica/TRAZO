@@ -1,7 +1,7 @@
 import { useApp, visibleProgramaciones, uid, fmtFecha } from "../store";
 import { getCurriculum, descriptorById, claveById } from "../data/curriculum";
 import { METODOLOGIAS, type SA, type Actividad } from "../data/seed";
-import { Ic, Reveal, SectionHead, Modal, EmptyState, btn, btnGhost, SelChip } from "../components/ui";
+import { Ic, Reveal, SectionHead, Modal, EmptyState, btn, btnGhost, btnDanger, SelChip } from "../components/ui";
 import { fmtFechaL } from "../store";
 import { useState } from "react";
 
@@ -14,6 +14,7 @@ export default function Situaciones() {
   const [nueva, setNueva] = useState(false);
   const [progId, setProgId] = useState("");
   const [titulo, setTitulo] = useState("");
+  const [saToDelete, setSaToDelete] = useState<string | null>(null);
 
   const crear = () => {
     if (!progId || !titulo.trim()) return;
@@ -21,6 +22,20 @@ export default function Situaciones() {
     set((s) => ({ ...s, sas: [...s.sas, sa] }));
     setNueva(false); setTitulo(""); notify("SA creada");
     nav("situaciones", { saId: sa.id });
+  };
+
+  const eliminarSA = () => {
+    if (!saToDelete) return;
+    set((s) => ({
+      ...s,
+      sas: s.sas.filter((sa) => sa.id !== saToDelete),
+      units: s.units.map((u) => ({
+        ...u,
+        saIds: u.saIds.filter((id) => id !== saToDelete)
+      }))
+    }));
+    notify("Situación de aprendizaje eliminada");
+    setSaToDelete(null);
   };
 
   return (
@@ -38,16 +53,31 @@ export default function Situaciones() {
               </div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {sas.map((sa) => (
-                  <button key={sa.id} onClick={() => nav("situaciones", { saId: sa.id })} className="card card-h group cursor-pointer overflow-hidden text-left">
-                    <div className="px-4 py-3">
-                      <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors group-hover:text-vir">{sa.titulo}</p>
-                      <p className="mt-1 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
-                      <div className="mt-3 flex items-center gap-2">
-                        <span className="mono text-[10.5px] font-bold text-ink3">{sa.sesiones} sesiones</span>
-                        <span className="mono ml-auto text-[10.5px] font-bold text-ink3">{fmtFecha(sa.inicio)} → {fmtFecha(sa.fin)}</span>
+                  <div key={sa.id} className="card card-h group relative overflow-hidden">
+                    <button 
+                      onClick={() => nav("situaciones", { saId: sa.id })} 
+                      className="block w-full cursor-pointer text-left"
+                    >
+                      <div className="px-4 py-3">
+                        <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors group-hover:text-vir">{sa.titulo}</p>
+                        <p className="mt-1 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
+                        <div className="mt-3 flex items-center gap-2">
+                          <span className="mono text-[10.5px] font-bold text-ink3">{sa.sesiones} sesiones</span>
+                          <span className="mono ml-auto text-[10.5px] font-bold text-ink3">{fmtFecha(sa.inicio)} → {fmtFecha(sa.fin)}</span>
+                        </div>
                       </div>
-                    </div>
-                  </button>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSaToDelete(sa.id);
+                      }}
+                      className="absolute right-2 top-2 rounded-md p-1.5 text-ink3 opacity-0 transition-all hover:bg-verml hover:text-verm group-hover:opacity-100"
+                      title="Eliminar situación de aprendizaje"
+                    >
+                      <Ic n="trash" s={14} />
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -65,6 +95,25 @@ export default function Situaciones() {
         <div className="flex justify-end gap-2">
           <button className={btnGhost} onClick={() => setNueva(false)}>Cancelar</button>
           <button className={btn} onClick={crear}><Ic n="check" s={15} /> Crear</button>
+        </div>
+      </Modal>
+
+      <Modal open={!!saToDelete} onClose={() => setSaToDelete(null)} title="Confirmar eliminación">
+        <div className="space-y-4">
+          <p className="text-ink2">
+            ¿Estás seguro de que quieres eliminar esta situación de aprendizaje?
+          </p>
+          <p className="text-verm font-semibold">
+            ⚠️ Se eliminarán también todas las actividades, calificaciones y referencias asociadas.
+          </p>
+          <div className="flex justify-end gap-2 pt-2">
+            <button className={btnGhost} onClick={() => setSaToDelete(null)}>
+              Cancelar
+            </button>
+            <button className={btnDanger} onClick={eliminarSA}>
+              <Ic n="trash" s={14} /> Eliminar
+            </button>
+          </div>
         </div>
       </Modal>
     </div>
