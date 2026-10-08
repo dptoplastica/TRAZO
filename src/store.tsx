@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { buildSeed, cursoInfo, sessionsFor, toISO, fromISO, type AppData } from "./data/seed";
 import { getCurriculum, allCriterios, ceById, clavesDeCE, type Curriculum, type Criterio } from "./data/curriculum";
+import { loadAppData, saveAppData } from "./lib/dataService";
 
 export type ViewId =
   | "panel" | "programaciones" | "curriculo" | "situaciones" | "unidades"
@@ -34,54 +35,78 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<Toast | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Cargar datos desde localStorage al inicio
+  // Cargar datos desde Supabase con fallback a localStorage
   useEffect(() => {
-    try {
-      console.log('🔄 Cargando datos desde localStorage...');
-      
-      const localRaw = localStorage.getItem('trazo-lomloe-v24');
-      
-      if (localRaw) {
-        try {
-          const parsed = JSON.parse(localRaw);
-          if (parsed && parsed.version === 24) {
-            setD(parsed);
-            console.log('✅ Datos cargados desde localStorage');
+    const loadData = async () => {
+      try {
+        console.log('🔄 Cargando datos...');
+        
+        // Intentar cargar desde Supabase primero
+        const cloudData = await loadAppData();
+        
+        if (cloudData && cloudData.teachers.length > 0) {
+          console.log('✅ Datos cargados desde Supabase');
+          setD(cloudData);
+          // Actualizar localStorage como caché
+          localStorage.setItem('trazo-lomloe-v24', JSON.stringify(cloudData));
+        } else {
+          // Si falla Supabase, usar localStorage
+          console.log('📦 Usando datos locales (Supabase no disponible)');
+          const localRaw = localStorage.getItem('trazo-lomloe-v24');
+          
+          if (localRaw) {
+            try {
+              const parsed = JSON.parse(localRaw);
+              if (parsed && parsed.version === 24) {
+                setD(parsed);
+                console.log('✅ Datos cargados desde localStorage');
+              } else {
+                const seedData = buildSeed();
+                setD(seedData);
+                localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
+              }
+            } catch (e) {
+              const seedData = buildSeed();
+              setD(seedData);
+              localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
+            }
           } else {
-            console.warn('⚠️ Versión incorrecta, usando datos iniciales');
             const seedData = buildSeed();
             setD(seedData);
             localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
           }
-        } catch (e) {
-          console.warn('⚠️ Error parseando localStorage, usando datos iniciales');
-          const seedData = buildSeed();
-          setD(seedData);
-          localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
         }
-      } else {
-        console.log('📦 No hay datos, usando datos iniciales');
+      } catch (error) {
+        console.error('❌ Error cargando datos:', error);
         const seedData = buildSeed();
         setD(seedData);
-        localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('❌ Error cargando datos:', error);
-      const seedData = buildSeed();
-      setD(seedData);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    loadData();
   }, []);
 
-  // Guardar en localStorage en cada cambio
+  // Guardar en localStorage y sincronizar con Supabase
   useEffect(() => {
     if (loading) return; // No guardar durante la carga inicial
 
     try {
-      // Guardar en localStorage
+      // Guardar en localStorage inmediatamente (caché local)
       localStorage.setItem('trazo-lomloe-v24', JSON.stringify(d));
       console.log('💾 Datos guardados en localStorage');
+      
+      // Sincronizar con Supabase en segundo plano
+      saveAppData(d).then(success => {
+        if (success) {
+          console.log('✅ Datos sincronizados con Supabase');
+        } else {
+          console.warn('⚠️ No se pudo sincronizar con Supabase (datos guardados localmente)');
+        }
+      }).catch(err => {
+        console.warn('⚠️ Error sincronizando con Supabase:', err.message);
+      });
     } catch (error) {
       console.error('❌ Error guardando datos:', error);
     }
