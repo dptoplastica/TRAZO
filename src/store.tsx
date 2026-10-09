@@ -48,11 +48,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           console.log('✅ Datos cargados desde Supabase');
           setD(cloudData);
           // Actualizar localStorage como caché
-          localStorage.setItem('trazo-lomloe-v24', JSON.stringify(cloudData));
+          localStorage.setItem('trazo-lomloe-v25', JSON.stringify(cloudData));
         } else {
           // Si falla Supabase, usar localStorage
           console.log('📦 Usando datos locales (Supabase no disponible)');
-          const localRaw = localStorage.getItem('trazo-lomloe-v24');
+          const localRaw = localStorage.getItem('trazo-lomloe-v25');
           
           if (localRaw) {
             try {
@@ -63,17 +63,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
               } else {
                 const seedData = buildSeed();
                 setD(seedData);
-                localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
+                localStorage.setItem('trazo-lomloe-v25', JSON.stringify(seedData));
               }
             } catch (e) {
               const seedData = buildSeed();
               setD(seedData);
-              localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
+              localStorage.setItem('trazo-lomloe-v25', JSON.stringify(seedData));
             }
           } else {
             const seedData = buildSeed();
             setD(seedData);
-            localStorage.setItem('trazo-lomloe-v24', JSON.stringify(seedData));
+            localStorage.setItem('trazo-lomloe-v25', JSON.stringify(seedData));
           }
         }
       } catch (error) {
@@ -94,7 +94,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     try {
       // Guardar en localStorage inmediatamente (caché local)
-      localStorage.setItem('trazo-lomloe-v24', JSON.stringify(d));
+      localStorage.setItem('trazo-lomloe-v25', JSON.stringify(d));
       console.log('💾 Datos guardados en localStorage');
       
       // Sincronizar con Supabase en segundo plano
@@ -126,7 +126,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setD(fresh); 
         setView("panel"); 
         setParams({});
-        localStorage.setItem('trazo-lomloe-v24', JSON.stringify(fresh));
+        localStorage.setItem('trazo-lomloe-v25', JSON.stringify(fresh));
       },
     };
   }, [d, view, params, toast, loading]);
