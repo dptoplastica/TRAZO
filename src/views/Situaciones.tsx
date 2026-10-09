@@ -15,6 +15,9 @@ export default function Situaciones() {
   const [progId, setProgId] = useState("");
   const [titulo, setTitulo] = useState("");
   const [saToDelete, setSaToDelete] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [exportProgId, setExportProgId] = useState("");
 
   const crear = () => {
     if (!progId || !titulo.trim()) return;
@@ -38,9 +41,122 @@ export default function Situaciones() {
     setSaToDelete(null);
   };
 
+  const exportarSdA = () => {
+    if (!exportProgId) {
+      notify("Selecciona una programación");
+      return;
+    }
+    
+    const sas = d.sas.filter(s => s.programacionId === exportProgId);
+    if (sas.length === 0) {
+      notify("No hay situaciones de aprendizaje para exportar");
+      return;
+    }
+    
+    const exportData = {
+      version: "1.0",
+      exportDate: new Date().toISOString(),
+      programacionId: exportProgId,
+      programacionNombre: d.programaciones.find(p => p.id === exportProgId)?.ccalificacion || "Sin nombre",
+      asignatura: d.subjects.find(s => s.id === d.programaciones.find(p => p.id === exportProgId)?.subjectId)?.nombre || "Sin asignatura",
+      situaciones: sas
+    };
+    
+    const json = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sdas-${exportData.asignatura.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    notify(`Exportadas ${sas.length} situaciones de aprendizaje`);
+    setShowExport(false);
+    setExportProgId("");
+  };
+
+  const importarSdA = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importData = JSON.parse(content);
+        
+        // Validar estructura
+        if (!importData.version || !importData.situaciones || !Array.isArray(importData.situaciones)) {
+          notify("Formato de archivo inválido");
+          return;
+        }
+        
+        // Validar que cada SA tiene los campos requeridos
+        const validSAs = importData.situaciones.every((sa: any) => 
+          sa.titulo && sa.programacionId && sa.eva && sa.inicio && sa.fin
+        );
+        
+        if (!validSAs) {
+          notify("Alguna situación de aprendizaje tiene datos incompletos");
+          return;
+        }
+        
+        // Preguntar al usuario si quiere importar
+        const confirmar = window.confirm(
+          `Se importarán ${importData.situaciones.length} situaciones de aprendizaje.\n\n` +
+          `Asignatura: ${importData.asignatura || "Desconocida"}\n` +
+          `Fecha de exportación: ${new Date(importData.exportDate).toLocaleDateString()}\n\n` +
+          `¿Deseas continuar?`
+        );
+        
+        if (!confirmar) return;
+        
+        // Importar las SdA
+        set((s) => ({
+          ...s,
+          sas: [...s.sas, ...importData.situaciones]
+        }));
+        
+        notify(`Importadas ${importData.situaciones.length} situaciones de aprendizaje`);
+        setShowImport(false);
+        
+      } catch (error) {
+        console.error("Error al importar:", error);
+        notify("Error al leer el archivo JSON");
+      }
+    };
+    
+    reader.onerror = () => {
+      notify("Error al leer el archivo");
+    };
+    
+    reader.readAsText(file);
+    event.target.value = ""; // Reset input
+  };
+
   return (
     <div>
-      <SectionHead kicker="Diseño de enseñanza" title="Situaciones de aprendizaje" desc="Retos contextualizados con producto final y todos los elementos curriculares vinculados." actions={<button className={btn} onClick={() => setNueva(true)}><Ic n="plus" s={15} /> Nueva situación</button>} />
+      <SectionHead 
+        kicker="Diseño de enseñanza" 
+        title="Situaciones de aprendizaje" 
+        desc="Retos contextualizados con producto final y todos los elementos curriculares vinculados." 
+        actions={
+          <div className="flex gap-2">
+            <button className={btnGhost} onClick={() => setShowExport(true)}>
+              <Ic n="download" s={15} /> Exportar
+            </button>
+            <button className={btnGhost} onClick={() => setShowImport(true)}>
+              <Ic n="upload" s={15} /> Importar
+            </button>
+            <button className={btn} onClick={() => setNueva(true)}>
+              <Ic n="plus" s={15} /> Nueva situación
+            </button>
+          </div>
+        } 
+      />
       {progs.map((p) => {
         const sub = d.subjects.find((s) => s.id === p.subjectId);
         const sas = d.sas.filter((s) => s.programacionId === p.id);
@@ -111,6 +227,71 @@ export default function Situaciones() {
             </button>
             <button className={btnDanger} onClick={eliminarSA}>
               <Ic n="trash" s={14} /> Eliminar
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={showExport} onClose={() => setShowExport(false)} title="Exportar Situaciones de Aprendizaje">
+        <div className="space-y-4">
+          <p className="text-ink2">
+            Exporta todas las situaciones de aprendizaje de una programación a un archivo JSON.
+          </p>
+          <div>
+            <label className="lbl">Programación</label>
+            <select className="inp" value={exportProgId} onChange={(e) => setExportProgId(e.target.value)}>
+              <option value="">— seleccionar programación —</option>
+              {progs.map((p) => {
+                const sub = d.subjects.find((s) => s.id === p.subjectId);
+                const count = d.sas.filter(s => s.programacionId === p.id).length;
+                return (
+                  <option key={p.id} value={p.id}>
+                    {sub?.nombre} ({count} SdA)
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          {exportProgId && (
+            <div className="rounded-lg bg-virl p-3">
+              <p className="text-[12px] font-semibold text-vird">
+                Se exportarán {d.sas.filter(s => s.programacionId === exportProgId).length} situaciones de aprendizaje
+              </p>
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <button className={btnGhost} onClick={() => setShowExport(false)}>
+              Cancelar
+            </button>
+            <button className={btn} onClick={exportarSdA} disabled={!exportProgId}>
+              <Ic n="download" s={14} /> Exportar JSON
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={showImport} onClose={() => setShowImport(false)} title="Importar Situaciones de Aprendizaje">
+        <div className="space-y-4">
+          <p className="text-ink2">
+            Importa situaciones de aprendizaje desde un archivo JSON previamente exportado.
+          </p>
+          <div className="rounded-lg bg-ambl p-3">
+            <p className="text-[12px] font-semibold text-amb">
+              ⚠️ Las situaciones importadas se añadirán a las existentes
+            </p>
+          </div>
+          <div>
+            <label className="lbl">Archivo JSON</label>
+            <input
+              type="file"
+              accept=".json"
+              onChange={importarSdA}
+              className="inp"
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button className={btnGhost} onClick={() => setShowImport(false)}>
+              Cancelar
             </button>
           </div>
         </div>
