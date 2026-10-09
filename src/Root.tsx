@@ -3,19 +3,26 @@ import { buildSeed, type AppData } from './data/seed';
 import Login from './views/Login';
 import App from './App';
 
-// Sistema de login simple basado en datos locales
-// La integración con Supabase se puede activar más adelante
-
 function getLocalData(): AppData {
+  console.log('📦 Cargando datos locales...');
   try {
-    const raw = localStorage.getItem('trazo-lomloe-v13');
+    const raw = localStorage.getItem('trazo-lomloe-v25');
+    console.log('📦 Datos en localStorage:', raw ? 'Encontrados' : 'No encontrados');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.version === 13) return parsed;
+      console.log('📦 Versión encontrada:', parsed.version);
+      if (parsed && parsed.version === 25) {
+        console.log('✅ Usando datos de localStorage');
+        return parsed;
+      }
     }
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('❌ Error cargando localStorage:', e);
+  }
+  console.log('🆕 Generando datos nuevos...');
   const seed = buildSeed();
-  localStorage.setItem('trazo-lomloe-v13', JSON.stringify(seed));
+  console.log('🆕 Datos generados:', seed);
+  localStorage.setItem('trazo-lomloe-v25', JSON.stringify(seed));
   return seed;
 }
 
@@ -24,7 +31,19 @@ export default function Root() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar si hay sesión guardada
+    // Inicializar datos si no existen
+    console.log('🚀 Inicializando aplicación...');
+    const existingData = localStorage.getItem('trazo-lomloe-v25');
+    if (!existingData) {
+      console.log('📦 No hay datos, generando datos iniciales...');
+      const seed = buildSeed();
+      localStorage.setItem('trazo-lomloe-v25', JSON.stringify(seed));
+      console.log('✅ Datos iniciales guardados');
+    } else {
+      console.log('✅ Datos ya existen en localStorage');
+    }
+
+    // Verificar sesión guardada en localStorage
     const savedSession = localStorage.getItem('trazo-session');
     if (savedSession) {
       try {
@@ -35,13 +54,27 @@ export default function Root() {
   }, []);
 
   const handleLogin = (email: string, password: string): boolean => {
-    const data = getLocalData();
-    const teacher = data.teachers.find(t => t.email === email);
+    console.log('🔐 Intentando login:', { email });
     
-    if (!teacher) return false;
+    // Cargar datos desde localStorage
+    const dataRaw = localStorage.getItem('trazo-lomloe-v24');
+    if (!dataRaw) {
+      console.error('❌ No hay datos en localStorage');
+      return false;
+    }
     
-    // Password simple para demo: Trazo2025!
-    if (password !== 'Trazo2025!') return false;
+    const data = JSON.parse(dataRaw);
+    const teacher = data.teachers.find((t: any) => t.email === email);
+    
+    if (!teacher) {
+      console.error('❌ Email no encontrado');
+      return false;
+    }
+    
+    if (password !== 'Trazo2025!') {
+      console.error('❌ Contraseña incorrecta');
+      return false;
+    }
     
     const session = {
       id: teacher.id,
@@ -50,6 +83,7 @@ export default function Root() {
       email: teacher.email,
     };
     
+    console.log('✅ Login exitoso:', session);
     localStorage.setItem('trazo-session', JSON.stringify(session));
     setUser(session);
     return true;

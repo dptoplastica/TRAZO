@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { buildSeed, cursoInfo, sessionsFor, toISO, fromISO, type AppData } from "./data/seed";
 import { getCurriculum, allCriterios, ceById, clavesDeCE, type Curriculum, type Criterio } from "./data/curriculum";
+import { loadAppData, saveAppData } from "./lib/dataService";
 
 export type ViewId =
   | "panel" | "programaciones" | "curriculo" | "situaciones" | "unidades"
@@ -22,44 +23,113 @@ interface Ctx {
   nav: (view: ViewId, params?: Params) => void;
   notify: (msg: string) => void;
   reset: () => void;
-}
-
-const KEY = "trazo-lomloe-v13";
-
-function load(): AppData {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as AppData;
-      if (parsed && parsed.version === 13) return parsed;
-    }
-  } catch { /* ignore */ }
-  return buildSeed();
+  loading: boolean;
 }
 
 const AppCtx = createContext<Ctx | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [d, setD] = useState<AppData>(load);
+  const [d, setD] = useState<AppData>(buildSeed());
   const [view, setView] = useState<ViewId>("panel");
   const [params, setParams] = useState<Params>({});
   const [toast, setToast] = useState<Toast | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Cargar datos desde Supabase con fallback a localStorage
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* ignore */ }
-  }, [d]);
+    const loadData = async () => {
+      try {
+        console.log('🔄 Cargando datos...');
+        
+        // Intentar cargar desde Supabase primero
+        const cloudData = await loadAppData();
+        
+        if (cloudData && cloudData.teachers.length > 0) {
+          console.log('✅ Datos cargados desde Supabase');
+          setD(cloudData);
+          // Actualizar localStorage como caché
+          localStorage.setItem('trazo-lomloe-v25', JSON.stringify(cloudData));
+        } else {
+          // Si falla Supabase, usar localStorage
+          console.log('📦 Usando datos locales (Supabase no disponible)');
+          const localRaw = localStorage.getItem('trazo-lomloe-v25');
+          
+          if (localRaw) {
+            try {
+              const parsed = JSON.parse(localRaw);
+              if (parsed && parsed.version === 24) {
+                setD(parsed);
+                console.log('✅ Datos cargados desde localStorage');
+              } else {
+                const seedData = buildSeed();
+                setD(seedData);
+                localStorage.setItem('trazo-lomloe-v25', JSON.stringify(seedData));
+              }
+            } catch (e) {
+              const seedData = buildSeed();
+              setD(seedData);
+              localStorage.setItem('trazo-lomloe-v25', JSON.stringify(seedData));
+            }
+          } else {
+            const seedData = buildSeed();
+            setD(seedData);
+            localStorage.setItem('trazo-lomloe-v25', JSON.stringify(seedData));
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error cargando datos:', error);
+        const seedData = buildSeed();
+        setD(seedData);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Guardar en localStorage y sincronizar con Supabase
+  useEffect(() => {
+    if (loading) return; // No guardar durante la carga inicial
+
+    try {
+      // Guardar en localStorage inmediatamente (caché local)
+      localStorage.setItem('trazo-lomloe-v25', JSON.stringify(d));
+      console.log('💾 Datos guardados en localStorage');
+      
+      // Sincronizar con Supabase en segundo plano
+      saveAppData(d).then(success => {
+        if (success) {
+          console.log('✅ Datos sincronizados con Supabase');
+        } else {
+          console.warn('⚠️ No se pudo sincronizar con Supabase (datos guardados localmente)');
+        }
+      }).catch(err => {
+        console.warn('⚠️ Error sincronizando con Supabase:', err.message);
+      });
+    } catch (error) {
+      console.error('❌ Error guardando datos:', error);
+    }
+  }, [d, loading]);
 
   const value = useMemo<Ctx>(() => {
     const me = d.teachers.find((t) => t.id === d.teacherId) ?? d.teachers[0];
     return {
       d, view, params, toast, me,
       isAdmin: d.role === "admin",
+      loading,
       set: (fn) => setD((prev) => ({ ...fn(prev) })),
       nav: (v, p) => { setView(v); setParams(p ?? {}); window.scrollTo({ top: 0 }); },
       notify: (msg) => setToast({ msg, key: Date.now() }),
-      reset: () => { const fresh = buildSeed(); setD(fresh); setView("panel"); setParams({}); },
+      reset: () => { 
+        const fresh = buildSeed(); 
+        setD(fresh); 
+        setView("panel"); 
+        setParams({});
+        localStorage.setItem('trazo-lomloe-v25', JSON.stringify(fresh));
+      },
     };
-  }, [d, view, params, toast]);
+  }, [d, view, params, toast, loading]);
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }
@@ -72,8 +142,6 @@ export function useApp(): Ctx {
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
-/* ================= visibilidad según perfil ================= */
-
 export const visibleSubjects = (d: AppData) =>
   d.role === "admin" ? d.subjects : d.subjects.filter((s) => s.teacherId === d.teacherId);
 export const visibleGroups = (d: AppData) => {
@@ -85,8 +153,6 @@ export const visibleProgramaciones = (d: AppData) => {
   return d.programaciones.filter((p) => ids.has(p.subjectId));
 };
 export const studentsOf = (d: AppData, groupId: string) => d.students.filter((s) => s.groupId === groupId);
-
-/* ================= cálculo de calificaciones ================= */
 
 export interface CritResult { score: number | null; grades: AppData["grades"]; }
 
@@ -164,8 +230,6 @@ export const pendingCriterios = (d: AppData, studentId: string, subjectId: strin
   });
 };
 
-/* ================= niveles ================= */
-
 export function nivelDe(score: number | null) {
   if (score === null) return { t: "Sin datos", s: "—", cls: "bg-line/60 text-ink2", hex: "#7c929b" };
   if (score < 5) return { t: "Insuficiente", s: "IN", cls: "bg-verml text-verm", hex: "#d9532c" };
@@ -180,8 +244,6 @@ export function claveNivel(score: number | null) {
   if (score < 8) return { t: "En desarrollo", cls: "bg-ambl text-amb", hex: "#c98a12" };
   return { t: "Adquirida", cls: "bg-virl text-vird", hex: "#0e7c66" };
 }
-
-/* ================= fechas y sesiones ================= */
 
 export const curso = () => cursoInfo();
 

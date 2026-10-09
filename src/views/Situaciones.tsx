@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { useApp, visibleProgramaciones, uid, fmtFecha } from "../store";
 import { getCurriculum, descriptorById, claveById } from "../data/curriculum";
 import { METODOLOGIAS, type SA, type Actividad } from "../data/seed";
-import { Ic, Reveal, SectionHead, SelChip, Modal, EmptyState, btn, btnGhost } from "../components/ui";
+import { Ic, Reveal, SectionHead, Modal, EmptyState, btn, btnGhost, btnDanger, SelChip } from "../components/ui";
 import { fmtFechaL } from "../store";
+import { useState } from "react";
 
 export default function Situaciones() {
   const { d, params, nav, set, notify } = useApp();
@@ -14,86 +14,286 @@ export default function Situaciones() {
   const [nueva, setNueva] = useState(false);
   const [progId, setProgId] = useState("");
   const [titulo, setTitulo] = useState("");
+  const [saToDelete, setSaToDelete] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [exportProgId, setExportProgId] = useState("");
 
   const crear = () => {
     if (!progId || !titulo.trim()) return;
-    const sa: SA = {
-      id: uid(), programacionId: progId, titulo: titulo.trim(), eva: 1,
-      inicio: new Date().toISOString().slice(0, 10), fin: new Date(Date.now() + 20 * 864e5).toISOString().slice(0, 10),
-      sesiones: 6, justificacion: "", reto: "", producto: "", metodologias: ["Aprendizaje basado en proyectos"],
-      agrupamientos: "Gran grupo y equipos", espacios: "Aula-taller", recursos: "", diversidad: "", evidencias: "",
-      criterios: [], objetivos: [], actividades: [], instrumentos: [],
-    };
+    const sa: SA = { id: uid(), programacionId: progId, titulo: titulo.trim(), eva: 1, inicio: new Date().toISOString().slice(0, 10), fin: new Date(Date.now() + 20 * 864e5).toISOString().slice(0, 10), sesiones: 6, justificacion: "", reto: "", producto: "", metodologias: ["Aprendizaje basado en proyectos"], agrupamientos: "Gran grupo", espacios: "Aula-taller", recursos: "", diversidad: "", evidencias: "", criterios: [], objetivos: [], actividades: [], instrumentos: [] };
     set((s) => ({ ...s, sas: [...s.sas, sa] }));
-    setNueva(false); setTitulo("");
-    notify("Situación de aprendizaje creada");
+    setNueva(false); setTitulo(""); notify("SA creada");
     nav("situaciones", { saId: sa.id });
+  };
+
+  const eliminarSA = () => {
+    if (!saToDelete) return;
+    set((s) => ({
+      ...s,
+      sas: s.sas.filter((sa) => sa.id !== saToDelete),
+      units: s.units.map((u) => ({
+        ...u,
+        saIds: u.saIds.filter((id) => id !== saToDelete)
+      }))
+    }));
+    notify("Situación de aprendizaje eliminada");
+    setSaToDelete(null);
+  };
+
+  const exportarSdA = () => {
+    if (!exportProgId) {
+      notify("Selecciona una programación");
+      return;
+    }
+    
+    const sas = d.sas.filter(s => s.programacionId === exportProgId);
+    if (sas.length === 0) {
+      notify("No hay situaciones de aprendizaje para exportar");
+      return;
+    }
+    
+    const exportData = {
+      version: "1.0",
+      exportDate: new Date().toISOString(),
+      programacionId: exportProgId,
+      programacionNombre: d.programaciones.find(p => p.id === exportProgId)?.ccalificacion || "Sin nombre",
+      asignatura: d.subjects.find(s => s.id === d.programaciones.find(p => p.id === exportProgId)?.subjectId)?.nombre || "Sin asignatura",
+      situaciones: sas
+    };
+    
+    const json = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sdas-${exportData.asignatura.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    notify(`Exportadas ${sas.length} situaciones de aprendizaje`);
+    setShowExport(false);
+    setExportProgId("");
+  };
+
+  const importarSdA = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importData = JSON.parse(content);
+        
+        // Validar estructura
+        if (!importData.version || !importData.situaciones || !Array.isArray(importData.situaciones)) {
+          notify("Formato de archivo inválido");
+          return;
+        }
+        
+        // Validar que cada SA tiene los campos requeridos
+        const validSAs = importData.situaciones.every((sa: any) => 
+          sa.titulo && sa.programacionId && sa.eva && sa.inicio && sa.fin
+        );
+        
+        if (!validSAs) {
+          notify("Alguna situación de aprendizaje tiene datos incompletos");
+          return;
+        }
+        
+        // Preguntar al usuario si quiere importar
+        const confirmar = window.confirm(
+          `Se importarán ${importData.situaciones.length} situaciones de aprendizaje.\n\n` +
+          `Asignatura: ${importData.asignatura || "Desconocida"}\n` +
+          `Fecha de exportación: ${new Date(importData.exportDate).toLocaleDateString()}\n\n` +
+          `¿Deseas continuar?`
+        );
+        
+        if (!confirmar) return;
+        
+        // Importar las SdA
+        set((s) => ({
+          ...s,
+          sas: [...s.sas, ...importData.situaciones]
+        }));
+        
+        notify(`Importadas ${importData.situaciones.length} situaciones de aprendizaje`);
+        setShowImport(false);
+        
+      } catch (error) {
+        console.error("Error al importar:", error);
+        notify("Error al leer el archivo JSON");
+      }
+    };
+    
+    reader.onerror = () => {
+      notify("Error al leer el archivo");
+    };
+    
+    reader.readAsText(file);
+    event.target.value = ""; // Reset input
   };
 
   return (
     <div>
-      <SectionHead
-        kicker="Diseño de enseñanza"
-        title="Situaciones de aprendizaje"
-        desc="Retos contextualizados con producto final, metodologías activas y todos los elementos curriculares vinculados: de la idea al cuaderno del profesor."
-        actions={<button className={btn} onClick={() => setNueva(true)}><Ic n="plus" s={15} /> Nueva situación</button>}
+      <SectionHead 
+        kicker="Diseño de enseñanza" 
+        title="Situaciones de aprendizaje" 
+        desc="Retos contextualizados con producto final y todos los elementos curriculares vinculados." 
+        actions={
+          <div className="flex gap-2">
+            <button className={btnGhost} onClick={() => setShowExport(true)}>
+              <Ic n="download" s={15} /> Exportar
+            </button>
+            <button className={btnGhost} onClick={() => setShowImport(true)}>
+              <Ic n="upload" s={15} /> Importar
+            </button>
+            <button className={btn} onClick={() => setNueva(true)}>
+              <Ic n="plus" s={15} /> Nueva situación
+            </button>
+          </div>
+        } 
       />
-
-      {progs.map((p, pi) => {
+      {progs.map((p) => {
         const sub = d.subjects.find((s) => s.id === p.subjectId);
         const sas = d.sas.filter((s) => s.programacionId === p.id);
         return (
-          <Reveal key={p.id} delay={pi * 60}>
+          <Reveal key={p.id}>
             <div className="mb-6">
               <div className="mb-2.5 flex items-center gap-2.5">
                 <span className="h-4 w-1.5 rounded-full" style={{ background: sub?.color }} />
                 <p className="font-display text-[16px] font-extrabold text-ink">{sub?.nombre} · {sub?.nivel}</p>
-                <span className="mono text-[11px] font-bold text-ink3">{sas.length} SA</span>
               </div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {sas.map((sa) => (
-                  <button key={sa.id} onClick={() => nav("situaciones", { saId: sa.id })} className="card card-h group cursor-pointer overflow-hidden text-left">
-                    <div className="flex items-center justify-between border-b border-line px-4 py-2">
-                      <span className="mono rounded bg-paper px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-widest" style={{ color: sub?.color, border: `1px solid ${sub?.color}40` }}>{sa.eva}ª evaluación</span>
-                      <span className="mono text-[11px] font-bold text-ink3">{sa.sesiones} sesiones</span>
-                    </div>
+                  <div key={sa.id} className="card card-h group relative">
                     <div className="px-4 py-3">
-                      <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors group-hover:text-vir">{sa.titulo}</p>
-                      <p className="mt-1 line-clamp-2 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
-                      <div className="mt-3 flex flex-wrap items-center gap-1">
-                        {sa.criterios.slice(0, 4).map((cId) => {
-                          const cur = getCurriculum(sub?.curriculumId ?? "epva-eso");
-                          const c = cur.ces.flatMap((ce) => ce.criterios).find((x) => x.id === cId);
-                          return <span key={cId} className="mono rounded bg-paper border border-line px-1.5 py-0.5 text-[10px] font-bold text-ink2">{c?.codigo}</span>;
-                        })}
-                        {sa.criterios.length > 4 && <span className="mono text-[10px] font-bold text-ink3">+{sa.criterios.length - 4}</span>}
-                        <span className="ml-auto mono text-[10.5px] font-bold text-ink3">{fmtFecha(sa.inicio)} → {fmtFecha(sa.fin)}</span>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <button 
+                          onClick={() => nav("situaciones", { saId: sa.id })} 
+                          className="flex-1 cursor-pointer text-left"
+                        >
+                          <p className="font-display text-[17px] font-extrabold leading-snug text-ink transition-colors hover:text-vir">{sa.titulo}</p>
+                          <p className="mt-1 text-[12.5px] leading-snug text-ink2">{sa.reto || sa.justificacion}</p>
+                        </button>
+                        <button
+                          onClick={() => setSaToDelete(sa.id)}
+                          className="flex-shrink-0 rounded-lg bg-verml p-2 text-verm transition-all hover:bg-verm hover:text-white"
+                          title="Eliminar situación de aprendizaje"
+                        >
+                          <Ic n="trash" s={16} />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="mono text-[10.5px] font-bold text-ink3">{sa.sesiones} sesiones</span>
+                        <span className="mono ml-auto text-[10.5px] font-bold text-ink3">{fmtFecha(sa.inicio)} → {fmtFecha(sa.fin)}</span>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
-                {sas.length === 0 && <div className="card px-5 py-6 text-[13px] italic text-ink3">Sin situaciones de aprendizaje todavía.</div>}
               </div>
             </div>
           </Reveal>
         );
       })}
-      {progs.length === 0 && <EmptyState icon="spark" title="Sin programaciones" desc="Crea primero una programación para diseñar sus situaciones de aprendizaje." />}
-
       <Modal open={nueva} onClose={() => setNueva(false)} title="Nueva situación de aprendizaje">
-        <label className="lbl">Programación de destino</label>
+        <label className="lbl">Programación</label>
         <select className="inp mb-3" value={progId} onChange={(e) => setProgId(e.target.value)}>
-          <option value="">— elegir programación —</option>
-          {progs.map((p) => {
-            const sub = d.subjects.find((s) => s.id === p.subjectId);
-            return <option key={p.id} value={p.id}>{sub?.nombre} · {sub?.nivel}</option>;
-          })}
+          <option value="">— elegir —</option>
+          {progs.map((p) => { const sub = d.subjects.find((s) => s.id === p.subjectId); return <option key={p.id} value={p.id}>{sub?.nombre}</option>; })}
         </select>
         <label className="lbl">Título</label>
-        <input className="inp mb-4" placeholder="p. ej. Carteles que hablan" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+        <input className="inp mb-4" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
         <div className="flex justify-end gap-2">
           <button className={btnGhost} onClick={() => setNueva(false)}>Cancelar</button>
           <button className={btn} onClick={crear}><Ic n="check" s={15} /> Crear</button>
+        </div>
+      </Modal>
+
+      <Modal open={!!saToDelete} onClose={() => setSaToDelete(null)} title="Confirmar eliminación">
+        <div className="space-y-4">
+          <p className="text-ink2">
+            ¿Estás seguro de que quieres eliminar esta situación de aprendizaje?
+          </p>
+          <p className="text-verm font-semibold">
+            ⚠️ Se eliminarán también todas las actividades, calificaciones y referencias asociadas.
+          </p>
+          <div className="flex justify-end gap-2 pt-2">
+            <button className={btnGhost} onClick={() => setSaToDelete(null)}>
+              Cancelar
+            </button>
+            <button className={btnDanger} onClick={eliminarSA}>
+              <Ic n="trash" s={14} /> Eliminar
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={showExport} onClose={() => setShowExport(false)} title="Exportar Situaciones de Aprendizaje">
+        <div className="space-y-4">
+          <p className="text-ink2">
+            Exporta todas las situaciones de aprendizaje de una programación a un archivo JSON.
+          </p>
+          <div>
+            <label className="lbl">Programación</label>
+            <select className="inp" value={exportProgId} onChange={(e) => setExportProgId(e.target.value)}>
+              <option value="">— seleccionar programación —</option>
+              {progs.map((p) => {
+                const sub = d.subjects.find((s) => s.id === p.subjectId);
+                const count = d.sas.filter(s => s.programacionId === p.id).length;
+                return (
+                  <option key={p.id} value={p.id}>
+                    {sub?.nombre} ({count} SdA)
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          {exportProgId && (
+            <div className="rounded-lg bg-virl p-3">
+              <p className="text-[12px] font-semibold text-vird">
+                Se exportarán {d.sas.filter(s => s.programacionId === exportProgId).length} situaciones de aprendizaje
+              </p>
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <button className={btnGhost} onClick={() => setShowExport(false)}>
+              Cancelar
+            </button>
+            <button className={btn} onClick={exportarSdA} disabled={!exportProgId}>
+              <Ic n="download" s={14} /> Exportar JSON
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={showImport} onClose={() => setShowImport(false)} title="Importar Situaciones de Aprendizaje">
+        <div className="space-y-4">
+          <p className="text-ink2">
+            Importa situaciones de aprendizaje desde un archivo JSON previamente exportado.
+          </p>
+          <div className="rounded-lg bg-ambl p-3">
+            <p className="text-[12px] font-semibold text-amb">
+              ⚠️ Las situaciones importadas se añadirán a las existentes
+            </p>
+          </div>
+          <div>
+            <label className="lbl">Archivo JSON</label>
+            <input
+              type="file"
+              accept=".json"
+              onChange={importarSdA}
+              className="inp"
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button className={btnGhost} onClick={() => setShowImport(false)}>
+              Cancelar
+            </button>
+          </div>
         </div>
       </Modal>
     </div>
@@ -102,10 +302,6 @@ export default function Situaciones() {
 
 /* ================= editor de SA ================= */
 
-const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div><label className="lbl">{label}</label>{children}</div>
-);
-
 function EditorSA({ sa }: { sa: SA }) {
   const { d, nav, set, notify } = useApp();
   const prog = d.programaciones.find((p) => p.id === sa.programacionId);
@@ -113,6 +309,7 @@ function EditorSA({ sa }: { sa: SA }) {
   const cur = getCurriculum(sub?.curriculumId ?? "epva-eso");
   const upd = (patch: Partial<SA>) => set((s) => ({ ...s, sas: s.sas.map((x) => (x.id === sa.id ? { ...x, ...patch } : x)) }));
   const [act, setAct] = useState<Partial<Actividad>>({ fase: "Inicio", sesion: 1 });
+  const [editingAct, setEditingAct] = useState<Actividad | null>(null);
 
   const toggleCrit = (id: string) => upd({ criterios: sa.criterios.includes(id) ? sa.criterios.filter((c) => c !== id) : [...sa.criterios, id] });
   const toggleMet = (m: string) => upd({ metodologias: sa.metodologias.includes(m) ? sa.metodologias.filter((x) => x !== m) : [...sa.metodologias, m] });
@@ -125,15 +322,15 @@ function EditorSA({ sa }: { sa: SA }) {
     notify("Actividad añadida");
   };
 
+  const updateActividad = () => {
+    if (!editingAct || !editingAct.titulo?.trim()) return;
+    upd({ actividades: sa.actividades.map((a) => (a.id === editingAct.id ? editingAct : a)) });
+    setEditingAct(null);
+    notify("Actividad actualizada");
+  };
+
   const descriptoresAuto = [...new Set(cur.ces.filter((ce) => ce.criterios.some((c) => sa.criterios.includes(c.id))).flatMap((ce) => ce.descriptorIds))];
   const saberesAuto = [...new Set(cur.ces.flatMap((ce) => ce.criterios).filter((c) => sa.criterios.includes(c.id)).flatMap((c) => c.saberIds))];
-
-  const duplicar = () => {
-    const copia: SA = { ...sa, id: uid(), titulo: sa.titulo + " (copia)", actividades: sa.actividades.map((a) => ({ ...a, id: uid() })) };
-    set((s) => ({ ...s, sas: [...s.sas, copia] }));
-    notify("Situación copiada");
-    nav("situaciones", { saId: copia.id });
-  };
 
   return (
     <div>
@@ -143,10 +340,6 @@ function EditorSA({ sa }: { sa: SA }) {
           <h1 className="font-display text-[24px] font-extrabold tracking-tight text-ink sm:text-[28px]">{sa.titulo}</h1>
           <p className="mt-1 text-[13px] text-ink2"><b style={{ color: sub?.color }}>{sub?.nombre}</b> · {sa.eva}ª evaluación · {fmtFechaL(sa.inicio)} → {fmtFechaL(sa.fin)}</p>
         </div>
-        <div className="flex gap-2">
-          <button className={btnGhost} onClick={duplicar}><Ic n="copy" s={15} /> Copiar SA</button>
-          <button className={btnGhost} onClick={() => nav("temporalizacion")}><Ic n="calendar" s={15} /> Ver en el calendario</button>
-        </div>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
@@ -154,29 +347,29 @@ function EditorSA({ sa }: { sa: SA }) {
           {/* ficha */}
           <div className="card p-4">
             <div className="grid gap-3 sm:grid-cols-4">
-              <F label="Título"><input className="inp" value={sa.titulo} onChange={(e) => upd({ titulo: e.target.value })} /></F>
-              <F label="Evaluación">
+              <div><label className="lbl">Título</label><input className="inp" value={sa.titulo} onChange={(e) => upd({ titulo: e.target.value })} /></div>
+              <div><label className="lbl">Evaluación</label>
                 <select className="inp" value={sa.eva} onChange={(e) => upd({ eva: Number(e.target.value) as 1 | 2 | 3 })}>
                   {[1, 2, 3].map((n) => <option key={n} value={n}>{n}ª evaluación</option>)}
                 </select>
-              </F>
-              <F label="Inicio"><input type="date" className="inp" value={sa.inicio} onChange={(e) => upd({ inicio: e.target.value })} /></F>
-              <F label="Final"><input type="date" className="inp" value={sa.fin} onChange={(e) => upd({ fin: e.target.value })} /></F>
+              </div>
+              <div><label className="lbl">Inicio</label><input type="date" className="inp" value={sa.inicio} onChange={(e) => upd({ inicio: e.target.value })} /></div>
+              <div><label className="lbl">Final</label><input type="date" className="inp" value={sa.fin} onChange={(e) => upd({ fin: e.target.value })} /></div>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <F label="Justificación"><textarea rows={3} className="inp" value={sa.justificacion} onChange={(e) => upd({ justificacion: e.target.value })} /></F>
-              <F label="Contexto o reto"><textarea rows={3} className="inp" value={sa.reto} onChange={(e) => upd({ reto: e.target.value })} /></F>
-              <F label="Producto final"><textarea rows={2} className="inp" value={sa.producto} onChange={(e) => upd({ producto: e.target.value })} /></F>
-              <F label="Sesiones previstas"><input type="number" min={1} className="inp" value={sa.sesiones} onChange={(e) => upd({ sesiones: Number(e.target.value) || 1 })} /></F>
+              <div><label className="lbl">Justificación</label><textarea rows={3} className="inp" value={sa.justificacion} onChange={(e) => upd({ justificacion: e.target.value })} /></div>
+              <div><label className="lbl">Contexto o reto</label><textarea rows={3} className="inp" value={sa.reto} onChange={(e) => upd({ reto: e.target.value })} /></div>
+              <div><label className="lbl">Producto final</label><textarea rows={2} className="inp" value={sa.producto} onChange={(e) => upd({ producto: e.target.value })} /></div>
+              <div><label className="lbl">Sesiones previstas</label><input type="number" min={1} className="inp" value={sa.sesiones} onChange={(e) => upd({ sesiones: Number(e.target.value) || 1 })} /></div>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <F label="Agrupamientos"><input className="inp" value={sa.agrupamientos} onChange={(e) => upd({ agrupamientos: e.target.value })} /></F>
-              <F label="Espacios"><input className="inp" value={sa.espacios} onChange={(e) => upd({ espacios: e.target.value })} /></F>
-              <F label="Recursos"><textarea rows={2} className="inp" value={sa.recursos} onChange={(e) => upd({ recursos: e.target.value })} /></F>
-              <F label="Medidas de atención a la diversidad"><textarea rows={2} className="inp" value={sa.diversidad} onChange={(e) => upd({ diversidad: e.target.value })} /></F>
+              <div><label className="lbl">Agrupamientos</label><input className="inp" value={sa.agrupamientos} onChange={(e) => upd({ agrupamientos: e.target.value })} /></div>
+              <div><label className="lbl">Espacios</label><input className="inp" value={sa.espacios} onChange={(e) => upd({ espacios: e.target.value })} /></div>
+              <div><label className="lbl">Recursos</label><textarea rows={2} className="inp" value={sa.recursos} onChange={(e) => upd({ recursos: e.target.value })} /></div>
+              <div><label className="lbl">Atención a la diversidad</label><textarea rows={2} className="inp" value={sa.diversidad} onChange={(e) => upd({ diversidad: e.target.value })} /></div>
             </div>
             <div className="mt-3">
-              <F label="Evidencias de aprendizaje"><textarea rows={2} className="inp" value={sa.evidencias} onChange={(e) => upd({ evidencias: e.target.value })} /></F>
+              <label className="lbl">Evidencias de aprendizaje</label><textarea rows={2} className="inp" value={sa.evidencias} onChange={(e) => upd({ evidencias: e.target.value })} />
             </div>
           </div>
 
@@ -315,6 +508,7 @@ function EditorSA({ sa }: { sa: SA }) {
                       </label>
                     </div>
                   </div>
+                  <button onClick={() => setEditingAct(a)} className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-azul hover:text-azu" title="Editar actividad"><Ic n="edit" s={15} /></button>
                   <button onClick={() => upd({ actividades: sa.actividades.filter((x) => x.id !== a.id) })} className="cursor-pointer rounded-md p-1.5 text-ink3 transition hover:bg-verml hover:text-verm" title="Eliminar actividad"><Ic n="trash" s={15} /></button>
                 </div>
               ))}
@@ -362,19 +556,6 @@ function EditorSA({ sa }: { sa: SA }) {
             </div>
           </div>
           <div className="card p-4">
-            <p className="lbl">Objetivos didácticos</p>
-            <div className="space-y-1.5">
-              {sa.objetivos.map((o, i) => (
-                <div key={i} className="flex items-start gap-2 rounded-lg border border-line bg-paper px-2.5 py-2">
-                  <span className="mono mt-0.5 text-[10px] font-extrabold text-vir">O{i + 1}</span>
-                  <p className="flex-1 text-[12px] leading-snug text-ink">{o}</p>
-                  <button className="cursor-pointer text-ink3 hover:text-verm" onClick={() => upd({ objetivos: sa.objetivos.filter((_, x) => x !== i) })}><Ic n="x" s={13} /></button>
-                </div>
-              ))}
-              <ObjetivoAdd onAdd={(t) => upd({ objetivos: [...sa.objetivos, t] })} />
-            </div>
-          </div>
-          <div className="card p-4">
             <p className="lbl">Resumen curricular</p>
             <div className="grid grid-cols-3 gap-2 text-center">
               {[
@@ -391,16 +572,79 @@ function EditorSA({ sa }: { sa: SA }) {
           </div>
         </aside>
       </div>
-    </div>
-  );
-}
 
-function ObjetivoAdd({ onAdd }: { onAdd: (t: string) => void }) {
-  const [v, setV] = useState("");
-  return (
-    <div className="flex gap-1.5">
-      <input className="inp !py-1.5 text-[12px]" placeholder="Nuevo objetivo…" value={v} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && v.trim()) { onAdd(v.trim()); setV(""); } }} />
-      <button className="rounded-lg bg-ink px-3 text-paper cursor-pointer hover:bg-night transition" onClick={() => { if (v.trim()) { onAdd(v.trim()); setV(""); } }}><Ic n="plus" s={14} /></button>
+      {/* Modal de edición de actividad */}
+      <Modal open={!!editingAct} onClose={() => setEditingAct(null)} title="Editar actividad">
+        {editingAct && (
+          <div className="space-y-4">
+            <div>
+              <label className="lbl">Título</label>
+              <input
+                className="inp"
+                value={editingAct.titulo}
+                onChange={(e) => setEditingAct({ ...editingAct, titulo: e.target.value })}
+                placeholder="Título de la actividad"
+              />
+            </div>
+            <div>
+              <label className="lbl">Descripción</label>
+              <textarea
+                rows={3}
+                className="inp"
+                value={editingAct.desc}
+                onChange={(e) => setEditingAct({ ...editingAct, desc: e.target.value })}
+                placeholder="Descripción de la actividad"
+              />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="lbl">Fase</label>
+                <select
+                  className="inp"
+                  value={editingAct.fase}
+                  onChange={(e) => setEditingAct({ ...editingAct, fase: e.target.value as Actividad["fase"] })}
+                >
+                  {["Inicio", "Desarrollo", "Cierre"].map((f) => <option key={f}>{f}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="lbl">Sesión</label>
+                <input
+                  type="number"
+                  min={1}
+                  className="inp"
+                  value={editingAct.sesion}
+                  onChange={(e) => setEditingAct({ ...editingAct, sesion: Number(e.target.value) })}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="lbl">Criterios de evaluación</label>
+              <div className="flex flex-wrap gap-1.5">
+                {sa.criterios.map((cId) => {
+                  const c = cur.ces.flatMap((ce) => ce.criterios).find((x) => x.id === cId);
+                  const on = editingAct.criterioIds.includes(cId);
+                  return (
+                    <SelChip
+                      key={cId}
+                      active={on}
+                      onClick={() => setEditingAct({ ...editingAct, criterioIds: on ? editingAct.criterioIds.filter((x) => x !== cId) : [...editingAct.criterioIds, cId] })}
+                      color={sub?.color}
+                    >
+                      {c?.codigo}
+                    </SelChip>
+                  );
+                })}
+                {sa.criterios.length === 0 && <span className="text-[11.5px] italic text-ink3">No hay criterios seleccionados en la SA</span>}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className={btnGhost} onClick={() => setEditingAct(null)}>Cancelar</button>
+              <button className={btn} onClick={updateActividad}><Ic n="check" s={15} /> Guardar cambios</button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

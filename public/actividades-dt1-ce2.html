@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>SA DT1 CE2 - 14 Actividades de Aprendizaje</title>
+<style>
+  @page { size: A4; margin: 15mm 18mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Instrument Sans", "Segoe UI", Arial, sans-serif;
+    color: #13252c;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+  .page {
+    page-break-after: always;
+    min-height: 277mm;
+    padding: 15mm 18mm;
+    position: relative;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* Cabecera */
+  .header {
+    border-bottom: 3px solid #0e7c66;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header-left h1 {
+    font-family: "Bricolage Grotesque", "Arial Black", sans-serif;
+    font-size: 18pt;
+    margin: 0 0 2px;
+    color: #0e7c66;
+    font-weight: 800;
+  }
+  .header-left .subtitle {
+    font-size: 10pt;
+    color: #47606b;
+    margin: 0;
+    font-style: italic;
+  }
+  .header-right {
+    text-align: right;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8pt;
+    color: #47606b;
+    line-height: 1.6;
+  }
+
+  /* Ficha técnica */
+  .info-box {
+    background: #f2f4ef;
+    border: 1px solid #d9e0d5;
+    border-left: 4px solid #0e7c66;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    border-radius: 4px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+  }
+  .info-item { font-size: 10pt; }
+  .info-item b {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #47606b;
+    display: block;
+    margin-bottom: 1px;
+  }
+
+  /* Secciones */
+  h2 {
+    font-size: 13pt;
+    color: #0e7c66;
+    border-bottom: 1.5px solid #d9e0d5;
+    padding-bottom: 4px;
+    margin: 14px 0 8px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 11pt;
+    color: #2c6e8f;
+    margin: 10px 0 5px;
+    font-weight: 700;
+  }
+
+  /* Descripción y objetivos */
+  .desc {
+    background: #fff;
+    padding: 8px 12px;
+    border-left: 3px solid #c98a12;
+    margin-bottom: 10px;
+    font-size: 10.5pt;
+    font-style: italic;
+    color: #47606b;
+  }
+
+  /* Lista de ejercicios */
+  .ejercicios {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .ejercicios li {
+    padding: 8px 10px 8px 34px;
+    margin-bottom: 6px;
+    background: #fbfcf9;
+    border: 1px solid #e5e8e3;
+    border-radius: 4px;
+    position: relative;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+  .ejercicios li::before {
+    content: counter(ej) ".";
+    counter-increment: ej;
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    color: #0e7c66;
+    font-size: 10pt;
+  }
+  .ejercicios { counter-reset: ej; }
+
+  /* Sub-apartados dentro de ejercicios */
+  .ej-apart {
+    margin: 4px 0 0 0;
+    padding-left: 12px;
+    border-left: 2px solid #e5e8e3;
+  }
+  .ej-apart p {
+    margin: 2px 0;
+    font-size: 10pt;
+  }
+  .ej-apart .dato {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5pt;
+    color: #0e7c66;
+    font-weight: 600;
+  }
+
+  /* Tabla de calificación */
+  table.calif {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 10pt;
+  }
+  table.calif th {
+    background: #0e7c66;
+    color: white;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  table.calif td {
+    border: 1px solid #d9e0d5;
+    padding: 5px 8px;
+  }
+  table.calif tr:nth-child(even) td { background: #fbfcf9; }
+
+  /* Cajas de datos */
+  .dato-box {
+    background: #e0ecf2;
+    border: 1px solid #2c6e8f;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-size: 10pt;
+  }
+  .dato-box b { color: #2c6e8f; }
+
+  /* Examen */
+  .examen-header {
+    background: #d9532c;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .examen-header h2 {
+    color: white;
+    border: none;
+    margin: 0 0 4px;
+    padding: 0;
+    font-size: 14pt;
+  }
+  .examen-header p { margin: 2px 0; font-size: 10pt; }
+
+  .problema {
+    background: #f9e6de;
+    border-left: 4px solid #d9532c;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+    page-break-inside: avoid;
+  }
+  .problema .num {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 800;
+    color: #d9532c;
+    font-size: 11pt;
+    margin-right: 6px;
+  }
+  .problema .pct {
+    float: right;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9pt;
+    background: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #d9532c;
+    font-weight: 700;
+  }
+
+  /* Salida de campo */
+  .campo-box {
+    background: #f7ecd4;
+    border: 1px solid #c98a12;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 10px 0;
+  }
+  .campo-box h3 { color: #c98a12; margin-top: 0; }
+
+  /* Pie de página */
+  .footer {
+    position: absolute;
+    bottom: 8mm;
+    left: 18mm;
+    right: 18mm;
+    border-top: 1px solid #d9e0d5;
+    padding-top: 4px;
+    display: flex;
+    justify-content: space-between;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8pt;
+    color: #7c929b;
+  }
+
+  /* Rúbrica */
+  .rubrica {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 9.5pt;
+  }
+  .rubrica th {
+    background: #2c6e8f;
+    color: white;
+    padding: 5px 6px;
+    text-align: center;
+    font-size: 8.5pt;
+  }
+  .rubrica td {
+    border: 1px solid #d9e0d5;
+    padding: 5px 6px;
+    vertical-align: top;
+  }
+  .rubrica td:first-child {
+    background: #e0ecf2;
+    font-weight: 700;
+    width: 18%;
+  }
+
+  /* Botón imprimir */
+  .print-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #0e7c66;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(14, 124, 102, 0.3);
+    z-index: 1000;
+  }
+  .print-btn:hover { background: #0a5f4e; }
+  @media print { .print-btn { display: none; } }
+
+  /* Portada */
+  .portada {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 277mm;
+    padding: 20mm;
+  }
+  .portada .logo {
+    width: 100px;
+    height: 100px;
+    background: #0e7c66;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 24px rgba(14, 124, 102, 0.3);
+  }
+  .portada h1 {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 32pt;
+    color: #0e7c66;
+    margin: 0 0 10px;
+    font-weight: 800;
+  }
+  .portada h2 {
+    font-size: 16pt;
+    color: #13252c;
+    border: none;
+    margin: 0 0 30px;
+    font-weight: 600;
+  }
+  .portada .meta {
+    font-size: 11pt;
+    color: #47606b;
+    line-height: 2;
+    margin-top: 40px;
+    border-top: 2px solid #d9e0d5;
+    padding-top: 20px;
+  }
+  .portada .meta b { color: #0e7c66; }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+
+<!-- ============ PORTADA ============ -->
+<div class="page portada">
+  <div class="logo">
+    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+      <path d="M4 20 L12 4 L20 20"/>
+      <path d="M8.2 13.5h7.6"/>
+      <circle cx="12" cy="4" r="1.4" fill="white" stroke="none"/>
+    </svg>
+  </div>
+  <h1>TRAZO</h1>
+  <h2>Situación de Aprendizaje · Dibujo Técnico I<br>Competencia Específica 2</h2>
+  <p style="font-size: 14pt; color: #d9532c; font-weight: 700; margin: 10px 0;">
+    "Geometría que construye:<br>del románico cántabro a la geometría plana"
+  </p>
+  <div class="meta">
+    <p><b>Materia:</b> Dibujo Técnico I · 1º Bachillerato</p>
+    <p><b>Centro:</b> IES Lope de Vega · Santa María de Cayón (Cantabria)</p>
+    <p><b>Curso académico:</b> 2025-26</p>
+    <p><b>Temporalización:</b> 18 sesiones · 1ª evaluación</p>
+    <p><b>Departamento:</b> Dibujo</p>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 1 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 1 · Lugares geométricos</h1>
+      <p class="subtitle">La recta como frontera · Sesión 2</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.1<br>
+      FASE: INICIO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual con corrección entre pares</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás, regla, escuadra, cartabón, papel A3</div>
+      <div class="info-item"><b>Material</b>Lápices HB/2H, goma, estilógrafo 0.2 mm</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Ejercicios de lugares geométricos fundamentales: mediatriz, bisectriz, arco capaz. Resolución gráfica de problemas de distancias y ángulos. Aplicación a la determinación de centros de arcos en portadas románicas.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Mediatriz de un segmento.</b> Dado el segmento AB = 70 mm, traza su mediatriz. Obtén tres puntos equidistantes de A y B a una distancia de 45 mm.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> AB = 70 mm · distancia = 45 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Bisectriz de un ángulo.</b> Construye la bisectriz del ángulo de 72° formado por dos rectas que se cortan en O. Comprueba gráficamente la igualdad de los dos ángulos resultantes.
+    </li>
+    <li>
+      <b>Bisectriz de un ángulo cuyo vértice no está en el dibujo.</b> Dadas dos rectas r y s que se cortan fuera del formato, traza la bisectriz del ángulo que forman sin salir del papel.
+    </li>
+    <li>
+      <b>Arco capaz.</b> Dado el segmento AB = 60 mm, construye el arco capaz de un ángulo de 60° sobre dicho segmento. Sitúa sobre el arco tres puntos desde los cuales se ve el segmento AB bajo un ángulo de 60°.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> AB = 60 mm · ángulo = 60°</p>
+      </div>
+    </li>
+    <li>
+      <b>Arco capaz de 45°.</b> Repite el ejercicio anterior para un ángulo de 45° sobre un segmento de 80 mm.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> AB = 80 mm · ángulo = 45°</p>
+      </div>
+    </li>
+    <li>
+      <b>Lugar geométrico compuesto.</b> Halla el lugar geométrico de los puntos que equidistan 30 mm de una recta r y 25 mm de un punto P situado a 40 mm de r.
+    </li>
+    <li>
+      <b>Aplicación al románico: determinación del centro de un arco.</b> A partir de tres puntos A, B, C tomados sobre un arco de medio punto de una portada románica (AB = 55 mm, BC = 55 mm, altura del arco = 30 mm), determina gráficamente el centro y el radio del arco.
+      <div class="ej-apart">
+        <p><span class="dato">Aplicación:</span> Portada de Santa María de Bareyo</p>
+      </div>
+    </li>
+    <li>
+      <b>Problema de aplicación.</b> Se quiere situar una fuente equidistante de tres árboles A, B y C situados en un jardín. Determina gráficamente la posición de la fuente (circuncentro del triángulo ABC).
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> AB = 70 mm · BC = 60 mm · AC = 55 mm</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 1 · Página 1/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 2 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 2 · Proporcionalidad y semejanza</h1>
+      <p class="subtitle">Gráfica · Sesión 4</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.1<br>
+      FASE: INICIO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás, regla graduada, papel A3</div>
+      <div class="info-item"><b>Material</b>Lápices HB/2H, goma, estilógrafos</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Tercera proporcional, cuarta proporcional, media proporcional. División áurea de un segmento. Escalas gráficas. Ejercicios de transformación de figuras por semejanza. Aplicación: escalas de las plantas del románico.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Tercera proporcional.</b> Dados los segmentos a = 40 mm y b = 60 mm, obtén gráficamente el segmento x tal que a/b = b/x.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> a = 40 mm · b = 60 mm · hallar x</p>
+        <p><span class="dato">Resultado esperado:</span> x = 90 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Cuarta proporcional.</b> Dados tres segmentos a = 30 mm, b = 50 mm y c = 40 mm, halla gráficamente el segmento x tal que a/b = c/x.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> a = 30 mm · b = 50 mm · c = 40 mm</p>
+        <p><span class="dato">Resultado esperado:</span> x = 66,7 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Media proporcional.</b> Dados los segmentos a = 36 mm y b = 64 mm, construye gráficamente el segmento x tal que a/x = x/b (media proporcional o raíz cuadrada gráfica de a·b).
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> a = 36 mm · b = 64 mm</p>
+        <p><span class="dato">Resultado esperado:</span> x = 48 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Media proporcional (segundo método).</b> Resuelve el ejercicio anterior utilizando el teorema del producto de la altura en un triángulo rectángulo (método de la semicircunferencia).
+    </li>
+    <li>
+      <b>División áurea de un segmento.</b> Divide áureamente un segmento AB = 100 mm. Obtén la sección áurea (mayor segmento) y comprueba que se cumple la proporción áurea.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> AB = 100 mm</p>
+        <p><span class="dato">Resultado esperado:</span> sección áurea ≈ 61,8 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Rectángulo áureo.</b> A partir de un segmento de 80 mm, construye un rectángulo áureo (cuyos lados estén en proporción áurea).
+    </li>
+    <li>
+      <b>Escala gráfica 1:50.</b> Construye una escala gráfica de 1:50 que permita medir directamente hasta 5 metros, con subdivisiones de 1 metro y 0,5 metros.
+    </li>
+    <li>
+      <b>Escala gráfica 1:100.</b> Construye una escala gráfica de 1:100 que permita medir hasta 10 metros con subdivisiones de 1 metro.
+    </li>
+    <li>
+      <b>Semejanza de figuras.</b> Dado un triángulo de lados 60, 50 y 45 mm, construye otro triángulo semejante con razón de semejanza k = 1,5.
+      <div class="ej-apart">
+        <p><span class="dato">Resultado esperado:</span> lados de 90, 75 y 67,5 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Aplicación al románico.</b> A partir del croquis de la planta de una iglesia románica (rectángulo de 50 × 30 mm), amplía la planta a escala 1:100 mediante el método de la rejilla o de radios desde un centro de semejanza.
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 2 · Página 2/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 3 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 3 · Equivalencia de figuras planas</h1>
+      <p class="subtitle">Sesión 6</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.1<br>
+      FASE: DESARROLLO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás, regla, escuadra, cartabón</div>
+      <div class="info-item"><b>Material</b>Papel A3, lápices HB/2H, goma</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Transformación de polígonos en triángulos de igual área. Transformación de un polígono en otro equivalente con un lado dado. Teorema de Pitágoras gráfico. Ejercicios progresivos de dificultad creciente.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Triángulo equivalente a un cuadrilátero.</b> Transforma el cuadrilátero ABCD en un triángulo equivalente con base sobre el lado AB.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> ABCD con AB = 70 mm, BC = 50 mm, CD = 60 mm, DA = 55 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Pentágono equivalente a un triángulo.</b> Transforma el pentágono ABCDE en un triángulo equivalente conservando como base el lado AB.
+      <div class="ej-apart">
+        <p><span class="dato">Procedimiento:</span> reducir el número de lados uno a uno trazando paralelas a las diagonales.</p>
+      </div>
+    </li>
+    <li>
+      <b>Hexágono equivalente a un triángulo.</b> Transforma un hexágono regular de lado 30 mm en un triángulo equivalente.
+    </li>
+    <li>
+      <b>Cuadrado equivalente a un rectángulo.</b> Dado un rectángulo de 80 × 45 mm, construye un cuadrado de igual área.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> rectángulo 80 × 45 mm</p>
+        <p><span class="dato">Resultado esperado:</span> lado del cuadrado ≈ 60 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Triángulo equivalente con un lado dado.</b> Transforma un triángulo de base 60 mm y altura 40 mm en otro triángulo equivalente con base de 80 mm.
+      <div class="ej-apart">
+        <p><span class="dato">Resultado esperado:</span> nueva altura = 30 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Polígono equivalente con lado dado.</b> Transforma un pentágono en otro pentágono equivalente con un lado que mida el doble del original.
+    </li>
+    <li>
+      <b>Teorema de Pitágoras gráfico.</b> Dados dos segmentos a = 30 mm y b = 40 mm, construye gráficamente el segmento c (hipotenusa) tal que c² = a² + b². Comprueba que c = 50 mm.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> a = 30 mm · b = 40 mm</p>
+        <p><span class="dato">Resultado esperado:</span> c = 50 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Suma gráfica de cuadrados.</b> Construye un cuadrado cuya área sea igual a la suma de las áreas de tres cuadrados dados de lados 20, 30 y 40 mm.
+    </li>
+    <li>
+      <b>Aplicación al románico.</b> Simplifica la planta de una iglesia románica (polígono de 7 lados) en un rectángulo de igual área, manteniendo la orientación original.
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 3 · Página 3/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 4 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 4 · Triángulos</h1>
+      <p class="subtitle">Construcciones fundamentales · Sesión 8</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.2<br>
+      FASE: DESARROLLO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual con corrección entre pares</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás, regla, escuadra, cartabón</div>
+      <div class="info-item"><b>Material</b>Papel A3, lápices HB/2H/4H, goma, estilógrafo</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Construcción de triángulos conocidos sus elementos (lados, ángulos, alturas, mediana). Triángulos inscritos y circunscritos. Ejercicios de precisión con corrección entre pares.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Triángulo conocidos los tres lados.</b> Construye un triángulo cuyos lados midan a = 65 mm, b = 55 mm y c = 45 mm.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> a = 65 mm · b = 55 mm · c = 45 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Triángulo conocidos dos lados y el ángulo comprendido.</b> Construye un triángulo con lados a = 60 mm, b = 50 mm y ángulo C = 65° comprendido entre ellos.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> a = 60 mm · b = 50 mm · C = 65°</p>
+      </div>
+    </li>
+    <li>
+      <b>Triángulo conocidos un lado y dos ángulos.</b> Construye un triángulo con lado a = 70 mm, ángulo B = 50° y ángulo C = 70°.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> a = 70 mm · B = 50° · C = 70° · (A = 60°)</p>
+      </div>
+    </li>
+    <li>
+      <b>Triángulo rectángulo conocida la hipotenusa y un cateto.</b> Construye un triángulo rectángulo con hipotenusa h = 75 mm y cateto a = 45 mm.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> h = 75 mm · a = 45 mm</p>
+        <p><span class="dato">Resultado esperado:</span> cateto b ≈ 60 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Triángulo rectángulo conocida la hipotenusa y un ángulo.</b> Construye un triángulo rectángulo con hipotenusa h = 80 mm y ángulo agudo A = 35°.
+    </li>
+    <li>
+      <b>Triángulo isósceles conocida la altura y el lado desigual.</b> Construye un triángulo isósceles con lado desigual b = 50 mm y altura h = 65 mm.
+    </li>
+    <li>
+      <b>Triángulo conocida la base, la altura y el ángulo opuesto.</b> Construye un triángulo con base b = 60 mm, altura h = 45 mm y ángulo opuesto A = 70°.
+      <div class="ej-apart">
+        <p><span class="dato">Método:</span> utilizar arco capaz sobre la base.</p>
+      </div>
+    </li>
+    <li>
+      <b>Triángulo inscritos: triángulo inscrito en un círculo.</b> Inscribe en un círculo de radio R = 40 mm un triángulo sabiendo que uno de sus lados mide 55 mm y el ángulo opuesto es de 60°.
+    </li>
+    <li>
+      <b>Triángulo circunscrito a un círculo.</b> Construye un triángulo circunscrito a un círculo de radio r = 25 mm, sabiendo que uno de sus lados es tangente en un punto T dado.
+    </li>
+    <li>
+      <b>Corrección entre pares.</b> Intercambia tu lámina con un compañero y evalúa la precisión de sus trazados utilizando la rúbrica de precisión.
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 4 · Página 4/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 5 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 5 · Polígonos regulares</h1>
+      <p class="subtitle">Métodos de trazado · Sesión 10</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.2<br>
+      FASE: DESARROLLO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás de precisión, regla, papel A3</div>
+      <div class="info-item"><b>Material</b>Lápices HB/2H, goma, estilógrafos 0.2/0.4</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Construcción de polígonos regulares conocidos el radio (triángulo, cuadrado, hexágono, octógono, pentágono, heptágono, decágono). Método general de Bion. Polígonos estrellados. Relación con los rosetones románicos.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Triángulo equilátero inscrito.</b> Inscribe un triángulo equilátero en un círculo de radio R = 40 mm. Calcula el lado del triángulo.
+      <div class="ej-apart">
+        <p><span class="dato">Resultado esperado:</span> lado ≈ 69,3 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Cuadrado inscrito.</b> Inscribe un cuadrado en un círculo de radio R = 35 mm.
+    </li>
+    <li>
+      <b>Hexágono regular inscrito.</b> Inscribe un hexágono regular en un círculo de radio R = 40 mm. Demuestra gráficamente que el lado del hexágono es igual al radio.
+    </li>
+    <li>
+      <b>Octógono regular inscrito.</b> Inscribe un octógono regular en un círculo de radio R = 45 mm.
+    </li>
+    <li>
+      <b>Pentágono regular inscrito (método de Ptolomeo).</b> Inscribe un pentágono regular en un círculo de radio R = 40 mm aplicando el método clásico de Ptolomeo.
+    </li>
+    <li>
+      <b>Heptágono regular (método aproximado).</b> Inscribe un heptágono regular en un círculo de radio R = 40 mm mediante un método aproximado. Compara el resultado con el valor teórico.
+    </li>
+    <li>
+      <b>Decágono regular.</b> Inscribe un decágono regular en un círculo de radio R = 50 mm. Relaciona el lado del decágono con la sección áurea del radio.
+    </li>
+    <li>
+      <b>Método general de Bion.</b> Construye un polígono regular de 11 lados inscrito en un círculo de radio R = 45 mm aplicando el método general de Bion.
+    </li>
+    <li>
+      <b>Estrella de 5 puntas (pentágono estrellado {5/2}).</b> A partir del pentágono regular del ejercicio 5, traza la estrella de cinco puntas uniendo los vértices de dos en dos.
+    </li>
+    <li>
+      <b>Estrella de 8 puntas (octógono estrellado {8/3}).</b> Traza la estrella de ocho puntas a partir del octógono regular.
+    </li>
+    <li>
+      <b>Rosetón románico.</b> Analiza la fotografía de un rosetón románico e identifica los polígonos regulares y estrellados que lo componen. Reproduce uno de ellos a escala 1:2 en formato A3.
+      <div class="ej-apart">
+        <p><span class="dato">Referencia:</span> Rosetón de la iglesia de San Martín de Elines (Valderredible)</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 5 · Página 5/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 6 - EXAMEN 1 ============ -->
+<div class="page">
+  <div class="examen-header">
+    <h2>EXAMEN 1 · Proporcionalidad, equivalencia y polígonos</h2>
+    <p><b>DT1 · CE2 · Criterios 2.1 y 2.2</b> · Sesión 11 · Duración: 90 minutos · Sin consulta</p>
+  </div>
+
+  <div class="dato-box">
+    <b>Nombre del alumno/a:</b> ________________________________________ &nbsp;&nbsp;&nbsp; <b>Fecha:</b> ___/___/______<br>
+    <b>Grupo:</b> ____________ &nbsp;&nbsp;&nbsp; <b>Calificación:</b> _________ / 10
+  </div>
+
+  <h2>Instrucciones</h2>
+  <p style="font-size: 10pt;">
+    Resuelve los cuatro problemas en las láminas proporcionadas. Se valorará la <b>precisión de los trazados</b> (40%), la <b>limpieza y presentación</b> (20%), la <b>justificación de los procedimientos</b> (20%) y la <b>resolución correcta</b> (20%). Deja visibles las construcciones auxiliares.
+  </p>
+
+  <div class="problema">
+    <span class="pct">25%</span>
+    <p><span class="num">Problema 1.</span> <b>Proporcionalidad.</b> Dados los segmentos a = 40 mm y b = 60 mm:</p>
+    <div class="ej-apart">
+      <p>a) Construye la <b>tercera proporcional</b> de a y b.</p>
+      <p>b) Construye la <b>media proporcional</b> entre a y b.</p>
+      <p>c) Indica los valores numéricos obtenidos y justifica gráficamente cada construcción indicando el teorema aplicado.</p>
+    </div>
+  </div>
+
+  <div class="problema">
+    <span class="pct">25%</span>
+    <p><span class="num">Problema 2.</span> <b>Equivalencia.</b> Dado el pentágono ABCDE de la figura:</p>
+    <div class="ej-apart">
+      <p>a) Transforma el pentágono en un <b>triángulo equivalente</b> con base sobre el lado AB.</p>
+      <p>b) Muestra todos los pasos constructivos dejando visibles las paralelas trazadas.</p>
+      <p>c) Justifica por qué el triángulo obtenido es equivalente al pentágono (mismas áreas).</p>
+    </div>
+  </div>
+
+  <div class="problema">
+    <span class="pct">25%</span>
+    <p><span class="num">Problema 3.</span> <b>Polígono regular.</b> Construye un <b>pentágono regular</b> inscrito en un círculo de radio R = 35 mm.</p>
+    <div class="ej-apart">
+      <p>a) Indica el método utilizado (Ptolomeo, Rychner u otro).</p>
+      <p>b) Calcula el valor del lado del pentágono y compruébalo midiendo.</p>
+      <p>c) Traza la <b>estrella de 5 puntas</b> (pentágono estrellado {5/2}) a partir del pentágono construido.</p>
+    </div>
+  </div>
+
+  <div class="problema">
+    <span class="pct">25%</span>
+    <p><span class="num">Problema 4.</span> <b>Polígono estrellado.</b> Traza una <b>estrella de 12 puntas</b> inscrita en un círculo de radio R = 45 mm.</p>
+    <div class="ej-apart">
+      <p>a) Construye primero el dodecágono regular (12 lados).</p>
+      <p>b) Indica el ángulo central del dodecágono: _________</p>
+      <p>c) Traza al menos dos polígonos estrellados diferentes a partir del dodecágono (indica sus símbolos {12/n}).</p>
+    </div>
+  </div>
+
+  <h3>Rúbrica de calificación</h3>
+  <table class="rubrica">
+    <tr>
+      <th>Criterio</th>
+      <th>Excelente (9-10)</th>
+      <th>Notable (7-8,9)</th>
+      <th>Suficiente (5-6,9)</th>
+      <th>Insuficiente (&lt;5)</th>
+    </tr>
+    <tr>
+      <td>Precisión (40%)</td>
+      <td>Trazados exactos, sin errores apreciables</td>
+      <td>Pequeños errores (&lt;1 mm)</td>
+      <td>Errores moderados (1-3 mm)</td>
+      <td>Errores graves (&gt;3 mm)</td>
+    </tr>
+    <tr>
+      <td>Limpieza (20%)</td>
+      <td>Presentación impecable</td>
+      <td>Limpia con pequeñas marcas</td>
+      <td>Algunas manchas o borrones</td>
+      <td>Sucia o desordenada</td>
+    </tr>
+    <tr>
+      <td>Justificación (20%)</td>
+      <td>Completa y rigurosa</td>
+      <td>Correcta pero incompleta</td>
+      <td>Parcial o confusa</td>
+      <td>Ausente</td>
+    </tr>
+    <tr>
+      <td>Resolución (20%)</td>
+      <td>Los 4 problemas correctos</td>
+      <td>3 problemas correctos</td>
+      <td>2 problemas correctos</td>
+      <td>Menos de 2 correctos</td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 6 · EXAMEN 1 · Página 6/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 7 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 7 · Tangencias básicas</h1>
+      <p class="subtitle">Recta-circunferencia · Sesión 12</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.3<br>
+      FASE: DESARROLLO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás, regla, escuadra, cartabón</div>
+      <div class="info-item"><b>Material</b>Papel A3, lápices HB/2H, goma, estilógrafos</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Recta tangente a una circunferencia por un punto. Circunferencias tangentes entre sí (exterior, interior). Ángulo de tangencia. Ejercicios de enlace de rectas con circunferencias. Aplicación: trazado de arquivoltas.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Recta tangente en un punto de la circunferencia.</b> Dada una circunferencia de radio R = 30 mm y un punto P sobre ella, traza la recta tangente a la circunferencia en P.
+      <div class="ej-apart">
+        <p><span class="dato">Fundamento:</span> la tangente es perpendicular al radio en el punto de tangencia.</p>
+      </div>
+    </li>
+    <li>
+      <b>Rectas tangentes desde un punto exterior.</b> Dada una circunferencia de radio R = 25 mm y un punto P exterior situado a 60 mm del centro, traza las dos rectas tangentes a la circunferencia que pasan por P.
+      <div class="ej-apart">
+        <p><span class="dato">Método:</span> arco capaz de 90° sobre el segmento CP.</p>
+      </div>
+    </li>
+    <li>
+      <b>Circunferencias tangentes exteriores.</b> Dadas dos circunferencias de radios R₁ = 25 mm y R₂ = 35 mm con centros separados 80 mm, determina los puntos de tangencia y comprueba que la distancia entre centros es igual a R₁ + R₂.
+    </li>
+    <li>
+      <b>Circunferencias tangentes interiores.</b> Dadas dos circunferencias de radios R₁ = 40 mm y R₂ = 20 mm con centros separados 20 mm, determina el punto de tangencia interior.
+    </li>
+    <li>
+      <b>Circunferencia tangente a una recta en un punto y que pasa por otro.</b> Dada una recta r y un punto T sobre ella, traza la circunferencia tangente a r en T que pase por un punto P situado a 35 mm de T.
+    </li>
+    <li>
+      <b>Circunferencia tangente a dos rectas que se cortan.</b> Dadas dos rectas r y s que forman un ángulo de 70°, traza la circunferencia tangente a ambas con radio R = 25 mm.
+      <div class="ej-apart">
+        <p><span class="dato">Método:</span> el centro está en la bisectriz del ángulo.</p>
+      </div>
+    </li>
+    <li>
+      <b>Circunferencias tangentes a una recta en un punto dado.</b> Traza las circunferencias de radio R = 30 mm tangentes a una recta r en un punto T dado. ¿Cuántas soluciones hay?
+    </li>
+    <li>
+      <b>Aplicación al románico: arquivoltas.</b> Traza un conjunto de 5 arquivoltas concéntricas (arcos de medio punto) con centros en la misma recta y radios que aumenten 8 mm entre sí, simulando la decoración de una portada románica.
+      <div class="ej-apart">
+        <p><span class="dato">Aplicación:</span> Portada de Santa Cruz de Castañeda</p>
+      </div>
+    </li>
+    <li>
+      <b>Ángulo de tangencia.</b> Dada una circunferencia de radio R = 35 mm y una recta tangente a ella, determina gráficamente el ángulo que forma el radio en el punto de tangencia con la recta. Comprueba que es de 90°.
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 7 · Página 7/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 8 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 8 · Tangencias avanzadas</h1>
+      <p class="subtitle">Problemas de enlace · Sesión 14</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.3<br>
+      FASE: DESARROLLO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás, regla, papel A3</div>
+      <div class="info-item"><b>Material</b>Lápices HB/2H, goma, estilógrafos</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Enlace de rectas con arcos de circunferencia. Enlace de circunferencias tangentes. Tangentes comunes a dos circunferencias. Resolución de problemas de enlace con radio dado. Aplicación: diseño de molduras y baquetones románicos.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Enlace de dos rectas paralelas.</b> Enlaza dos rectas paralelas separadas 40 mm mediante un arco de circunferencia de radio R = 30 mm. Determina los puntos de enlace.
+    </li>
+    <li>
+      <b>Enlace de dos rectas que se cortan.</b> Enlaza dos rectas que forman un ángulo de 75° mediante un arco de radio R = 25 mm. Halla el centro del arco y los puntos de tangencia.
+      <div class="ej-apart">
+        <p><span class="dato">Método:</span> paralelas a las rectas a distancia R.</p>
+      </div>
+    </li>
+    <li>
+      <b>Enlace de recta y circunferencia (exterior).</b> Enlaza una recta r con una circunferencia de radio R₁ = 25 mm mediante un arco de radio R = 40 mm, sabiendo que la distancia del centro de la circunferencia a la recta es de 70 mm.
+    </li>
+    <li>
+      <b>Enlace de recta y circunferencia (interior).</b> Resuelve el ejercicio anterior con enlace interior (el arco abraza a la circunferencia).
+    </li>
+    <li>
+      <b>Enlace de dos circunferencias (tangencia exterior).</b> Enlaza dos circunferencias de radios R₁ = 20 mm y R₂ = 30 mm con centros separados 90 mm mediante un arco de radio R = 45 mm en tangencia exterior con ambas.
+    </li>
+    <li>
+      <b>Enlace de dos circunferencias (tangencia mixta).</b> Enlaza las dos circunferencias del ejercicio anterior mediante un arco de radio R = 50 mm que sea tangente exterior a una e interior a la otra.
+    </li>
+    <li>
+      <b>Tangentes exteriores a dos circunferencias.</b> Dadas dos circunferencias de radios R₁ = 30 mm y R₂ = 20 mm con centros separados 80 mm, traza sus tangentes exteriores comunes.
+    </li>
+    <li>
+      <b>Tangentes interiores a dos circunferencias.</b> Traza las tangentes interiores comunes a las dos circunferencias del ejercicio anterior.
+    </li>
+    <li>
+      <b>Problema de enlace compuesto.</b> Enlaza tres rectas que forman un ángulo (dos de ellas paralelas) mediante arcos de circunferencia de radio R = 20 mm, obteniendo una figura continua y suave (tipo "S").
+    </li>
+    <li>
+      <b>Aplicación al románico: moldura con baquetones.</b> Diseña una moldura arquitectónica románica formada por una serie de baquetones (semicircunferencias) de radio R = 15 mm enlazados entre sí y con las rectas superior e inferior.
+      <div class="ej-apart">
+        <p><span class="dato">Aplicación:</span> Jamba de la portada de San Martín de Elines</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 8 · Página 8/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 9 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 9 · Curvas técnicas</h1>
+      <p class="subtitle">Óvalos y ovoides · Sesión 15</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.3<br>
+      FASE: DESARROLLO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás, regla, papel A3</div>
+      <div class="info-item"><b>Material</b>Lápices HB/2H, goma, estilógrafos</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Trazado de óvalos conocidos los ejes. Trazado de ovoides. Curvas de enlace entre rectas y circunferencias. Perfiles de molduras arquitectónicas. Aplicación: trazado de arcos peraltados y rebajados del románico.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Óvalo conocidos los dos ejes.</b> Construye un óvalo conocido el eje mayor AB = 90 mm y el eje menor CD = 60 mm, aplicando el método de los cuatro centros.
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> eje mayor = 90 mm · eje menor = 60 mm</p>
+        <p><span class="dato">Procedimiento:</span> determinar los 4 centros y los 4 puntos de cambio de curvatura (inflación).</p>
+      </div>
+    </li>
+    <li>
+      <b>Óvalo conocido el eje menor.</b> Construye un óvalo conocido únicamente el eje menor CD = 50 mm, con una relación eje mayor/eje menor = 1,4.
+    </li>
+    <li>
+      <b>Óvalo de tres centros (método alternativo).</b> Construye un óvalo con el mismo eje mayor del ejercicio 1 pero utilizando un método de tres centros en lugar de cuatro. Compara ambos resultados.
+    </li>
+    <li>
+      <b>Ovoide conocido el eje mayor.</b> Construye un ovoide conocido el eje mayor AB = 80 mm (curva simétrica solo respecto a un eje, con un extremo más pointed que el otro).
+      <div class="ej-apart">
+        <p><span class="dato">Datos:</span> eje mayor = 80 mm</p>
+      </div>
+    </li>
+    <li>
+      <b>Ovoide conocido el eje menor.</b> Construye un ovoide conocido el eje menor CD = 50 mm.
+    </li>
+    <li>
+      <b>Curva de enlace recta-circunferencia.</b> Enlaza suavemente una recta horizontal con una circunferencia de radio R = 25 mm mediante una curva de enlace (arco de circunferencia) de radio R = 40 mm.
+    </li>
+    <li>
+      <b>Curva de enlace circunferencia-circunferencia.</b> Enlaza dos circunferencias de radios R₁ = 20 mm y R₂ = 35 mm mediante un arco de radio R = 50 mm en tangencia exterior con ambas.
+    </li>
+    <li>
+      <b>Arco peraltado (tres centros).</b> Traza un arco peraltado de luz L = 70 mm y flecha f = 40 mm (flecha mayor que el semieje) utilizando tres centros.
+      <div class="ej-apart">
+        <p><span class="dato">Aplicación:</span> arcos de iglesias románicas tardías y transición al gótico.</p>
+      </div>
+    </li>
+    <li>
+      <b>Arco rebajado (carpanel).</b> Traza un arco rebajado (carpanel) de luz L = 80 mm y flecha f = 25 mm (flecha menor que el semieje) utilizando tres o cinco centros.
+      <div class="ej-apart">
+        <p><span class="dato">Aplicación:</span> arcos de descarga sobre dinteles en el románico.</p>
+      </div>
+    </li>
+    <li>
+      <b>Perfil de moldura arquitectónica.</b> Diseña el perfil de una basa de columna románica combinando: un toro (semicircunferencia), una escocia (cóncava) y un filete (recta), enlazando suavemente todos los elementos.
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 9 · Página 9/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 10 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 10 · Curvas técnicas</h1>
+      <p class="subtitle">Espirales y volutas · Sesión 16</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterio 2.3<br>
+      FASE: DESARROLLO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual</div>
+      <div class="info-item"><b>Recursos</b>Tablero, compás, regla, papel A3</div>
+      <div class="info-item"><b>Material</b>Lápices HB/2H, goma, estilógrafos, curvígrafo</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Espiral de Arquímedes. Espiral de dos, tres y cuatro centros. Voluta jónica. Aplicación: decoración de capiteles y basa de columnas románicas.
+  </div>
+
+  <h2>Ejercicios</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Espiral de Arquímedes (método de puntos).</b> Construye una espiral de Arquímedes sabiendo que el paso (distancia entre dos vueltas consecutivas) es p = 15 mm. Traza al menos 4 vueltas completas.
+      <div class="ej-apart">
+        <p><span class="dato">Método:</span> dividir el paso en 8 partes iguales y trazar arcos concéntricos con incrementos sucesivos.</p>
+      </div>
+    </li>
+    <li>
+      <b>Espiral de dos centros.</b> Construye una espiral de dos centros partiendo de un segmento base AB = 10 mm. Traza al menos 6 semivueltas.
+      <div class="ej-apart">
+        <p><span class="dato">Procedimiento:</span> alternar centros en A y B, incrementando el radio en AB en cada semivuelta.</p>
+      </div>
+    </li>
+    <li>
+      <b>Espiral de tres centros.</b> Construye una espiral de tres centros partiendo de un triángulo equilátero de lado 8 mm. Traza al menos 6 tercios de vuelta.
+    </li>
+    <li>
+      <b>Espiral de cuatro centros.</b> Construye una espiral de cuatro centros partiendo de un cuadrado de lado 8 mm. Traza al menos 8 cuartos de vuelta.
+      <div class="ej-apart">
+        <p><span class="dato">Aplicación:</span> decoración de capiteles románicos con motivos vegetales enrollados.</p>
+      </div>
+    </li>
+    <li>
+      <b>Voluta jónica (método clásico).</b> Construye una voluta jónica partiendo de un cuadrado guía (diagrama de construcción) de lado 10 mm. Aplica el método clásico con 12 centros (uno por cada 30°).
+      <div class="ej-apart">
+        <p><span class="dato">Aplicación:</span> capiteles de tradición clásica presentes en el románico pleno.</p>
+      </div>
+    </li>
+    <li>
+      <b>Voluta jónica (método reducido).</b> Construye una voluta jónica utilizando el método reducido de 4 centros (más sencillo pero menos preciso). Compara con el resultado del ejercicio anterior.
+    </li>
+    <li>
+      <b>Tallos vegetales enrollados.</b> Diseña un motivo decorativo de tallos vegetales enrollados combinando espirales de tres y cuatro centros, simulando la decoración de un capitel románico.
+    </li>
+    <li>
+      <b>Aplicación: capitel románico.</b> A partir de la fotografía de un capitel de la iglesia de Santa María de Bareyo, reproduce la decoración de volutas y espirales a escala 1:1 en formato A3.
+      <div class="ej-apart">
+        <p><span class="dato">Referencia:</span> Capitel con decoración de aves y tallos enrollados.</p>
+      </div>
+    </li>
+    <li>
+      <b>Espiral tangente a una recta.</b> Construye una espiral de cuatro centros que parta de un punto dado y sea tangente a una recta también dada en ese punto.
+    </li>
+    <li>
+      <b>Composición decorativa.</b> Realiza una composición decorativa (formato A4) que combine al menos tres tipos de curvas técnicas estudiadas (espirales, volutas, óvalos) creando un motivo original inspirado en el románico cántabro.
+    </li>
+  </ol>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 10 · Página 10/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 11 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 11 · Salida de campo</h1>
+      <p class="subtitle">Románico de Valderredible · Sesión 17</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterios 2.2 y 2.3<br>
+      FASE: DESARROLLO
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>Jornada completa (6 horas)</div>
+      <div class="info-item"><b>Agrupamiento</b>Grupos de 3-4 alumnos</div>
+      <div class="info-item"><b>Lugar</b>Iglesias románicas de Valderredible</div>
+      <div class="info-item"><b>Material</b>Cuaderno de campo, tablero A4, lápices, cámara</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Visita a las iglesias rupestres de San Vicente de Fistera y Santa María de Valverde. Toma de medidas, croquis in situ y análisis geométrico de arcos, portadas y capiteles. Cuaderno de campo con bocetos y anotaciones.
+  </div>
+
+  <div class="campo-box">
+    <h3>📋 Itinerario y tareas</h3>
+    <p><b>09:00 - 10:30 · Iglesia de San Vicente de Fistera</b></p>
+    <ul style="margin: 4px 0 12px 20px; padding: 0; font-size: 10pt;">
+      <li>Croquis a mano alzada de la portada principal (vista frontal y lateral)</li>
+      <li>Medición de los arcos de la portada (luz, flecha, número de arquivoltas)</li>
+      <li>Análisis geométrico: ¿qué tipo de arco es? ¿Es de medio punto, peraltado o rebajado?</li>
+      <li>Fotografías detalladas de los capiteles con decoración geométrica</li>
+    </ul>
+    <p><b>10:30 - 11:00 · Desplazamiento y descanso</b></p>
+    <p><b>11:00 - 13:00 · Iglesia de Santa María de Valverde</b></p>
+    <ul style="margin: 4px 0 12px 20px; padding: 0; font-size: 10pt;">
+      <li>Croquis acotado del rosetón o ventana principal</li>
+      <li>Análisis de la simetría y los polígonos presentes en la decoración</li>
+      <li>Bocetos de capiteles con volutas y espirales</li>
+      <li>Medición de la sección de las columnas (¿circulares, poligonales?)</li>
+    </ul>
+    <p><b>13:00 - 14:00 · Trabajo en grupo</b></p>
+    <ul style="margin: 4px 0 0 20px; padding: 0; font-size: 10pt;">
+      <li>Puesta en común de los croquis realizados</li>
+      <li>Selección del elemento que cada alumno reconstruirá geométricamente</li>
+      <li>Organización del material fotográfico</li>
+    </ul>
+  </div>
+
+  <h2>Cuaderno de campo (entregable)</h2>
+  <p>Cada alumno entregará un cuaderno de campo que contenga:</p>
+  <ol class="ejercicios">
+    <li>
+      <b>Portada:</b> título, nombre, fecha, lugar visitado.
+    </li>
+    <li>
+      <b>Croquis de la portada:</b> vista frontal acotada (mínimo 8 cotas) con indicación del tipo de arco.
+    </li>
+    <li>
+      <b>Análisis geométrico de un arco:</b> determinar el tipo de arco, estimar el centro y el radio, calcular la relación flecha/luz.
+    </li>
+    <li>
+      <b>Croquis de un capitel:</b> vista frontal y planta esquemática identificando los elementos geométricos (volutas, espirales, polígonos).
+    </li>
+    <li>
+      <b>Fotografías comentadas:</b> mínimo 6 fotografías con anotaciones geométricas (centros, radios, ejes de simetría).
+    </li>
+    <li>
+      <b>Reflexión personal:</b> texto de 200-300 palabras sobre la relación entre geometría y arte románico.
+    </li>
+  </ol>
+
+  <div class="dato-box">
+    <b>Criterios de evaluación del cuaderno:</b> Precisión de los croquis (30%) · Calidad del análisis geométrico (30%) · Completitud (20%) · Reflexión personal (20%)
+  </div>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 11 · Página 11/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 12 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 12 · Reconstrucción geométrica</h1>
+      <p class="subtitle">Del románico cántabro · Sesión 18</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterios 2.1, 2.2 y 2.3<br>
+      FASE: CIERRE
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Individual</div>
+      <div class="info-item"><b>Formato</b>Lámina A3 horizontal</div>
+      <div class="info-item"><b>Material</b>Tablero, compás, regla, escuadra, cartabón, estilógrafos</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Cada alumno reconstruye geométricamente un elemento del románico cántabro (rosetón, portada, capitel, arco) a partir de las fotografías y croquis tomados en la salida. Lámina final A3 con trazados justificando cada paso constructivo.
+  </div>
+
+  <h2>Requisitos de la lámina</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Formato y presentación.</b> La lámina será en formato A3 horizontal, con margen de 15 mm y cajetín normalizado en la esquina inferior derecha con: título, nombre del alumno, fecha, escala y centro educativo.
+    </li>
+    <li>
+      <b>Selección del elemento.</b> Elige uno de los siguientes elementos fotografiados en la salida de campo:
+      <div class="ej-apart">
+        <p>· Rosetón o ventana con tracería</p>
+        <p>· Portada con arquivoltas</p>
+        <p>· Capitel con decoración de volutas</p>
+        <p>· Arco (medio punto, peraltado o rebajado)</p>
+        <p>· Ábside con arquillos ciegos</p>
+      </div>
+    </li>
+    <li>
+      <b>Fotografía de referencia.</b> Incluye en la esquina superior izquierda una fotografía del elemento elegido (tamaño aproximado 8 × 10 cm) con el título del elemento rotulado debajo.
+    </li>
+    <li>
+      <b>Trazado geométrico completo.</b> Reconstruye el elemento mostrando todos los pasos constructivos:
+      <div class="ej-apart">
+        <p>· Determinación de ejes de simetría</p>
+        <p>· Localización de centros de arcos y circunferencias</p>
+        <p>· Cálculo de radios</p>
+        <p>· Construcción de polígonos (si los hubiera)</p>
+        <p>· Trazado de tangencias y enlaces</p>
+      </div>
+    </li>
+    <li>
+      <b>Justificación de cada paso.</b> Añade notas al margen explicando el fundamento geométrico de cada construcción (teoremas, propiedades aplicadas).
+    </li>
+    <li>
+      <b>Acotación.</b> Acota la reconstrucción indicando las medidas principales (luces, flechas, radios) en milímetros reales o a escala.
+    </li>
+    <li>
+      <b>Limpieza y precisión.</b> Diferencia con colores o grosores de línea:
+      <div class="ej-apart">
+        <p>· <b>Trazadas auxiliares:</b> láp fino (0.2 mm) o láp gris claro</p>
+        <p>· <b>Resultado final:</b> láp grueso (0.6 mm) o tinta negra</p>
+        <p>· <b>Cotas y textos:</b> láp medio (0.4 mm)</p>
+      </div>
+    </li>
+    <li>
+      <b>Memoria descriptiva.</b> Incluye un breve texto (100-150 palabras) en la parte inferior explicando:
+      <div class="ej-apart">
+        <p>· Nombre y ubicación del elemento</p>
+        <p>· Estilo y datación aproximada</p>
+        <p>· Elementos geométricos identificados</p>
+        <p>· Dificultades encontradas en la reconstrucción</p>
+      </div>
+    </li>
+  </ol>
+
+  <h3>Rúbrica de evaluación de la lámina</h3>
+  <table class="rubrica">
+    <tr>
+      <th>Aspecto</th>
+      <th>Excelente (9-10)</th>
+      <th>Notable (7-8,9)</th>
+      <th>Suficiente (5-6,9)</th>
+      <th>Insuficiente (&lt;5)</th>
+    </tr>
+    <tr>
+      <td>Análisis geométrico</td>
+      <td>Identifica todos los elementos geométricos correctamente</td>
+      <td>Identifica la mayoría</td>
+      <td>Identifica algunos</td>
+      <td>No identifica los elementos</td>
+    </tr>
+    <tr>
+      <td>Trazado</td>
+      <td>Precisión excelente, sin errores</td>
+      <td>Pequeños errores (&lt;1mm)</td>
+      <td>Errores moderados</td>
+      <td>Trazado incorrecto</td>
+    </tr>
+    <tr>
+      <td>Justificación</td>
+      <td>Completa y rigurosa</td>
+      <td>Correcta</td>
+      <td>Parcial</td>
+      <td>Ausente</td>
+    </tr>
+    <tr>
+      <td>Presentación</td>
+      <td>Impecable, profesional</td>
+      <td>Limpia y ordenada</td>
+      <td>Aceptable</td>
+      <td>Descuidada</td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 12 · Página 12/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 13 - EXAMEN 2 ============ -->
+<div class="page">
+  <div class="examen-header">
+    <h2>EXAMEN 2 · Tangencias y curvas técnicas</h2>
+    <p><b>DT1 · CE2 · Criterio 2.3</b> · Sesión 19 · Duración: 90 minutos · Con consulta de apuntes</p>
+  </div>
+
+  <div class="dato-box">
+    <b>Nombre del alumno/a:</b> ________________________________________ &nbsp;&nbsp;&nbsp; <b>Fecha:</b> ___/___/______<br>
+    <b>Grupo:</b> ____________ &nbsp;&nbsp;&nbsp; <b>Calificación:</b> _________ / 10
+  </div>
+
+  <h2>Instrucciones</h2>
+  <p style="font-size: 10pt;">
+    Resuelve los tres problemas en las láminas proporcionadas. <b>Se permite la consulta de apuntes</b> (no libros ni trabajos de compañeros). Se valorará la <b>precisión de los trazados</b> (40%), la <b>limpieza y presentación</b> (20%), la <b>justificación de los procedimientos</b> (20%) y la <b>resolución correcta</b> (20%).
+  </p>
+
+  <div class="problema">
+    <span class="pct">35%</span>
+    <p><span class="num">Problema 1.</span> <b>Enlace de rectas con arco.</b> Enlaza las dos rectas r y s que se cortan formando un ángulo de 60° mediante un arco de circunferencia de radio R = 30 mm.</p>
+    <div class="ej-apart">
+      <p>a) Determina el centro del arco de enlace.</p>
+      <p>b) Halla los dos puntos de tangencia (enlace) con las rectas r y s.</p>
+      <p>c) Traza las tangentes en los puntos de enlace (deben ser perpendiculares a los radios).</p>
+      <p>d) Justifica el procedimiento indicando qué lugar geométrico has utilizado para determinar el centro.</p>
+    </div>
+  </div>
+
+  <div class="problema">
+    <span class="pct">30%</span>
+    <p><span class="num">Problema 2.</span> <b>Óvalo.</b> Construye un óvalo conocidos sus ejes: eje mayor AB = 80 mm y eje menor CD = 50 mm.</p>
+    <div class="ej-apart">
+      <p>a) Aplica el método de los cuatro centros.</p>
+      <p>b) Indica claramente los cuatro centros O₁, O₂, O₃, O₄ y sus distancias al centro del óvalo.</p>
+      <p>c) Señala los cuatro puntos de cambio de curvatura (inflaciones).</p>
+      <p>d) Calcula los cuatro radios de los arcos que componen el óvalo.</p>
+    </div>
+  </div>
+
+  <div class="problema">
+    <span class="pct">35%</span>
+    <p><span class="num">Problema 3.</span> <b>Reconstrucción geométrica de un arco románico.</b> A partir de la fotografía proporcionada de un arco de la iglesia de Santa María de Valverde, reconstruye geométricamente su trazado.</p>
+    <div class="ej-apart">
+      <p>a) Determina el tipo de arco: ¿es de medio punto, peraltado o rebajado? Justifica tu respuesta calculando la relación flecha/luz.</p>
+      <p>b) Localiza gráficamente el centro (o centros, si es peraltado/rebajado) del arco.</p>
+      <p>c) Mide el radio (o radios) del arco.</p>
+      <p>d) Traza el arco completo con todas sus construcciones auxiliares visibles.</p>
+      <p>e) Si el arco tiene arquivoltas, traza al menos dos de ellas indicando sus radios.</p>
+    </div>
+  </div>
+
+  <h3>Rúbrica de calificación</h3>
+  <table class="rubrica">
+    <tr>
+      <th>Criterio</th>
+      <th>Excelente (9-10)</th>
+      <th>Notable (7-8,9)</th>
+      <th>Suficiente (5-6,9)</th>
+      <th>Insuficiente (&lt;5)</th>
+    </tr>
+    <tr>
+      <td>Precisión (40%)</td>
+      <td>Trazados exactos</td>
+      <td>Pequeños errores (&lt;1 mm)</td>
+      <td>Errores moderados</td>
+      <td>Trazados incorrectos</td>
+    </tr>
+    <tr>
+      <td>Limpieza (20%)</td>
+      <td>Presentación impecable</td>
+      <td>Limpia con pequeñas marcas</td>
+      <td>Algunas manchas</td>
+      <td>Sucia o desordenada</td>
+    </tr>
+    <tr>
+      <td>Justificación (20%)</td>
+      <td>Completa y rigurosa</td>
+      <td>Correcta</td>
+      <td>Parcial</td>
+      <td>Ausente</td>
+    </tr>
+    <tr>
+      <td>Resolución (20%)</td>
+      <td>Los 3 problemas correctos</td>
+      <td>2 problemas correctos</td>
+      <td>1 problema correcto</td>
+      <td>Ninguno correcto</td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 13 · EXAMEN 2 · Página 13/14</span>
+  </div>
+</div>
+
+<!-- ============ ACTIVIDAD 14 ============ -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>Actividad 14 · Corrección colectiva</h1>
+      <p class="subtitle">Coevaluación y cierre · Sesión 20</p>
+    </div>
+    <div class="header-right">
+      DT1 · CE2 · Criterios 2.1, 2.2 y 2.3<br>
+      FASE: CIERRE
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item"><b>Duración</b>90 minutos (2 sesiones)</div>
+      <div class="info-item"><b>Agrupamiento</b>Gran grupo + parejas de corrección</div>
+      <div class="info-item"><b>Recursos</b>Expositor de láminas, pizarra digital, rúbricas impresas</div>
+      <div class="info-item"><b>Material</b>Láminas de todos los alumnos, rúbricas, pegatinas de votación</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Puesta en común de las láminas. Corrección entre pares con rúbrica de precisión, limpieza y justificación. Exposición de los mejores trabajos. Reflexión sobre el proceso de aprendizaje.
+  </div>
+
+  <h2>Desarrollo de la sesión</h2>
+  <ol class="ejercicios">
+    <li>
+      <b>Exposición de láminas (15 min).</b> Cada alumno coloca su lámina de reconstrucción románica (Actividad 12) y las 8 láminas del dossier en su mesa. Se organiza un "museo" recorriendo el aula para ver todos los trabajos.
+    </li>
+    <li>
+      <b>Corrección entre pares (30 min).</b> Cada alumno recibe la lámina de un compañero (sorteo) y la evalúa utilizando la rúbrica siguiente. Debe justificar la puntuación asignada en cada apartado.
+    </li>
+    <li>
+      <b>Votación de los mejores trabajos (10 min).</b> Cada alumno dispone de 3 pegatinas para votar las 3 láminas que le parezcan mejores (no puede votarse a sí mismo). Se cuentan los votos y se proclaman las 3 láminas ganadoras.
+    </li>
+    <li>
+      <b>Exposición de los ganadores (15 min).</b> Los autores de las 3 láminas ganadoras explican al grupo:
+      <div class="ej-apart">
+        <p>· Qué elemento románico eligieron y por qué</p>
+        <p>· Qué dificultades encontraron en la reconstrucción</p>
+        <p>· Qué estrategia siguieron para resolverlas</p>
+        <p>· Qué aprendieron sobre la geometría del románico</p>
+      </div>
+    </li>
+    <li>
+      <b>Reflexión grupal (15 min).</b> Debate guiado con las siguientes preguntas:
+      <div class="ej-apart">
+        <p>· ¿Qué hemos aprendido sobre la geometría del románico cántabro?</p>
+        <p>· ¿Qué conexión hemos encontrado entre la geometría plana y el arte?</p>
+        <p>· ¿Qué dificultades hemos encontrado? ¿Cómo las hemos superado?</p>
+        <p>· ¿Qué nos ha parecido trabajar con elementos reales del patrimonio?</p>
+        <p>· ¿Qué mejoraríamos si pudiéramos repetir la situación de aprendizaje?</p>
+      </div>
+    </li>
+    <li>
+      <b>Autoevaluación (5 min).</b> Cada alumno rellena la ficha de autoevaluación valorando su propio proceso de aprendizaje en la SA (escala 1-10 en 5 aspectos).
+    </li>
+  </ol>
+
+  <h3>Rúbrica de coevaluación</h3>
+  <table class="rubrica">
+    <tr>
+      <th>Aspecto</th>
+      <th>4 pts</th>
+      <th>3 pts</th>
+      <th>2 pts</th>
+      <th>1 pt</th>
+    </tr>
+    <tr>
+      <td>Análisis geométrico</td>
+      <td>Identifica todos los elementos con rigor</td>
+      <td>Identifica la mayoría correctamente</td>
+      <td>Identifica algunos elementos</td>
+      <td>Análisis superficial</td>
+    </tr>
+    <tr>
+      <td>Precisión de trazados</td>
+      <td>Sin errores apreciables</td>
+      <td>Errores mínimos (&lt;1 mm)</td>
+      <td>Errores moderados (1-3 mm)</td>
+      <td>Errores graves (&gt;3 mm)</td>
+    </tr>
+    <tr>
+      <td>Justificación</td>
+      <td>Completa, rigurosa y clara</td>
+      <td>Correcta aunque incompleta</td>
+      <td>Parcial o confusa</td>
+      <td>Ausente</td>
+    </tr>
+    <tr>
+      <td>Limpieza y presentación</td>
+      <td>Impecable, profesional</td>
+      <td>Limpia y ordenada</td>
+      <td>Aceptable</td>
+      <td>Descuidada</td>
+    </tr>
+    <tr>
+      <td>Relación con el patrimonio</td>
+      <td>Conexión profunda y documentada</td>
+      <td>Buena conexión</td>
+      <td>Conexión superficial</td>
+      <td>Sin conexión</td>
+    </tr>
+  </table>
+
+  <h3>Ficha de autoevaluación</h3>
+  <table class="calif">
+    <tr>
+      <th>Aspecto</th>
+      <th style="width: 80px;">1-3</th>
+      <th style="width: 80px;">4-6</th>
+      <th style="width: 80px;">7-8</th>
+      <th style="width: 80px;">9-10</th>
+    </tr>
+    <tr><td>Comprensión de los lugares geométricos</td><td>○</td><td>○</td><td>○</td><td>○</td></tr>
+    <tr><td>Dominio de la proporcionalidad gráfica</td><td>○</td><td>○</td><td>○</td><td>○</td></tr>
+    <tr><td>Trazado de polígonos regulares</td><td>○</td><td>○</td><td>○</td><td>○</td></tr>
+    <tr><td>Resolución de tangencias</td><td>○</td><td>○</td><td>○</td><td>○</td></tr>
+    <tr><td>Trazado de curvas técnicas</td><td>○</td><td>○</td><td>○</td><td>○</td></tr>
+    <tr><td>Precisión y limpieza en los trazados</td><td>○</td><td>○</td><td>○</td><td>○</td></tr>
+    <tr><td>Conexión con el patrimonio románico</td><td>○</td><td>○</td><td>○</td><td>○</td></tr>
+    <tr><td>Trabajo autónomo y perseverancia</td><td>○</td><td>○</td><td>○</td><td>○</td></tr>
+  </table>
+
+  <div class="footer">
+    <span>IES Lope de Vega · Dibujo Técnico I</span>
+    <span>Actividad 14 · Página 14/14</span>
+  </div>
+</div>
+
+</body>
+</html>

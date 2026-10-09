@@ -1,78 +1,79 @@
 import { supabase } from './supabase';
 
-// VERSION 2.0 - Sin consultas a centros para evitar error 500
-
-export interface UserProfile {
+export interface User {
   id: string;
   email: string;
   nombre: string;
-  rol: 'admin' | 'jefe_departamento' | 'profesor';
-  centro_id: string;
-  color: string;
+  rol: 'admin' | 'profesor';
 }
 
-export async function signIn(email: string, password: string) {
-  console.log('[v2.0] Intentando login con:', email);
-  
+export async function signIn(email: string, password: string): Promise<{ user: User | null; error: string | null }> {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
-  
+
   if (error) {
-    console.error('[v2.0] Error en login:', error.message);
-  } else {
-    console.log('[v2.0] Login exitoso, user ID:', data.user?.id);
+    return { user: null, error: error.message };
   }
-  
-  return { data, error };
+
+  if (!data.user) {
+    return { user: null, error: 'No se pudo obtener el usuario' };
+  }
+
+  // Obtener datos del profesor desde la tabla teachers
+  const { data: teacher, error: teacherError } = await supabase
+    .from('teachers')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+  if (teacherError || !teacher) {
+    return { user: null, error: 'Usuario no encontrado en la base de datos' };
+  }
+
+  return {
+    user: {
+      id: teacher.id,
+      email: teacher.email,
+      nombre: teacher.nombre,
+      rol: teacher.rol,
+    },
+    error: null,
+  };
 }
 
 export async function signOut() {
   await supabase.auth.signOut();
 }
 
-export async function getCurrentUser(): Promise<UserProfile | null> {
-  console.log('[v2.0] Obteniendo usuario actual...');
+export async function getCurrentUser(): Promise<User | null> {
+  const { data: { user } } = await supabase.auth.getUser();
   
-  const { data: authData } = await supabase.auth.getUser();
-  const user = authData?.user;
-  
-  if (!user) {
-    console.log('[v2.0] No hay usuario autenticado');
-    return null;
-  }
-  
-  console.log('[v2.0] Usuario autenticado:', user.email, 'ID:', user.id);
-  
-  // Consulta SIMPLE sin JOIN - solo obtiene datos del usuario
-  const { data: profile, error } = await supabase
-    .from('usuarios')
-    .select('id, email, nombre, rol, centro_id, color')
-    .eq('id', user.id)
+  if (!user) return null;
+
+  const { data: teacher } = await supabase
+    .from('teachers')
+    .select('*')
+    .eq('email', user.email)
     .single();
-  
-  if (error) {
-    console.error('[v2.0] Error al obtener perfil:', error.message);
-    console.error('[v2.0] Detalles completos:', JSON.stringify(error, null, 2));
-    return null;
-  }
-  
-  if (!profile) {
-    console.error('[v2.0] No se encontro perfil para el usuario', user.id);
-    return null;
-  }
-  
-  console.log('[v2.0] Perfil obtenido:', profile.nombre, profile.rol);
-  return profile as UserProfile;
+
+  if (!teacher) return null;
+
+  return {
+    id: teacher.id,
+    email: teacher.email,
+    nombre: teacher.nombre,
+    rol: teacher.rol,
+  };
 }
 
-export async function onAuthStateChange(callback: (user: UserProfile | null) => void) {
+export function onAuthStateChange(callback: (user: User | null) => void) {
   return supabase.auth.onAuthStateChange(async (event, session) => {
-    if (session?.user) {
-      const profile = await getCurrentUser();
-      callback(profile);
-    } else {
+    if (event === 'SIGNED_IN' && session?.user) {
+      const user = await getCurrentUser();
+      callback(user);
+    } else if (event === 'SIGNED_OUT') {
       callback(null);
     }
   });
